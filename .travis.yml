@@ -1,0 +1,71 @@
+dist: bionic
+language: rust
+rust:
+  - stable
+env:
+  global:
+    - NODE_VERSION="v14.7.0"
+    - SOLANA_VERSION="v1.8.0"
+    - ANCHOR_VERSION="v0.19.0"
+
+cache:
+  directories:
+    # solana
+    - $HOME/.cache/solana/
+    - $HOME/.local/share/solana/
+    # Cargo
+    - $HOME/.cargo/bin/
+    - $HOME/.cargo/registry/index/
+    - $HOME/.cargo/registry/cache/
+    - $HOME/.cargo/git/db/
+    - $TRAVIS_BUILD_DIR/target
+    # npm
+    - $HOME/.npm
+    # - $TRAVIS_BUILD_DIR/node_modules    
+
+before_deploy:
+  - anchor build --verifiable
+  - echo "### SHA256 Checksums" > release_notes.md
+  - sha256sum target/deploy/serum_multisig.so > binary.txt
+  - sha256sum target/idl/serum_multisig.json > idl.txt
+  - cat *.txt >> release_notes.md
+  - echo "" >> release_notes.md
+  - echo "Built with Anchor [${ANCHOR_VERSION}](https://github.com/project-serum/anchor/releases/tag/${ANCHOR_VERSION})." >> release_notes.md
+
+deploy:
+  provider: releases
+  edge: true
+  file:
+    - "target/deploy/serum_multisig.so"
+    - "target/idl/serum_multisig.json"
+  release_notes_file: release_notes.md
+  skip_cleanup: true
+  on:
+    tags: true
+  api_key:
+    secure: MRahuKj/FhxUwkkvqiI3wJYWKzJ0PVl25ZfFhp5lA7xyYYj/heQOdX1rE8I3MkyBOWlSNAN89JXKQ61czOrkpjK/vjBt7/49iCkWuBd+ZQ0SOjrdFubAMl4ypd3C56v28Q/Rh5bAgm8IiJNeCidfWjiu36ibjAHMAxkwAssp76AV0hboWMJx6i4i8W/iFC8hQhiFa4npkTkrCtL4Vt8qY0fwqNRRpMZBIz22ZglYbhWpkaPMeikFun7Fjn9dvT0PM/xtcjTYOf4sxdjItpYjR0fUF+thuR+z4McgeYko3AZG9Sv8RMvw6yU1Hpq/Okk1wXcxNHyDtz/YriwiPgVzcIW2SGW2YxXh8YZEQFJuVodM8udYjFuNHy+qcNDiCvcoNIj2zYP3iWEVpiv4a3Hr33T/+iGTqLkjlnHcLKI8m2ykbHFtmNEmg6P4faayYkDSeEKRMZSDuA+CKh07LVlBQFyIRB3tfw3+tdBGQXQojgxAwuxnfANhScMpSdjZtdJCS912ijzVeSGa6C33+/fpAqQtCQqwJx+Bl6Bytvq+nBSjojWJZUqvE53IFwD5/bSd6FUIyAQMnQ6t8dOF+OWx0a1rFtpfLYYKZwei8kZlWNd4BLs+V0jkyHTzy0Cztre/EcmXdAHxAX8XrcrWt9sC1gwpApdrtZ20zZhEHsdgY/k=
+
+_defaults: &defaults
+  before_install:
+  - nvm install $NODE_VERSION
+  - npm ci
+  - sudo apt-get install -y pkg-config build-essential libudev-dev
+  - sh -c "$(curl -sSfL https://release.solana.com/${SOLANA_VERSION}/install)"
+  - export PATH="/home/travis/.local/share/solana/install/active_release/bin:$PATH"
+  - export NODE_PATH="/home/travis/.nvm/versions/node/${NODE_VERSION}/lib/node_modules/:${NODE_PATH}"
+  - yes | solana-keygen new
+
+jobs:
+  include:
+    - <<: *defaults
+      name: Runs the tests
+      script:
+        - npx anchor build
+        - npx anchor test
+    - <<: *defaults
+      name: Linting & clippy
+      script:
+        - npm run lint
+        - rustup component add rustfmt clippy
+        - cargo-fmt --all -- --check
+        - cargo clippy --all-targets

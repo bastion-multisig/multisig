@@ -1,0 +1,21 @@
+anchor_version = "0.19.0"
+
+[provider]
+cluster = "localnet"
+wallet = "~/.config/solana/id.json"
+
+[programs.mainnet]
+serum_multisig = "8d5biYmkWm4NQeDqrJpNrQ6GGbBG9zXk6weASe35Uwxa"
+
+[programs.devnet]
+serum_multisig = "F3Uf5F61dmht1xuNNNkk3jnzj82TY56vVjVEhZALRkN"
+
+[programs.localnet]
+serum_multisig = "8d5biYmkWm4NQeDqrJpNrQ6GGbBG9zXk6weASe35Uwxa"
+
+[[test.genesis]]
+address = "G9UbnEqjXnyssCXZBTTbq9spAaW8aekvveTgnxfBBK5M"
+program = "./deps/smart_wallet.so"
+
+[scripts]
+test = "npx ts-mocha -p ./tsconfig.json -t 1000000 tests/*.ts"
