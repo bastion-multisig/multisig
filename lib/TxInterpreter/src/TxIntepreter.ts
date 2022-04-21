@@ -1,131 +1,65 @@
-import { AnchorProvider, Program } from "@project-serum/anchor";
-import {
-  Keypair,
-  PublicKey,
-  Signer,
-  Transaction,
-  TransactionInstruction,
-} from "@solana/web3.js";
-import { SerumMultisig } from "../../../target/types/serum_multisig";
+import { Program } from "@project-serum/anchor";
+import { Keypair, PublicKey, Transaction } from "@solana/web3.js";
+import { SmartWallet } from "../../../deps/smart_wallet";
+import { createTransaction } from "./multisigClient";
 export class TxInterpreter {
-  /** Serum Multisig v0.8.0 */
-  private static readonly TRANSACTION_ACCOUNT_SIZE = 1000; // TODO: tighter bound.
-
   /**
    * Rewrites transactions such that it will be uploaded to a 'Transaction'
    * account in the serum multisig program instead of executed.
+   * The application is responsible for the wallet signature.
    */
   static async multisig(
-    program: Program<SerumMultisig>,
-    multisig: PublicKey,
+    program: Program<SmartWallet>,
+    smartWallet: PublicKey,
     proposer: PublicKey,
     ...transactions: Transaction[]
   ): Promise<{
-    interpreted: { tx: Transaction; signers?: Signer[] }[];
+    interpreted: Transaction[];
     txPubkeys: PublicKey[];
   }> {
-    const txs: Transaction[] = [];
-    const allTxPubkeys: PublicKey[] = [];
-
-    // Replace extra signers for System.CreateAccounts with new keypairs
-    // because modifying the tx invalidates existing signatures
-    const substituteSigners = transactions
-      // Select all but the wallet signer
-      .flatMap((tx) => tx.signatures.slice(1))
-      // Dedupe signers
-      .filter(function (signature, i, arr) {
-        return (
-          arr.findIndex((sig) => sig.publicKey.equals(signature.publicKey)) == i
-        );
-      })
-      // Add a signer substitute
-      .map<SubstituteSigner>((signer) => {
-        return {
-          ...signer,
-          substitute: Keypair.generate(),
-        };
-      });
+    const interpreted: Transaction[] = [];
+    const txPubkeys: PublicKey[] = [];
 
     for (let i = 0; i < transactions.length; i++) {
       let transaction = transactions[i];
-      let newSigners: Signer[];
-      let txPubkeys: PublicKey[];
 
       // Building phase
-      ({ transaction, newSigners, txPubkeys } =
-        await this.wrapTransactionInMultisig(
-          program,
-          multisig,
-          proposer,
-          transaction
-        ));
-      this.substituteSigners(substituteSigners, transaction);
+      const { address, interpreted: tx } = await this.wrapTransactionInMultisig(
+        program,
+        smartWallet,
+        proposer,
+        transaction
+      );
 
-      // Signing phase
-      // No modification at this point.
-      transaction.partialSign(...newSigners);
-      this.signSubstitutes(substituteSigners, transaction);
-      // The application is responsible for the wallet signature
-
-      txs.push(transaction);
-      allTxPubkeys.push(...txPubkeys);
+      interpreted.push(tx);
+      txPubkeys.push(address);
     }
 
     return {
-      interpreted: txs.map((tx) => {
-        return {
-          tx,
-        };
-      }),
-      txPubkeys: allTxPubkeys,
+      interpreted,
+      txPubkeys,
     };
   }
 
   /** Wrap instructions to be invoked by the multisig program */
   private static async wrapTransactionInMultisig(
-    program: Program<SerumMultisig>,
-    multisig: PublicKey,
+    program: Program<SmartWallet>,
+    smartWallet: PublicKey,
     proposer: PublicKey,
-    transaction: Transaction
+    tx: Transaction
   ) {
-    const provider = program.provider as AnchorProvider;
-    const newInstructions: TransactionInstruction[] = [];
+    const { transaction, builder } = await createTransaction(
+      program,
+      smartWallet,
+      proposer,
+      tx.instructions
+    );
+    const interpreted = await builder.transaction();
 
-    const newSigners: Signer[] = [];
-    const txPubkeys: PublicKey[] = [];
+    interpreted.recentBlockhash = tx.recentBlockhash;
+    interpreted.feePayer = tx.feePayer;
 
-    for (let i = 0; i < transaction.instructions.length; i++) {
-      const instruction = transaction.instructions[i];
-      const transactionAccount = await Keypair.generate();
-
-      newInstructions.push(
-        // Create transaction account
-        await program.account.transaction.createInstruction(
-          transactionAccount,
-          this.TRANSACTION_ACCOUNT_SIZE
-        ),
-        // Init transaction account
-        program.instruction.createTransaction(instruction, {
-          accounts: {
-            multisig,
-            transaction: transactionAccount.publicKey,
-            proposer,
-          },
-        })
-      );
-      newSigners.push(transactionAccount);
-      txPubkeys.push(transactionAccount.publicKey);
-    }
-
-    // Build transaction
-    transaction = new Transaction({
-      ...transaction,
-      recentBlockhash: (await provider.connection.getRecentBlockhash())
-        .blockhash,
-    });
-    transaction.instructions = newInstructions;
-
-    return { transaction, newSigners, txPubkeys };
+    return { address: transaction, interpreted };
   }
 
   private static async substituteSigners(

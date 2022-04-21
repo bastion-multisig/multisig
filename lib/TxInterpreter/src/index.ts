@@ -1,6 +1,6 @@
 export { TxInterpreter } from "./TxIntepreter";
 export {
   createTransaction,
-  approveAndExecute,
+  executeTransaction,
   multisigSize,
 } from "./multisigClient";

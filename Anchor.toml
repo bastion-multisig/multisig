@@ -14,8 +14,12 @@ serum_multisig = "F3Uf5F61dmht1xuNNNkk3jnzj82TY56vVjVEhZALRkN"
 serum_multisig = "8d5biYmkWm4NQeDqrJpNrQ6GGbBG9zXk6weASe35Uwxa"
 
 [[test.genesis]]
-address = "G9UbnEqjXnyssCXZBTTbq9spAaW8aekvveTgnxfBBK5M"
+address = "GokivDYuQXPZCWRkwMhdH2h91KpDQXBEmpgBgs55bnpH"
 program = "./deps/smart_wallet.so"
+
+[[test.genesis]]
+address = "NFTUJzSHuUCsMMqMRJpB7PmbsaU7Wm51acdPk2FXMLn"
+program = "./deps/token_signer.so"
 
 [scripts]
 test = "npx ts-mocha -p ./tsconfig.json -t 1000000 tests/*.ts"

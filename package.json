@@ -6,7 +6,7 @@
     "test": "npx anchor test",
     "submodules": "git submodule update --init --recursive && (cd goki && yarn && yarn prepare)",
     "build:deps": "yarn build:deps:notest && (cd goki && yarn test:e2e)",
-    "build:deps:notest": "(cd goki && anchor build && yarn idl:generate) && mkdir -p deps && cp goki/src/idls/*.ts deps && cp goki/target/deploy/*.so deps"
+    "build:deps:notest": "(cd goki && anchor build && yarn idl:generate) && mkdir -p deps && cp goki/target/types/*.ts deps && cp goki/target/deploy/*.so deps"
   },
   "devDependencies": {
     "@metaplex-foundation/amman": "^0.5.0",
@@ -21,6 +21,8 @@
     "typescript": "^4.6.3"
   },
   "dependencies": {
-    "@solana/web3.js": "^1.38.0"
+    "@gokiprotocol/client": "^0.10.4",
+    "@solana/web3.js": "^1.38.0",
+    "bn.js": "^5.2.0"
   }
 }
