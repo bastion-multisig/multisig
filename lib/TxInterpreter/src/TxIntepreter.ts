@@ -1,18 +1,14 @@
-import { Program, utils } from "@project-serum/anchor";
+import { Program } from "@project-serum/anchor";
 import {
   PublicKey,
   Transaction,
   TransactionInstruction,
 } from "@solana/web3.js";
 import { SmartWallet } from "../../../deps/smart_wallet";
-import { createTransaction } from "./multisigClient";
-import {
-  findSubaccountInfoAddress,
-  GOKI_ADDRESSES,
-  SubaccountInfoData,
-} from "@gokiprotocol/client";
+import { createTransaction, getRandomPartialSigner } from "./multisigClient";
 import { MultisigInstruction, PartialSigner } from "./multisigInstruction";
-import { u64 } from "@solana/spl-token";
+import { findSubaccountInfoAddress } from "./pda";
+import { SubaccountInfoData } from "./types";
 export class TxInterpreter {
   /**
    * Rewrites transactions such that it will be uploaded to a 'Transaction'
@@ -84,7 +80,11 @@ export class TxInterpreter {
     const map: Record<string, SubaccountInfoData> = {};
     for (let i = 0; i < keys.length; i++) {
       const subaccount = subaccounts[i];
-      if (subaccount && subaccount.smartWallet.equals(smartWallet)) {
+      if (
+        subaccount &&
+        subaccount.smartWallet.equals(smartWallet) &&
+        subaccount.subaccountType.hasOwnProperty("derived")
+      ) {
         map[keys[i].toBase58()] = subaccount;
       }
     }
@@ -105,49 +105,10 @@ export class TxInterpreter {
       const keyStr = signer.toBase58();
       const partialSigner = partialSigners[keyStr];
       if (!partialSigner) {
-        const index = this.randomU64();
-        const [pubkey, bump] = await this.findWalletPartialSignerAddress(
-          smartWallet,
-          index
-        );
-        partialSigners[keyStr] = {
-          index,
-          bump,
-          pubkey,
-        };
+        partialSigners[keyStr] = await getRandomPartialSigner(smartWallet);
       }
     }
     return partialSigners;
-  }
-
-  /** Return a random u64 by combining 2 random u32s */
-  private static randomU64() {
-    const min = 0;
-    const max = 2 ** 32;
-    let firstHalf = Math.floor(Math.random() * (max - min) + min);
-    let secondHalf = Math.floor(Math.random() * (max - min) + min);
-    const word = new u64(firstHalf).add(new u64(secondHalf).ushln(32));
-    return word;
-  }
-
-  /**
-   * Finds a derived address of a Smart Wallet.
-   * @param smartWallet
-   * @param index
-   * @returns
-   */
-  static async findWalletPartialSignerAddress(
-    smartWallet: PublicKey,
-    index: u64
-  ): Promise<[PublicKey, number]> {
-    return await PublicKey.findProgramAddress(
-      [
-        utils.bytes.utf8.encode("GokiSmartWalletPartialSigner"),
-        smartWallet.toBuffer(),
-        index.toBuffer(),
-      ],
-      GOKI_ADDRESSES.SmartWallet
-    );
   }
 
   private static async buildMultisigTransactions(
@@ -217,11 +178,11 @@ export class TxInterpreter {
           partialSignersInInstruction[keyStr] = signer;
         }
 
+        // Pubkey PDA that the program can sign for. When isSigner is true it
+        // requires a matching partialSigner in the same transaction.
         keys[j] = {
           isWritable: key.isWritable,
-          // Signed by the program
-          isSigner: false,
-          // Pubkey PDA that the program can sign for
+          isSigner: key.isSigner,
           pubkey: signer.pubkey,
         };
       }

@@ -1,5 +1,6 @@
-import { MultisigInstruction } from "./multisigInstruction";
-import { AnchorProvider, Program, BN } from "@project-serum/anchor";
+import { TxInterpreter } from "./txIntepreter";
+import { MultisigInstruction, PartialSigner } from "./multisigInstruction";
+import { AnchorProvider, Program, BN, Wallet } from "@project-serum/anchor";
 import {
   AccountMeta,
   Keypair,
@@ -8,12 +9,11 @@ import {
 } from "@solana/web3.js";
 import { SmartWallet } from "../../../deps/smart_wallet";
 import {
-  SmartWalletTransactionData,
-  SubaccountInfoData,
   findTransactionAddress,
-  findSubaccountInfoAddress,
   findWalletDerivedAddress,
-} from "@gokiprotocol/client";
+  findWalletPartialSignerAddress,
+} from "./pda";
+import { SmartWalletTransactionData } from "./types";
 
 export function multisigSize(owners: number) {
   return owners * 32 + 96;
@@ -49,21 +49,14 @@ export async function createTransaction(
 export async function executeTransaction(
   program: Program<SmartWallet>,
   transaction: PublicKey,
-  owner: Keypair,
   walletIndex: number
 ) {
   const { accounts, remainingAccounts, walletBump } =
-    await executeTransactionContext(
-      program,
-      transaction,
-      owner.publicKey,
-      walletIndex
-    );
+    await executeTransactionContext(program, transaction, walletIndex);
 
   return await program.methods
     .executeTransactionDerived(new BN(walletIndex), walletBump)
     .accounts(accounts)
-    .signers([owner])
     .remainingAccounts(remainingAccounts)
     .rpc();
 }
@@ -71,7 +64,6 @@ export async function executeTransaction(
 async function executeTransactionContext(
   program: Program<SmartWallet>,
   transaction: PublicKey,
-  owner: PublicKey,
   walletIndex: number
 ) {
   const txInfo = (await program.account.transaction.fetch(
@@ -79,12 +71,13 @@ async function executeTransactionContext(
   )) as SmartWalletTransactionData;
   const smartWallet = txInfo.smartWallet;
 
-  const uniqueKeys = getUniqueKeys(txInfo.instructions);
-  const remainingAccounts = await setDerivedSubaccountsAsNonSigner(
-    program,
-    smartWallet,
-    uniqueKeys
-  );
+  const remainingAccounts = getUniqueKeys(txInfo.instructions);
+
+  for (let i = 0; i < remainingAccounts.length; i++) {
+    if (remainingAccounts[i].isSigner) {
+      remainingAccounts[i].isSigner = false;
+    }
+  }
 
   const [_walletDerivedAddress, walletBump] = await findWalletDerivedAddress(
     smartWallet,
@@ -95,7 +88,6 @@ async function executeTransactionContext(
     accounts: {
       smartWallet: txInfo.smartWallet,
       transaction,
-      owner,
     },
     remainingAccounts,
     walletBump,
@@ -126,47 +118,27 @@ function getUniqueKeys(
   return Object.values(unique);
 }
 
-async function setDerivedSubaccountsAsNonSigner(
-  program: Program<SmartWallet>,
-  smartWallet: PublicKey,
-  accounts: AccountMeta[]
-) {
-  const ret: AccountMeta[] = [];
+export async function getRandomPartialSigner(
+  smartWallet: PublicKey
+): Promise<PartialSigner> {
+  const index = randomU64();
+  const [pubkey, bump] = await findWalletPartialSignerAddress(
+    smartWallet,
+    index
+  );
+  return {
+    index,
+    bump,
+    pubkey,
+  };
+}
 
-  const signers = accounts.filter((acc) => acc.isSigner);
-  const subaccounts = (
-    await Promise.all(
-      signers.map((signer) => findSubaccountInfoAddress(signer.pubkey))
-    )
-  ).map(([subaccount]) => subaccount);
-  const subaccountInfos = (await program.account.subaccountInfo.fetchMultiple(
-    subaccounts
-  )) as SubaccountInfoData[];
-
-  for (let i = 0; i < signers.length; i++) {
-    const signer = signers[i];
-    const subaccountInfo = subaccountInfos[i];
-    if (!subaccountInfo) {
-      throw new Error(
-        `Account ${signer.pubkey} is a signer but not a Goki subaccount. It is unknown if signature verification will fail. Create a Goki subaccount for this account.`
-      );
-    } else if (!subaccountInfo.smartWallet.equals(smartWallet)) {
-      throw new Error(
-        `Unexpected smart wallet for Goki account ${signer.pubkey.toBase58()}.
-        Expected smart wallet ${smartWallet.toBase58()}.
-        Actual smart wallet ${subaccountInfo.smartWallet.toBase58()}.`
-      );
-    } else if (!(subaccountInfo as any).subaccountType.derived) {
-      throw new Error(
-        "Subaccount is a signer but subaccount type is not 'Derived'. Not implemented"
-      );
-    } else {
-      ret[i] = {
-        isSigner: false,
-        isWritable: signer.isWritable,
-        pubkey: signer.pubkey,
-      };
-    }
-  }
-  return ret;
+/** Return a random u64 by combining 2 random u32s */
+function randomU64() {
+  const min = 0;
+  const max = 2 ** 32;
+  let firstHalf = Math.floor(Math.random() * (max - min) + min);
+  let secondHalf = Math.floor(Math.random() * (max - min) + min);
+  const word = new BN(firstHalf).add(new BN(secondHalf).ushln(32));
+  return word;
 }

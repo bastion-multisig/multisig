@@ -1,4 +1,4 @@
-import * as token from "@solana/spl-token";
+import { MultisigInstruction } from "./../lib/TxInterpreter/src/multisigInstruction";
 import {
   Keypair,
   LAMPORTS_PER_SOL,
@@ -18,15 +18,22 @@ import assert from "assert";
 import {
   createTransaction,
   executeTransaction,
+  findSmartWallet,
+  findSubaccountInfoAddress,
+  findWalletDerivedAddress,
+  GOKI_ADDRESSES,
   TxInterpreter,
 } from "../lib/TxInterpreter/src";
 import { IDL as SmartWalletIDL, SmartWallet } from "../deps/smart_wallet";
 import {
-  findSmartWallet,
-  findWalletDerivedAddress,
-  findSubaccountInfoAddress,
-  GOKI_ADDRESSES,
-} from "@gokiprotocol/client";
+  createAssociatedTokenAccountInstruction,
+  createInitializeMintInstruction,
+  getAssociatedTokenAddress,
+  getMinimumBalanceForRentExemptMint,
+  TOKEN_PROGRAM_ID,
+} from "@solana/spl-token";
+import { getRandomPartialSigner } from "../lib/TxInterpreter/src";
+import { MINT_SIZE } from "@solana/spl-token";
 
 describe("multisig", () => {
   // Configure the client to use the local cluster.
@@ -123,10 +130,9 @@ describe("multisig", () => {
   });
 
   const receiver = Keypair.generate();
-  let withdrawSolIx: TransactionInstruction;
   let withdrawSolTransaction: PublicKey;
   it("Propose withdraw sol from treasury", async () => {
-    withdrawSolIx = SystemProgram.transfer({
+    const withdrawSolIx = SystemProgram.transfer({
       fromPubkey: treasury,
       toPubkey: receiver.publicKey,
       lamports: 10 * LAMPORTS_PER_SOL,
@@ -138,6 +144,7 @@ describe("multisig", () => {
       wallet.publicKey,
       [{ ...withdrawSolIx, partialSigners: [] }]
     );
+
     await builder.rpc();
     withdrawSolTransaction = address;
   });
@@ -146,7 +153,6 @@ describe("multisig", () => {
     await executeTransaction(
       program,
       withdrawSolTransaction,
-      ownerB,
       treasuryWalletIndex
     );
 
@@ -157,9 +163,14 @@ describe("multisig", () => {
 
   let intepretedWithdrawSolTxPubkeys: PublicKey[];
   it("Interpret withdrawing sol from treasury", async () => {
+    const withdrawSolIx = SystemProgram.transfer({
+      fromPubkey: treasury,
+      toPubkey: receiver.publicKey,
+      lamports: 10 * LAMPORTS_PER_SOL,
+    });
     const transaction = new Transaction({
       recentBlockhash: (await connection.getLatestBlockhash()).blockhash,
-      feePayer: wallet.publicKey,
+      feePayer: treasury,
     }).add(withdrawSolIx);
     const { interpreted, txPubkeys } = await TxInterpreter.multisig(
       program,
@@ -170,7 +181,11 @@ describe("multisig", () => {
 
     intepretedWithdrawSolTxPubkeys = txPubkeys;
 
+    interpreted.forEach((tx) => {
+      tx.feePayer = wallet.publicKey;
+    });
     const signedByWallet = await wallet.signAllTransactions(interpreted);
+    
     await provider.sendAll(
       signedByWallet.map((tx) => {
         return { tx };
@@ -180,7 +195,7 @@ describe("multisig", () => {
 
   it("Execute interpreted sol withdrawal from treasury", async () => {
     for (const txPubkey of intepretedWithdrawSolTxPubkeys) {
-      await executeTransaction(program, txPubkey, ownerB, treasuryWalletIndex);
+      await executeTransaction(program, txPubkey, treasuryWalletIndex);
     }
 
     const treasuryInfo = await connection.getAccountInfo(treasury);
@@ -188,143 +203,131 @@ describe("multisig", () => {
     assert.equal(treasuryInfo.lamports, 30 * LAMPORTS_PER_SOL);
   });
 
-  // let createMintTransactions: PublicKey[];
-  // it("Propose create mint", async () => {
-  //   // Options:
-  //   // - make mint a PDA
-  //   // - Make mint a new random keypair (somehow)
-  //   let mint = Keypair.generate();
+  let createMintTransaction: PublicKey;
+  let mint: PublicKey;
+  it("Propose create mint", async () => {
+    const mintPartialSigner = await getRandomPartialSigner(smartWallet);
+    mint = mintPartialSigner.pubkey;
 
-  //   createMintTransactions = [
-  //     await createTransaction(
-  //       program,
-  //       smartWallet.publicKey,
-  //       ownerA,
-  //       SystemProgram.createAccount({
-  //         fromPubkey: treasury,
-  //         newAccountPubkey: mint.publicKey,
-  //         lamports: await token.getMinimumBalanceForRentExemptMint(connection),
-  //         space: token.MINT_SIZE,
-  //         programId: SystemProgram.programId,
-  //       })
-  //     ),
-  //     await createTransaction(
-  //       program,
-  //       smartWallet.publicKey,
-  //       ownerA,
-  //       token.createInitializeMintInstruction(
-  //         mint.publicKey,
-  //         9,
-  //         treasury,
-  //         treasury
-  //       )
-  //     ),
-  //   ];
-  // });
+    const instructions: MultisigInstruction[] = [
+      {
+        ...SystemProgram.createAccount({
+          fromPubkey: treasury,
+          newAccountPubkey: mintPartialSigner.pubkey,
+          lamports: await getMinimumBalanceForRentExemptMint(connection),
+          space: MINT_SIZE,
+          programId: TOKEN_PROGRAM_ID,
+        }),
+        partialSigners: [mintPartialSigner],
+      },
+      {
+        ...createInitializeMintInstruction(
+          mintPartialSigner.pubkey,
+          9,
+          treasury,
+          treasury
+        ),
+        partialSigners: [],
+      },
+    ];
 
-  // it("Execute create mint", async () => {
-  //   for (const txPubkey of createMintTransactions) {
-  //     await approveAndExecute(
-  //       program,
-  //       smartWallet.publicKey,
-  //       treasury,
-  //       ownerB,
-  //       txPubkey
-  //     );
-  //   }
-  // });
+    let { address, builder } = await createTransaction(
+      program,
+      smartWallet,
+      wallet.publicKey,
+      instructions
+    );
+    await builder.rpc();
+    createMintTransaction = address;
+  });
 
-  // let mint = Keypair.generate();
-  // let interpretCreateMintTransactions: PublicKey[];
-  // it("Interpret create mint", async () => {
-  //   const createIx = SystemProgram.createAccount({
-  //     fromPubkey: treasury,
-  //     newAccountPubkey: mint.publicKey,
-  //     lamports: await token.getMinimumBalanceForRentExemptMint(connection),
-  //     space: token.MINT_SIZE,
-  //     programId: SystemProgram.programId,
-  //   });
-  //   const initIx = token.createInitializeMintInstruction(
-  //     mint.publicKey,
-  //     9,
-  //     treasury,
-  //     treasury
-  //   );
-  //   const transaction = new Transaction({ feePayer: treasury }).add(
-  //     createIx,
-  //     initIx
-  //   );
-  //   const { interpreted, txPubkeys } = await TxInterpreter.multisig(
-  //     program,
-  //     smartWallet.publicKey,
-  //     ownerA.publicKey,
-  //     transaction
-  //   );
-  //   interpreted.forEach((tx) => {
-  //     console.log(ownerA.publicKey.toBase58(), wallet.publicKey.toBase58());
-  //     tx.tx.feePayer = ownerA.publicKey;
-  //     tx.tx.partialSign(ownerA);
-  //     wallet.signTransaction(tx.tx);
-  //   });
-  //   await provider.sendAll(interpreted);
-  //   interpretCreateMintTransactions = txPubkeys;
-  // });
+  it("Execute create mint", async () => {
+    await executeTransaction(
+      program,
+      createMintTransaction,
+      treasuryWalletIndex
+    );
+  });
 
-  // it("Approve create mint", async () => {
-  //   for (const txPubkey of interpretCreateMintTransactions) {
-  //     await approveAndExecute(
-  //       program,
-  //       smartWallet.publicKey,
-  //       treasury,
-  //       ownerB,
-  //       txPubkey
-  //     );
-  //   }
-  //   const treasuryInfo = await connection.getAccountInfo(treasury);
+  let interpretCreateMintTransactions: PublicKey[];
+  it("Interpret create mint", async () => {
+    const mint = Keypair.generate();
 
-  //   assert.equal(treasuryInfo.lamports, 30 * LAMPORTS_PER_SOL);
-  // });
+    const instructions: TransactionInstruction[] = [
+      SystemProgram.createAccount({
+        fromPubkey: treasury,
+        newAccountPubkey: mint.publicKey,
+        lamports: await getMinimumBalanceForRentExemptMint(connection),
+        space: MINT_SIZE,
+        programId: TOKEN_PROGRAM_ID,
+      }),
+      createInitializeMintInstruction(mint.publicKey, 9, treasury, treasury),
+    ];
+    const transaction = new Transaction({
+      feePayer: treasury,
+      recentBlockhash: (await connection.getLatestBlockhash()).blockhash,
+    }).add(...instructions);
+    transaction.partialSign(mint);
 
-  // it("Interpret create associated token account", async () => {
-  //   const ataPk = await token.getAssociatedTokenAddress(
-  //     mint.publicKey,
-  //     treasury,
-  //     true
-  //   );
-  //   const ataInstruction = token.createAssociatedTokenAccountInstruction(
-  //     treasury,
-  //     ataPk,
-  //     treasury,
-  //     mint.publicKey
-  //   );
+    const { interpreted, txPubkeys } = await TxInterpreter.multisig(
+      program,
+      smartWallet,
+      wallet.publicKey,
+      transaction
+    );
+    interpretCreateMintTransactions = txPubkeys;
 
-  //   const transaction = new Transaction({
-  //     feePayer: wallet.publicKey,
-  //   }).add(ataInstruction);
+    interpreted.forEach((tx) => {
+      tx.feePayer = wallet.publicKey;
+    });
+    wallet.signAllTransactions(interpreted);
 
-  //   const { interpreted, txPubkeys } = await TxInterpreter.multisig(
-  //     program,
-  //     smartWallet.publicKey,
-  //     ownerA.publicKey,
-  //     transaction
-  //   );
+    await provider.sendAll(
+      interpreted.map((tx) => {
+        return { tx };
+      })
+    );
+  });
 
-  //   interpreted.forEach((tx) => {
-  //     tx.tx.partialSign(ownerA);
-  //     wallet.signTransaction(tx.tx);
-  //   });
-  //   await provider.sendAll(interpreted);
+  it("Execute interpreted create mint", async () => {
+    for (const txPubkey of interpretCreateMintTransactions) {
+      await executeTransaction(program, txPubkey, treasuryWalletIndex);
+    }
+  });
 
-  //   for (const txPubkey of txPubkeys) {
-  //     await approveAndExecute(
-  //       program,
-  //       smartWallet.publicKey,
-  //       treasury,
-  //       ownerB,
-  //       txPubkey
-  //     );
-  //   }
-  //   const ataInfo = await connection.getAccountInfo(ataPk);
-  //   assert.notEqual(ataInfo, undefined);
-  // });
+  it("Interpret create associated token account", async () => {
+    const ataPk = await getAssociatedTokenAddress(mint, treasury, true);
+    const ataInstruction = createAssociatedTokenAccountInstruction(
+      treasury,
+      ataPk,
+      treasury,
+      mint
+    );
+
+    const transaction = new Transaction({
+      feePayer: wallet.publicKey,
+    }).add(ataInstruction);
+
+    const { interpreted, txPubkeys } = await TxInterpreter.multisig(
+      program,
+      smartWallet,
+      wallet.publicKey,
+      transaction
+    );
+
+    interpreted.forEach((tx) => {
+      tx.feePayer = wallet.publicKey;
+    });
+    wallet.signAllTransactions(interpreted);
+
+    await provider.sendAll(
+      interpreted.map((tx) => {
+        return { tx };
+      })
+    );
+
+    for (const txPubkey of txPubkeys) {
+      await executeTransaction(program, txPubkey, treasuryWalletIndex);
+    }
+  });
 });
