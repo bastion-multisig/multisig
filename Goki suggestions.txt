@@ -1,7 +1,6 @@
 Store the intended wallet index as Option<u64> in a transaction
 Allow transaction creation and instruction pushing to be separate
 Create, approve and execute a list of transactions
-Add partial signer accounts to transactions
-Add a map of partial signer => subaccount with partial signer index
 Add seed constants to pub mod seeds { }
-Split up state and instructions
+Split up lib, error, state and instruction files
+Create partial signer subaccounts stored in separate program

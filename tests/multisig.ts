@@ -22,7 +22,6 @@ import {
 } from "../lib/TxInterpreter/src";
 import { IDL as SmartWalletIDL, SmartWallet } from "../deps/smart_wallet";
 import {
-  findTransactionAddress,
   findSmartWallet,
   findWalletDerivedAddress,
   findSubaccountInfoAddress,
@@ -133,14 +132,14 @@ describe("multisig", () => {
       lamports: 10 * LAMPORTS_PER_SOL,
     });
     // Propose that the multisig pays sol
-    const { transaction, builder } = await createTransaction(
+    const { address, builder } = await createTransaction(
       program,
       smartWallet,
       wallet.publicKey,
-      [withdrawSolIx]
+      [{ ...withdrawSolIx, partialSigners: [] }]
     );
     await builder.rpc();
-    withdrawSolTransaction = transaction;
+    withdrawSolTransaction = address;
   });
 
   it("Execute sol withdrawal from treasury", async () => {
@@ -156,6 +155,7 @@ describe("multisig", () => {
     assert.equal(treasuryInfo.lamports, 40 * LAMPORTS_PER_SOL);
   });
 
+  let intepretedWithdrawSolTxPubkeys: PublicKey[];
   it("Interpret withdrawing sol from treasury", async () => {
     const transaction = new Transaction({
       recentBlockhash: (await connection.getLatestBlockhash()).blockhash,
@@ -168,14 +168,18 @@ describe("multisig", () => {
       transaction
     );
 
+    intepretedWithdrawSolTxPubkeys = txPubkeys;
+
     const signedByWallet = await wallet.signAllTransactions(interpreted);
     await provider.sendAll(
       signedByWallet.map((tx) => {
         return { tx };
       })
     );
+  });
 
-    for (const txPubkey of txPubkeys) {
+  it("Execute interpreted sol withdrawal from treasury", async () => {
+    for (const txPubkey of intepretedWithdrawSolTxPubkeys) {
       await executeTransaction(program, txPubkey, ownerB, treasuryWalletIndex);
     }
 

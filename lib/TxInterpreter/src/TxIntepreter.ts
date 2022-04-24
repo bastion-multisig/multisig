@@ -1,7 +1,18 @@
-import { Program } from "@project-serum/anchor";
-import { Keypair, PublicKey, Transaction } from "@solana/web3.js";
+import { Program, utils } from "@project-serum/anchor";
+import {
+  PublicKey,
+  Transaction,
+  TransactionInstruction,
+} from "@solana/web3.js";
 import { SmartWallet } from "../../../deps/smart_wallet";
 import { createTransaction } from "./multisigClient";
+import {
+  findSubaccountInfoAddress,
+  GOKI_ADDRESSES,
+  SubaccountInfoData,
+} from "@gokiprotocol/client";
+import { MultisigInstruction, PartialSigner } from "./multisigInstruction";
+import { u64 } from "@solana/spl-token";
 export class TxInterpreter {
   /**
    * Rewrites transactions such that it will be uploaded to a 'Transaction'
@@ -17,102 +28,226 @@ export class TxInterpreter {
     interpreted: Transaction[];
     txPubkeys: PublicKey[];
   }> {
+    const signers = this.getSigners(transactions);
+    const subaccounts = await this.keysToGokiSubaccounts(
+      program,
+      smartWallet,
+      signers
+    );
+    const filteredSigners = signers.filter(
+      (signer) => !subaccounts[signer.toBase58()]
+    );
+    const partialSigners = await this.getRandomPartialSigners(
+      smartWallet,
+      filteredSigners
+    );
+    return await this.buildMultisigTransactions(
+      program,
+      smartWallet,
+      proposer,
+      transactions,
+      partialSigners
+    );
+  }
+
+  private static getSigners(transactions: Transaction[]) {
+    const signers: Record<string, PublicKey> = {};
+
+    for (const tx of transactions) {
+      for (const instruction of tx.instructions) {
+        for (const key of instruction.keys) {
+          if (key.isSigner) {
+            signers[key.pubkey.toBase58()] = key.pubkey;
+          }
+        }
+      }
+    }
+
+    return Object.values(signers);
+  }
+
+  private static async keysToGokiSubaccounts(
+    program: Program<SmartWallet>,
+    smartWallet: PublicKey,
+    keys: PublicKey[]
+  ) {
+    const addresses: PublicKey[] = [];
+    for (let i = 0; i < keys.length; i++) {
+      const [address, _bump] = await findSubaccountInfoAddress(keys[i]);
+      addresses[i] = address;
+    }
+
+    let subaccounts = (await program.account.subaccountInfo.fetchMultiple(
+      addresses
+    )) as (SubaccountInfoData | null)[];
+
+    const map: Record<string, SubaccountInfoData> = {};
+    for (let i = 0; i < keys.length; i++) {
+      const subaccount = subaccounts[i];
+      if (subaccount && subaccount.smartWallet.equals(smartWallet)) {
+        map[keys[i].toBase58()] = subaccount;
+      }
+    }
+    return map;
+  }
+
+  /**
+   * For every signer, if the signer does not have a subaccount, return a
+   * map of the signer pukbey to a partial signer record.
+   */
+  private static async getRandomPartialSigners(
+    smartWallet: PublicKey,
+    signers: PublicKey[]
+  ) {
+    const partialSigners: Record<string, PartialSigner> = {};
+    for (let i = 0; i < signers.length; i++) {
+      const signer = signers[i];
+      const keyStr = signer.toBase58();
+      const partialSigner = partialSigners[keyStr];
+      if (!partialSigner) {
+        const index = this.randomU64();
+        const [pubkey, bump] = await this.findWalletPartialSignerAddress(
+          smartWallet,
+          index
+        );
+        partialSigners[keyStr] = {
+          index,
+          bump,
+          pubkey,
+        };
+      }
+    }
+    return partialSigners;
+  }
+
+  /** Return a random u64 by combining 2 random u32s */
+  private static randomU64() {
+    const min = 0;
+    const max = 2 ** 32;
+    let firstHalf = Math.floor(Math.random() * (max - min) + min);
+    let secondHalf = Math.floor(Math.random() * (max - min) + min);
+    const word = new u64(firstHalf).add(new u64(secondHalf).ushln(32));
+    return word;
+  }
+
+  /**
+   * Finds a derived address of a Smart Wallet.
+   * @param smartWallet
+   * @param index
+   * @returns
+   */
+  static async findWalletPartialSignerAddress(
+    smartWallet: PublicKey,
+    index: u64
+  ): Promise<[PublicKey, number]> {
+    return await PublicKey.findProgramAddress(
+      [
+        utils.bytes.utf8.encode("GokiSmartWalletPartialSigner"),
+        smartWallet.toBuffer(),
+        index.toBuffer(),
+      ],
+      GOKI_ADDRESSES.SmartWallet
+    );
+  }
+
+  private static async buildMultisigTransactions(
+    program: Program<SmartWallet>,
+    smartWallet: PublicKey,
+    proposer: PublicKey,
+    transactions: Transaction[],
+    partialSigners: Record<string, PartialSigner>
+  ) {
     const interpreted: Transaction[] = [];
-    const txPubkeys: PublicKey[] = [];
-
+    const txAddresses: PublicKey[] = [];
     for (let i = 0; i < transactions.length; i++) {
-      let transaction = transactions[i];
+      const transaction = transactions[i];
+      const multisigInstructions: MultisigInstruction[] = [];
+      for (let j = 0; j < transaction.instructions.length; j++) {
+        multisigInstructions[j] = await this.buildMultisigInstruction(
+          transaction.instructions[j],
+          partialSigners
+        );
+      }
 
-      // Building phase
-      const { address, interpreted: tx } = await this.wrapTransactionInMultisig(
+      const { address, builder } = await createTransaction(
         program,
         smartWallet,
         proposer,
-        transaction
+        multisigInstructions
       );
 
-      interpreted.push(tx);
-      txPubkeys.push(address);
+      const interpretedTx = await builder.transaction();
+
+      interpretedTx.recentBlockhash = transaction.recentBlockhash;
+      interpretedTx.feePayer = transaction.feePayer;
+
+      interpreted.push(interpretedTx);
+      txAddresses.push(address);
     }
 
     return {
       interpreted,
-      txPubkeys,
+      txPubkeys: txAddresses,
     };
   }
 
-  /** Wrap instructions to be invoked by the multisig program */
-  private static async wrapTransactionInMultisig(
-    program: Program<SmartWallet>,
-    smartWallet: PublicKey,
-    proposer: PublicKey,
-    tx: Transaction
+  private static async buildMultisigInstruction(
+    instruction: TransactionInstruction,
+    partialSigners: Record<string, PartialSigner>
   ) {
-    const { transaction, builder } = await createTransaction(
-      program,
-      smartWallet,
-      proposer,
-      tx.instructions
-    );
-    const interpreted = await builder.transaction();
+    let programId = instruction.programId;
+    const keys = [...instruction.keys];
+    const data = Buffer.from(instruction.data);
+    const partialSignersInInstruction: Record<string, PartialSigner> = {};
 
-    interpreted.recentBlockhash = tx.recentBlockhash;
-    interpreted.feePayer = tx.feePayer;
-
-    return { address: transaction, interpreted };
-  }
-
-  private static async substituteSigners(
-    substituteSigners: SubstituteSigner[],
-    transaction: Transaction
-  ) {
-    transaction.instructions.forEach((instruction) =>
-      instruction.keys.forEach((key) => {
-        const substituteSigner = substituteSigners.find((sub) =>
-          sub.publicKey.equals(key.pubkey)
-        );
-        if (substituteSigner) {
-          key.pubkey = substituteSigner.substitute.publicKey;
-        }
-      })
-    );
-  }
-
-  private static async signSubstitutes(
-    substituteSigners: SubstituteSigner[],
-    transaction: Transaction
-  ) {
-    if (substituteSigners.length > 0) {
-      transaction.partialSign(
-        ...substituteSigners.map((sub) => sub.substitute)
-      );
+    // Subsitute program id
+    const keyStr = programId.toBase58();
+    const signer = partialSigners[keyStr];
+    if (signer) {
+      programId = signer.pubkey;
     }
+
+    // Subsitute keys
+    for (let j = 0; j < instruction.keys.length; j++) {
+      const key = keys[j];
+      const keyStr = key.pubkey.toBase58();
+      const signer = partialSigners[keyStr];
+      if (signer) {
+        if (key.isSigner === true) {
+          partialSignersInInstruction[keyStr] = signer;
+        }
+
+        keys[j] = {
+          isWritable: key.isWritable,
+          // Signed by the program
+          isSigner: false,
+          // Pubkey PDA that the program can sign for
+          pubkey: signer.pubkey,
+        };
+      }
+    }
+
+    // Subsitute pubkeys that have been encoded in data
+    for (const keyStr in partialSigners) {
+      let index = -1;
+      while (true) {
+        const key = new PublicKey(keyStr).toBytes();
+        index = instruction.data.indexOf(key);
+        if (index == -1) {
+          break;
+        }
+        const signer = partialSigners[keyStr];
+        signer.pubkey.toBuffer().copy(data, index, 0, 32);
+      }
+    }
+
+    const multisigInstruction: MultisigInstruction = {
+      programId,
+      keys,
+      data,
+      partialSigners: Object.values(partialSignersInInstruction),
+    };
+
+    return multisigInstruction;
   }
-}
-
-export class MultisigWalletAdapter implements Wallet {
-  constructor(public publicKey: PublicKey) {}
-
-  signAllTransactions(_txs: Transaction[]): Promise<Transaction[]> {
-    throw new Error();
-  }
-
-  signTransaction(_tx: Transaction): Promise<Transaction> {
-    throw new Error();
-  }
-}
-
-/**
- * Wallet interface for objects that can be used to sign provider transactions.
- */
-export interface Wallet {
-  signTransaction(tx: Transaction): Promise<Transaction>;
-  signAllTransactions(txs: Transaction[]): Promise<Transaction[]>;
-  publicKey: PublicKey;
-}
-
-interface SubstituteSigner {
-  signature: Buffer | null;
-  publicKey: PublicKey;
-  substitute: Keypair;
 }

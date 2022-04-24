@@ -1,10 +1,10 @@
+import { MultisigInstruction } from "./multisigInstruction";
 import { AnchorProvider, Program, BN } from "@project-serum/anchor";
 import {
   AccountMeta,
   Keypair,
   PublicKey,
   SystemProgram,
-  TransactionInstruction,
 } from "@solana/web3.js";
 import { SmartWallet } from "../../../deps/smart_wallet";
 import {
@@ -23,7 +23,7 @@ export async function createTransaction(
   program: Program<SmartWallet>,
   smartWallet: PublicKey,
   proposer: PublicKey,
-  instructions: TransactionInstruction[]
+  instructions: MultisigInstruction[]
 ) {
   const provider = program.provider as AnchorProvider;
   const multisigInfo = await program.account.smartWallet.fetch(smartWallet);
@@ -41,9 +41,9 @@ export async function createTransaction(
       proposer,
       payer: provider.wallet.publicKey,
       systemProgram: SystemProgram.programId,
-    })
+    });
 
-  return { transaction, builder };
+  return { address: transaction, builder };
 }
 
 export async function executeTransaction(
@@ -80,18 +80,16 @@ async function executeTransactionContext(
   const smartWallet = txInfo.smartWallet;
 
   const uniqueKeys = getUniqueKeys(txInfo.instructions);
-  await setDerivedSubaccountsAsNonSigner(program, smartWallet, uniqueKeys);
+  const remainingAccounts = await setDerivedSubaccountsAsNonSigner(
+    program,
+    smartWallet,
+    uniqueKeys
+  );
 
-  const [walletDerivedAddress, walletBump] = await findWalletDerivedAddress(
+  const [_walletDerivedAddress, walletBump] = await findWalletDerivedAddress(
     smartWallet,
     walletIndex
   );
-
-  // if (uniqueKeys.some((key) => key.pubkey.equals(walletDerivedAddress))) {
-  //   throw new Error(
-  //     `Wallet index ${walletIndex} is a PDA signer but it's not found in the array of keys.`
-  //   );
-  // }
 
   return {
     accounts: {
@@ -99,7 +97,7 @@ async function executeTransactionContext(
       transaction,
       owner,
     },
-    remainingAccounts: uniqueKeys,
+    remainingAccounts,
     walletBump,
   };
 }
@@ -133,6 +131,8 @@ async function setDerivedSubaccountsAsNonSigner(
   smartWallet: PublicKey,
   accounts: AccountMeta[]
 ) {
+  const ret: AccountMeta[] = [];
+
   const signers = accounts.filter((acc) => acc.isSigner);
   const subaccounts = (
     await Promise.all(
@@ -161,7 +161,12 @@ async function setDerivedSubaccountsAsNonSigner(
         "Subaccount is a signer but subaccount type is not 'Derived'. Not implemented"
       );
     } else {
-      signer.isSigner = false;
+      ret[i] = {
+        isSigner: false,
+        isWritable: signer.isWritable,
+        pubkey: signer.pubkey,
+      };
     }
   }
+  return ret;
 }
