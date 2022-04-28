@@ -1,20 +1,20 @@
-import useNotificationStore from "../stores/useNotificationStore";
+import { notification } from "antd";
+import { IconType } from "antd/lib/notification";
+import { ReactNode } from "react";
 
-export function notify(newNotification: {
-  type?: string
-  message: string
-  description?: string
-  txid?: string
+export function notify({
+  type,
+  message,
+  description,
+}: {
+  type?: IconType
+  message: ReactNode
+  description?: ReactNode
 }) {
-  const {
-    notifications,
-    set: setNotificationStore,
-  } = useNotificationStore.getState()
-
-  setNotificationStore((state: { notifications: any[] }) => {
-    state.notifications = [
-      ...notifications,
-      { type: 'success', ...newNotification },
-    ]
-  })
+  notification.open({
+    type,
+    message,
+    description: description,
+    placement:"bottomLeft",
+  });
 }
