@@ -4,7 +4,7 @@ import {
   Transaction,
   TransactionInstruction,
 } from "@solana/web3.js";
-import { SmartWallet } from "../../../deps/smart_wallet";
+import { SmartWallet } from "./idl/smart_wallet";
 import { createTransaction, getRandomPartialSigner } from "./multisigClient";
 import { MultisigInstruction, PartialSigner } from "./multisigInstruction";
 import { findSubaccountInfoAddress } from "./pda";

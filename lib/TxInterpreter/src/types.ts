@@ -4,9 +4,7 @@ import {
   IdlTypes,
   TypeDef,
 } from "@project-serum/anchor/dist/cjs/program/namespace/types";
-import type { SmartWallet } from "../../../deps/smart_wallet";
-
-export { SmartWallet, IDL as SmartWalletIDL } from "../../../deps/smart_wallet";
+import { SmartWallet } from "./idl/smart_wallet";
 
 export type SmartWalletData = TypeDef<
   AllAccountsMap<SmartWallet>["smartWallet"],

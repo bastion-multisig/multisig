@@ -1,32 +1,25 @@
-import { AppProps } from 'next/app';
-import Head from 'next/head';
-import { FC } from 'react';
-import { ContextProviders } from "../contexts/ContextProviders";
-import { AppBar } from '../components/AppBar';
-import { ContentContainer } from '../components/ContentContainer';
-import { Footer } from '../components/Footer';
+import Layout from '@/components/Layout'
+import Modal from '@/components/Modal'
+import useInitialization from '@/hooks/useInitialization'
+import useWalletConnectEventsManager from '@/hooks/useWalletConnectEventsManager'
+import { createTheme, NextUIProvider } from '@nextui-org/react'
+import { AppProps } from 'next/app'
+import '../../public/main.css'
 
-require('@solana/wallet-adapter-react-ui/styles.css');
-require('../styles/globals.css');
+export default function App({ Component, pageProps }: AppProps) {
+  // Step 1 - Initialize wallets and wallet connect client
+  const initialized = useInitialization()
 
-const App: FC<AppProps> = ({ Component, pageProps }) => {
-    return (
-      <>
-        <Head>
-          <title>Solana Scaffold Lite</title>
-        </Head>
+  // Step 2 - Once initialized, set up wallet connect event manager
+  useWalletConnectEventsManager(initialized)
 
-        <ContextProviders>
-          <div className="flex flex-col h-screen">
-            <AppBar />
-            <ContentContainer>
-              <Component {...pageProps} />
-            </ContentContainer>
-            <Footer />
-          </div>
-        </ContextProviders>
-      </>
-    );
-};
+  return (
+    <NextUIProvider theme={createTheme({ type: 'dark' })}>
+      <Layout initialized={initialized}>
+        <Component {...pageProps} />
+      </Layout>
 
-export default App;
+      <Modal />
+    </NextUIProvider>
+  )
+}

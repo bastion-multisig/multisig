@@ -1,19 +1,13 @@
-import { TxInterpreter } from "./txIntepreter";
 import { MultisigInstruction, PartialSigner } from "./multisigInstruction";
-import { AnchorProvider, Program, BN, Wallet } from "@project-serum/anchor";
-import {
-  AccountMeta,
-  Keypair,
-  PublicKey,
-  SystemProgram,
-} from "@solana/web3.js";
-import { SmartWallet } from "../../../deps/smart_wallet";
+import { AnchorProvider, Program, BN } from "@project-serum/anchor";
+import { AccountMeta, PublicKey, SystemProgram } from "@solana/web3.js";
 import {
   findTransactionAddress,
   findWalletDerivedAddress,
   findWalletPartialSignerAddress,
 } from "./pda";
 import { SmartWalletTransactionData } from "./types";
+import { SmartWallet } from "./idl/smart_wallet";
 
 export function multisigSize(owners: number) {
   return owners * 32 + 96;

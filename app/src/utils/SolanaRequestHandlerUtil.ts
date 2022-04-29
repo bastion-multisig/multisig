@@ -1,42 +1,35 @@
-import { Transaction } from "@solana/web3.js";
-import { WalletContextState } from "@solana/wallet-adapter-react";
-import { SOLANA_SIGNING_METHODS } from "../constants/SolanaData";
-import { formatJsonRpcError, formatJsonRpcResult } from "@json-rpc-tools/utils";
-import { RequestEvent } from "@walletconnect/types";
-import { ERROR } from "@walletconnect/utils";
+import { SOLANA_SIGNING_METHODS } from '@/data/SolanaData'
+import { getWalletAddressFromParams } from '@/utils/HelperUtil'
+import { solanaAddresses, solanaWallets } from '@/utils/SolanaWalletUtil'
+import { formatJsonRpcError, formatJsonRpcResult } from '@json-rpc-tools/utils'
+import { RequestEvent } from '@walletconnect/types'
+import { ERROR } from '@walletconnect/utils'
 
-export async function approveSolanaRequest(
-  requestEvent: RequestEvent,
-  wallet: WalletContextState
-) {
-  const { method, params, id } = requestEvent.request;
-
-  if (!wallet.signMessage || !wallet.signTransaction) {
-    return formatJsonRpcError(id, ERROR.USER_DISCONNECTED.format().message);
-  }
-
-  console.log(params, JSON.stringify(params, undefined, 2));
+export async function approveSolanaRequest(requestEvent: RequestEvent) {
+  const { method, params, id } = requestEvent.request
+  const wallet = solanaWallets[getWalletAddressFromParams(solanaAddresses, params)]
 
   switch (method) {
     case SOLANA_SIGNING_METHODS.SOLANA_SIGN_MESSAGE:
-      const signedMessage = await wallet.signMessage(params.message);
-      return formatJsonRpcResult(id, signedMessage);
+      const signedMessage = await wallet.signMessage(params.message)
+      return formatJsonRpcResult(id, signedMessage)
 
     case SOLANA_SIGNING_METHODS.SOLANA_SIGN_TRANSACTION:
-      const signedTransaction = await wallet.signTransaction(params);
+      const signedTransaction = await wallet.signTransaction(
+        params.feePayer,
+        params.recentBlockhash,
+        params.instructions
+      )
 
-      return formatJsonRpcResult(id, signedTransaction);
+      return formatJsonRpcResult(id, signedTransaction)
 
     default:
-      throw new Error(ERROR.UNKNOWN_JSONRPC_METHOD.format().message);
+      throw new Error(ERROR.UNKNOWN_JSONRPC_METHOD.format().message)
   }
 }
 
-export function rejectSolanaRequest(request: RequestEvent["request"]) {
-  const { id } = request;
+export function rejectSolanaRequest(request: RequestEvent['request']) {
+  const { id } = request
 
-  return formatJsonRpcError(
-    id,
-    ERROR.JSONRPC_REQUEST_METHOD_REJECTED.format().message
-  );
+  return formatJsonRpcError(id, ERROR.JSONRPC_REQUEST_METHOD_REJECTED.format().message)
 }
