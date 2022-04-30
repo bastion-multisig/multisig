@@ -1,3 +1,6 @@
+.collapse-disabled>* {
+  cursor: default !important;
+}
 * {
   box-sizing: border-box;
   -ms-overflow-style: none; 

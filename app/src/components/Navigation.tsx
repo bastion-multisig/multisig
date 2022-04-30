@@ -5,28 +5,38 @@ import Link from 'next/link'
 export default function Navigation() {
   return (
     <Row justify="space-between" align="center">
-      <Link href="/" passHref>
+      <Link href="/accounts" passHref>
         <a className="navLink">
-          <Image alt="accounts icon" src="/icons/accounts-icon.svg" width={27} height={27} />
+          <Image
+            alt="accounts icon"
+            src="/icons/accounts-icon.svg"
+            width={27}
+            height={27}
+          />
         </a>
       </Link>
 
       <Link href="/sessions" passHref>
         <a className="navLink">
-          <Image alt="sessions icon" src="/icons/sessions-icon.svg" width={27} height={27} />
+          <Image
+            alt="sessions icon"
+            src="/icons/sessions-icon.svg"
+            width={27}
+            height={27}
+          />
         </a>
       </Link>
 
-      <Link href="/walletconnect" passHref>
+      <Link href="/welcome" passHref>
         <a className="navLink">
           <Avatar
             size="lg"
-            css={{ cursor: 'pointer' }}
+            css={{ cursor: "pointer" }}
             color="gradient"
             icon={
               <Image
-                alt="wallet connect icon"
-                src="/wallet-connect-logo.svg"
+                alt="welcome icon"
+                src="/icons/welcome-icon.svg"
                 width={30}
                 height={30}
               />
@@ -35,17 +45,38 @@ export default function Navigation() {
         </a>
       </Link>
 
+      <Link href="/walletconnect" passHref>
+        <a className="navLink">
+          <Image
+            alt="wallet connect icon"
+            src="/wallet-connect-logo.svg"
+            width={30}
+            height={30}
+          />
+        </a>
+      </Link>
+
       <Link href="/pairings" passHref>
         <a className="navLink">
-          <Image alt="pairings icon" src="/icons/pairings-icon.svg" width={25} height={25} />
+          <Image
+            alt="pairings icon"
+            src="/icons/pairings-icon.svg"
+            width={25}
+            height={25}
+          />
         </a>
       </Link>
 
       <Link href="/settings" passHref>
         <a className="navLink">
-          <Image alt="settings icon" src="/icons/settings-icon.svg" width={27} height={27} />
+          <Image
+            alt="settings icon"
+            src="/icons/settings-icon.svg"
+            width={27}
+            height={27}
+          />
         </a>
       </Link>
     </Row>
-  )
+  );
 }
