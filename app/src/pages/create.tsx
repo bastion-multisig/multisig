@@ -7,12 +7,15 @@ import {
   Input,
   Text,
 } from "@nextui-org/react";
-import { useWallet } from "@solana/wallet-adapter-react";
 import Link from "next/link";
 import Image from "next/image";
 import { Fragment, useState } from "react";
 import { PublicKey } from "@solana/web3.js";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
+import { createSmartWallet } from "@/actions/createSmartWallet";
+import { useRpcContext } from "@/hooks/useRpcContext";
+import BN from "bn.js";
+import { useRouter } from "next/router";
 
 interface Owner {
   key: number;
@@ -28,16 +31,38 @@ export default function CreatePage() {
   const [owners, setOwners] = useState<Owner[]>([]);
   const [ownerKey, setOwnerKey] = useState(0);
   const [threshold, setThreshold] = useState(1);
-  const wallet = useWallet();
+  const rpcContext = useRpcContext();
+  const { wallet } = rpcContext;
+  const router = useRouter();
 
   function back() {
     setCurrent((current) => Math.max(current - 1, 0));
   }
   function next() {
-    if (owners.length === 0 && wallet.publicKey) {
-      newOwner();
-    }
     setCurrent((current) => Math.min(current + 1, 2));
+  }
+
+  function handleAcceptCluster() {
+    if (owners.length === 0 && wallet.publicKey) {
+      console.log(
+        owners.length,
+        wallet.publicKey === null,
+        wallet.publicKey.toBase58()
+      );
+      const newOwners: Owner[] = [
+        {
+          key: ownerKey,
+          address: wallet.publicKey.toBase58(),
+          pk: wallet.publicKey,
+          valid: true,
+          required: false,
+          unique: true,
+        },
+      ];
+      setOwners(newOwners);
+      setOwnerKey(ownerKey + 1);
+    }
+    next();
   }
 
   function handleAcceptOwners() {
@@ -113,7 +138,22 @@ export default function CreatePage() {
     setOwners(newOwners);
   }
 
-  function handleCreate() {}
+  function handleCreate() {
+    const ownerKeys = owners.map((owner) => owner.pk) as PublicKey[];
+    if (ownerKeys.some((owner) => !owner)) {
+      console.log(
+        "Can't create a smart wallet because an owner key is undefined."
+      );
+      return;
+    }
+    createSmartWallet(rpcContext, ownerKeys, new BN(threshold))
+      .then(() => {
+        router.push("/walletconnect");
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }
 
   return (
     <>
@@ -155,7 +195,11 @@ export default function CreatePage() {
                   Cancel
                 </Button>
               </Link>
-              <Button size="sm" onClick={next}>
+              <Button
+                size="sm"
+                onClick={handleAcceptCluster}
+                disabled={!wallet.connected}
+              >
                 Continue
               </Button>
             </div>
@@ -207,6 +251,7 @@ export default function CreatePage() {
                     <Input
                       underlined
                       placeholder="Address"
+                      value={owner.address}
                       onChange={(event) => ownerChanged(event.target.value, i)}
                       width="100%"
                       aria-label={"Owner " + i}

@@ -37,19 +37,11 @@ export const WalletContextProvider = ({
     [network]
   );
 
-  const onError = useCallback((error: WalletError) => {
-    const message = error.message
-      ? `${error.name}: ${error.message}`
-      : error.name;
-    console.error(error);
-    alert(message);
-  }, []);
-
   return (
     <ConnectionProvider endpoint={endpoint}>
       <WalletProvider
         wallets={wallets}
-        onError={onError}
+        onError={console.error}
         autoConnect={autoConnect}
       >
         <ReactUIWalletModalProvider>{children}</ReactUIWalletModalProvider>

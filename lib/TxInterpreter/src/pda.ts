@@ -18,7 +18,7 @@ export const findTransactionAddress = async (
     [
       utils.bytes.utf8.encode("GokiTransaction"),
       smartWallet.toBuffer(),
-      new BN(index).toBuffer("le", 8),
+      new BN(index).toArrayLike(Buffer, "le", 8),
     ],
     GOKI_ADDRESSES.SmartWallet
   );
@@ -38,7 +38,7 @@ export const findWalletDerivedAddress = async (
     [
       utils.bytes.utf8.encode("GokiSmartWalletDerived"),
       smartWallet.toBuffer(),
-      new BN(index).toBuffer("le", 8),
+      new BN(index).toArrayLike(Buffer, "le", 8),
     ],
     GOKI_ADDRESSES.SmartWallet
   );
@@ -58,7 +58,7 @@ export const findOwnerInvokerAddress = async (
     [
       utils.bytes.utf8.encode("GokiSmartWalletOwnerInvoker"),
       smartWallet.toBuffer(),
-      new BN(index).toBuffer("le", 8),
+      new BN(index).toArrayLike(Buffer, "le", 8),
     ],
     GOKI_ADDRESSES.SmartWallet
   );
@@ -92,7 +92,7 @@ export const findWalletPartialSignerAddress = async (
     [
       utils.bytes.utf8.encode("GokiSmartWalletPartialSigner"),
       smartWallet.toBuffer(),
-      index.toBuffer("le", 8),
+      index.toArrayLike(Buffer, "le", 8),
     ],
     GOKI_ADDRESSES.SmartWallet
   );
