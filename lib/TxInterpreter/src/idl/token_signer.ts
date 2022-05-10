@@ -18,7 +18,22 @@ export type TokenSigner = {
         {
           "name": "nftPda",
           "isMut": false,
-          "isSigner": false
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "GokiTokenSigner"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "TokenAccount",
+                "path": "nft_account.mint"
+              }
+            ]
+          }
         }
       ],
       "args": [
@@ -29,17 +44,11 @@ export type TokenSigner = {
       ]
     }
   ],
-  "types": [
+  "errors": [
     {
-      "name": "ErrorCode",
-      "type": {
-        "kind": "enum",
-        "variants": [
-          {
-            "name": "Unauthorized"
-          }
-        ]
-      }
+      "code": 6000,
+      "name": "Unauthorized",
+      "msg": "Unauthorized."
     }
   ]
 };
@@ -64,7 +73,22 @@ export const IDL: TokenSigner = {
         {
           "name": "nftPda",
           "isMut": false,
-          "isSigner": false
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "GokiTokenSigner"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "TokenAccount",
+                "path": "nft_account.mint"
+              }
+            ]
+          }
         }
       ],
       "args": [
@@ -75,17 +99,11 @@ export const IDL: TokenSigner = {
       ]
     }
   ],
-  "types": [
+  "errors": [
     {
-      "name": "ErrorCode",
-      "type": {
-        "kind": "enum",
-        "variants": [
-          {
-            "name": "Unauthorized"
-          }
-        ]
-      }
+      "code": 6000,
+      "name": "Unauthorized",
+      "msg": "Unauthorized."
     }
   ]
 };

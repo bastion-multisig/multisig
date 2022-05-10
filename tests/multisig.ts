@@ -24,7 +24,10 @@ import {
   GOKI_ADDRESSES,
   TxInterpreter,
 } from "../lib/TxInterpreter/src";
-import { IDL as SmartWalletIDL, SmartWallet } from "../deps/smart_wallet";
+import {
+  IDL as SmartWalletIDL,
+  SmartWallet,
+} from "../lib/TxInterpreter/src/idl/smart_wallet";
 import {
   createAssociatedTokenAccountInstruction,
   createInitializeMintInstruction,
