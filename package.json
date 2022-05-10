@@ -1,12 +1,12 @@
 {
   "private": true,
   "scripts": {
-    "lint": "npx prettier --check tests/",
-    "lint:fix": "npx prettier --write tests/",
-    "test": "npx anchor test",
+    "fmt": "npx prettier --check tests/",
+    "fmt:fix": "npx prettier --write tests/",
     "submodules": "git submodule update --init --recursive && (cd goki && yarn && yarn prepare)",
-    "build:deps": "yarn build:deps:notest && (cd goki && yarn test:e2e)",
-    "build:deps:notest": "(cd goki && anchor build && yarn idl:generate) && mkdir -p deps && cp goki/target/deploy/*.so deps && cp goki/target/types/*.ts lib/TxInterpreter/src/idl"
+    "test": "npm run build && anchor test --skip-build",
+    "build": "(cd goki && anchor build && yarn idl:generate) && mkdir -p deps && cp goki/target/deploy/*.so deps && cp goki/target/types/*.ts lib/TxInterpreter/src/idl",
+    "amman": "amman"
   },
   "devDependencies": {
     "@metaplex-foundation/amman": "^0.5.0",

@@ -13,7 +13,21 @@ export type SmartWallet = {
         {
           "name": "smartWallet",
           "isMut": true,
-          "isSigner": false
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "GokiSmartWallet"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "path": "base"
+              }
+            ]
+          }
         },
         {
           "name": "payer",
@@ -96,7 +110,28 @@ export type SmartWallet = {
         {
           "name": "transaction",
           "isMut": true,
-          "isSigner": false
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "GokiTransaction"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "SmartWallet",
+                "path": "smart_wallet"
+              },
+              {
+                "kind": "account",
+                "type": "u64",
+                "account": "SmartWallet",
+                "path": "smart_wallet.num_transactions"
+              }
+            ]
+          }
         },
         {
           "name": "proposer",
@@ -140,7 +175,28 @@ export type SmartWallet = {
         {
           "name": "transaction",
           "isMut": true,
-          "isSigner": false
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "GokiTransaction"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "SmartWallet",
+                "path": "smart_wallet"
+              },
+              {
+                "kind": "account",
+                "type": "u64",
+                "account": "SmartWallet",
+                "path": "smart_wallet.num_transactions"
+              }
+            ]
+          }
         },
         {
           "name": "proposer",
@@ -340,7 +396,21 @@ export type SmartWallet = {
         {
           "name": "subaccountInfo",
           "isMut": true,
-          "isSigner": false
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "GokiSubaccountInfo"
+              },
+              {
+                "kind": "arg",
+                "type": "publicKey",
+                "path": "subaccount"
+              }
+            ]
+          }
         },
         {
           "name": "payer",
@@ -785,62 +855,6 @@ export type SmartWallet = {
       }
     },
     {
-      "name": "ErrorCode",
-      "type": {
-        "kind": "enum",
-        "variants": [
-          {
-            "name": "InvalidOwner"
-          },
-          {
-            "name": "InvalidETA"
-          },
-          {
-            "name": "DelayTooHigh"
-          },
-          {
-            "name": "NotEnoughSigners"
-          },
-          {
-            "name": "TransactionIsStale"
-          },
-          {
-            "name": "TransactionNotReady"
-          },
-          {
-            "name": "AlreadyExecuted"
-          },
-          {
-            "name": "InvalidThreshold"
-          },
-          {
-            "name": "OwnerSetChanged"
-          },
-          {
-            "name": "SubaccountOwnerMismatch"
-          },
-          {
-            "name": "BufferFinalized"
-          },
-          {
-            "name": "BufferBundleNotFound"
-          },
-          {
-            "name": "BufferBundleOutOfRange"
-          },
-          {
-            "name": "BufferBundleNotFinalized"
-          },
-          {
-            "name": "BufferBundleExecuted"
-          },
-          {
-            "name": "InvalidPartialSignerBump"
-          }
-        ]
-      }
-    },
-    {
       "name": "SubaccountType",
       "type": {
         "kind": "enum",
@@ -856,76 +870,6 @@ export type SmartWallet = {
     }
   ],
   "events": [
-    {
-      "name": "AppendIxEvent",
-      "fields": [
-        {
-          "name": "bundleIndex",
-          "type": "u8",
-          "index": false
-        },
-        {
-          "name": "buffer",
-          "type": "publicKey",
-          "index": false
-        },
-        {
-          "name": "authority",
-          "type": "publicKey",
-          "index": false
-        }
-      ]
-    },
-    {
-      "name": "CloseBufferEvent",
-      "fields": [
-        {
-          "name": "buffer",
-          "type": "publicKey",
-          "index": false
-        },
-        {
-          "name": "authorityOrExecutor",
-          "type": "publicKey",
-          "index": false
-        },
-        {
-          "name": "time",
-          "type": "i64",
-          "index": false
-        }
-      ]
-    },
-    {
-      "name": "FinalizeBufferEvent",
-      "fields": [
-        {
-          "name": "buffer",
-          "type": "publicKey",
-          "index": false
-        },
-        {
-          "name": "time",
-          "type": "i64",
-          "index": false
-        }
-      ]
-    },
-    {
-      "name": "InitBufferEvent",
-      "fields": [
-        {
-          "name": "buffer",
-          "type": "publicKey",
-          "index": false
-        },
-        {
-          "name": "smartWallet",
-          "type": "publicKey",
-          "index": true
-        }
-      ]
-    },
     {
       "name": "WalletCreateEvent",
       "fields": [
@@ -1113,6 +1057,158 @@ export type SmartWallet = {
           "index": false
         }
       ]
+    },
+    {
+      "name": "AppendIxEvent",
+      "fields": [
+        {
+          "name": "bundleIndex",
+          "type": "u8",
+          "index": false
+        },
+        {
+          "name": "buffer",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "authority",
+          "type": "publicKey",
+          "index": false
+        }
+      ]
+    },
+    {
+      "name": "CloseBufferEvent",
+      "fields": [
+        {
+          "name": "buffer",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "authorityOrExecutor",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "time",
+          "type": "i64",
+          "index": false
+        }
+      ]
+    },
+    {
+      "name": "FinalizeBufferEvent",
+      "fields": [
+        {
+          "name": "buffer",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "time",
+          "type": "i64",
+          "index": false
+        }
+      ]
+    },
+    {
+      "name": "InitBufferEvent",
+      "fields": [
+        {
+          "name": "buffer",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "smartWallet",
+          "type": "publicKey",
+          "index": true
+        }
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "InvalidOwner",
+      "msg": "The given owner is not part of this smart wallet."
+    },
+    {
+      "code": 6001,
+      "name": "InvalidETA",
+      "msg": "Estimated execution block must satisfy delay."
+    },
+    {
+      "code": 6002,
+      "name": "DelayTooHigh",
+      "msg": "Delay greater than the maximum."
+    },
+    {
+      "code": 6003,
+      "name": "NotEnoughSigners",
+      "msg": "Not enough owners signed this transaction."
+    },
+    {
+      "code": 6004,
+      "name": "TransactionIsStale",
+      "msg": "Transaction is past the grace period."
+    },
+    {
+      "code": 6005,
+      "name": "TransactionNotReady",
+      "msg": "Transaction hasn't surpassed time lock."
+    },
+    {
+      "code": 6006,
+      "name": "AlreadyExecuted",
+      "msg": "The given transaction has already been executed."
+    },
+    {
+      "code": 6007,
+      "name": "InvalidThreshold",
+      "msg": "Threshold must be less than or equal to the number of owners."
+    },
+    {
+      "code": 6008,
+      "name": "OwnerSetChanged",
+      "msg": "Owner set has changed since the creation of the transaction."
+    },
+    {
+      "code": 6009,
+      "name": "SubaccountOwnerMismatch",
+      "msg": "Subaccount does not belong to smart wallet."
+    },
+    {
+      "code": 6010,
+      "name": "BufferFinalized",
+      "msg": "Buffer already finalized."
+    },
+    {
+      "code": 6011,
+      "name": "BufferBundleNotFound",
+      "msg": "Buffer bundle not found."
+    },
+    {
+      "code": 6012,
+      "name": "BufferBundleOutOfRange",
+      "msg": "Buffer index specified is out of range."
+    },
+    {
+      "code": 6013,
+      "name": "BufferBundleNotFinalized",
+      "msg": "Buffer has not been finalized."
+    },
+    {
+      "code": 6014,
+      "name": "BufferBundleExecuted",
+      "msg": "Buffer bundle has already been executed."
+    },
+    {
+      "code": 6015,
+      "name": "InvalidPartialSignerBump",
+      "msg": "Partial signer seeds do not lead to the provided bump."
     }
   ]
 };
@@ -1132,7 +1228,21 @@ export const IDL: SmartWallet = {
         {
           "name": "smartWallet",
           "isMut": true,
-          "isSigner": false
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "GokiSmartWallet"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "path": "base"
+              }
+            ]
+          }
         },
         {
           "name": "payer",
@@ -1215,7 +1325,28 @@ export const IDL: SmartWallet = {
         {
           "name": "transaction",
           "isMut": true,
-          "isSigner": false
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "GokiTransaction"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "SmartWallet",
+                "path": "smart_wallet"
+              },
+              {
+                "kind": "account",
+                "type": "u64",
+                "account": "SmartWallet",
+                "path": "smart_wallet.num_transactions"
+              }
+            ]
+          }
         },
         {
           "name": "proposer",
@@ -1259,7 +1390,28 @@ export const IDL: SmartWallet = {
         {
           "name": "transaction",
           "isMut": true,
-          "isSigner": false
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "GokiTransaction"
+              },
+              {
+                "kind": "account",
+                "type": "publicKey",
+                "account": "SmartWallet",
+                "path": "smart_wallet"
+              },
+              {
+                "kind": "account",
+                "type": "u64",
+                "account": "SmartWallet",
+                "path": "smart_wallet.num_transactions"
+              }
+            ]
+          }
         },
         {
           "name": "proposer",
@@ -1459,7 +1611,21 @@ export const IDL: SmartWallet = {
         {
           "name": "subaccountInfo",
           "isMut": true,
-          "isSigner": false
+          "isSigner": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "type": "string",
+                "value": "GokiSubaccountInfo"
+              },
+              {
+                "kind": "arg",
+                "type": "publicKey",
+                "path": "subaccount"
+              }
+            ]
+          }
         },
         {
           "name": "payer",
@@ -1904,62 +2070,6 @@ export const IDL: SmartWallet = {
       }
     },
     {
-      "name": "ErrorCode",
-      "type": {
-        "kind": "enum",
-        "variants": [
-          {
-            "name": "InvalidOwner"
-          },
-          {
-            "name": "InvalidETA"
-          },
-          {
-            "name": "DelayTooHigh"
-          },
-          {
-            "name": "NotEnoughSigners"
-          },
-          {
-            "name": "TransactionIsStale"
-          },
-          {
-            "name": "TransactionNotReady"
-          },
-          {
-            "name": "AlreadyExecuted"
-          },
-          {
-            "name": "InvalidThreshold"
-          },
-          {
-            "name": "OwnerSetChanged"
-          },
-          {
-            "name": "SubaccountOwnerMismatch"
-          },
-          {
-            "name": "BufferFinalized"
-          },
-          {
-            "name": "BufferBundleNotFound"
-          },
-          {
-            "name": "BufferBundleOutOfRange"
-          },
-          {
-            "name": "BufferBundleNotFinalized"
-          },
-          {
-            "name": "BufferBundleExecuted"
-          },
-          {
-            "name": "InvalidPartialSignerBump"
-          }
-        ]
-      }
-    },
-    {
       "name": "SubaccountType",
       "type": {
         "kind": "enum",
@@ -1975,76 +2085,6 @@ export const IDL: SmartWallet = {
     }
   ],
   "events": [
-    {
-      "name": "AppendIxEvent",
-      "fields": [
-        {
-          "name": "bundleIndex",
-          "type": "u8",
-          "index": false
-        },
-        {
-          "name": "buffer",
-          "type": "publicKey",
-          "index": false
-        },
-        {
-          "name": "authority",
-          "type": "publicKey",
-          "index": false
-        }
-      ]
-    },
-    {
-      "name": "CloseBufferEvent",
-      "fields": [
-        {
-          "name": "buffer",
-          "type": "publicKey",
-          "index": false
-        },
-        {
-          "name": "authorityOrExecutor",
-          "type": "publicKey",
-          "index": false
-        },
-        {
-          "name": "time",
-          "type": "i64",
-          "index": false
-        }
-      ]
-    },
-    {
-      "name": "FinalizeBufferEvent",
-      "fields": [
-        {
-          "name": "buffer",
-          "type": "publicKey",
-          "index": false
-        },
-        {
-          "name": "time",
-          "type": "i64",
-          "index": false
-        }
-      ]
-    },
-    {
-      "name": "InitBufferEvent",
-      "fields": [
-        {
-          "name": "buffer",
-          "type": "publicKey",
-          "index": false
-        },
-        {
-          "name": "smartWallet",
-          "type": "publicKey",
-          "index": true
-        }
-      ]
-    },
     {
       "name": "WalletCreateEvent",
       "fields": [
@@ -2232,6 +2272,158 @@ export const IDL: SmartWallet = {
           "index": false
         }
       ]
+    },
+    {
+      "name": "AppendIxEvent",
+      "fields": [
+        {
+          "name": "bundleIndex",
+          "type": "u8",
+          "index": false
+        },
+        {
+          "name": "buffer",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "authority",
+          "type": "publicKey",
+          "index": false
+        }
+      ]
+    },
+    {
+      "name": "CloseBufferEvent",
+      "fields": [
+        {
+          "name": "buffer",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "authorityOrExecutor",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "time",
+          "type": "i64",
+          "index": false
+        }
+      ]
+    },
+    {
+      "name": "FinalizeBufferEvent",
+      "fields": [
+        {
+          "name": "buffer",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "time",
+          "type": "i64",
+          "index": false
+        }
+      ]
+    },
+    {
+      "name": "InitBufferEvent",
+      "fields": [
+        {
+          "name": "buffer",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "smartWallet",
+          "type": "publicKey",
+          "index": true
+        }
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "InvalidOwner",
+      "msg": "The given owner is not part of this smart wallet."
+    },
+    {
+      "code": 6001,
+      "name": "InvalidETA",
+      "msg": "Estimated execution block must satisfy delay."
+    },
+    {
+      "code": 6002,
+      "name": "DelayTooHigh",
+      "msg": "Delay greater than the maximum."
+    },
+    {
+      "code": 6003,
+      "name": "NotEnoughSigners",
+      "msg": "Not enough owners signed this transaction."
+    },
+    {
+      "code": 6004,
+      "name": "TransactionIsStale",
+      "msg": "Transaction is past the grace period."
+    },
+    {
+      "code": 6005,
+      "name": "TransactionNotReady",
+      "msg": "Transaction hasn't surpassed time lock."
+    },
+    {
+      "code": 6006,
+      "name": "AlreadyExecuted",
+      "msg": "The given transaction has already been executed."
+    },
+    {
+      "code": 6007,
+      "name": "InvalidThreshold",
+      "msg": "Threshold must be less than or equal to the number of owners."
+    },
+    {
+      "code": 6008,
+      "name": "OwnerSetChanged",
+      "msg": "Owner set has changed since the creation of the transaction."
+    },
+    {
+      "code": 6009,
+      "name": "SubaccountOwnerMismatch",
+      "msg": "Subaccount does not belong to smart wallet."
+    },
+    {
+      "code": 6010,
+      "name": "BufferFinalized",
+      "msg": "Buffer already finalized."
+    },
+    {
+      "code": 6011,
+      "name": "BufferBundleNotFound",
+      "msg": "Buffer bundle not found."
+    },
+    {
+      "code": 6012,
+      "name": "BufferBundleOutOfRange",
+      "msg": "Buffer index specified is out of range."
+    },
+    {
+      "code": 6013,
+      "name": "BufferBundleNotFinalized",
+      "msg": "Buffer has not been finalized."
+    },
+    {
+      "code": 6014,
+      "name": "BufferBundleExecuted",
+      "msg": "Buffer bundle has already been executed."
+    },
+    {
+      "code": 6015,
+      "name": "InvalidPartialSignerBump",
+      "msg": "Partial signer seeds do not lead to the provided bump."
     }
   ]
 };
