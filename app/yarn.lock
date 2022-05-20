@@ -850,7 +850,7 @@
   resolved "https://registry.npmjs.org/@ledgerhq/logs/-/logs-6.10.0.tgz"
   integrity sha512-lLseUPEhSFUXYTKj6q7s2O3s2vW2ebgA11vMAlKodXGf5AFw4zUoEbTz9CoFOC9jS6xY4Qr8BmRnxP/odT4Uuw==
 
-"@multisig/multisig-tx@link:./../lib/TxInterpreter":
+"@multisig/multisig-tx@link:../lib/TxInterpreter":
   version "0.0.0"
   uid ""
 
