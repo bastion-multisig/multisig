@@ -1,6 +1,6 @@
 // TODO: SignMessage
-import { useWallet } from '@solana/wallet-adapter-react';
-import { FC, useCallback } from 'react';
+import { useWallet } from "@solana/wallet-adapter-react";
+import { FC, useCallback } from "react";
 import { sign } from "tweetnacl";
 
 export const SignMessage: FC = () => {

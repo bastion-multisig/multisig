@@ -188,7 +188,7 @@ describe("multisig", () => {
       tx.feePayer = wallet.publicKey;
     });
     const signedByWallet = await wallet.signAllTransactions(interpreted);
-    
+
     await provider.sendAll(
       signedByWallet.map((tx) => {
         return { tx };

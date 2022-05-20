@@ -1,10 +1,10 @@
-.collapse-disabled>* {
+.collapse-disabled > * {
   cursor: default !important;
 }
 * {
   box-sizing: border-box;
-  -ms-overflow-style: none; 
-  scrollbar-width: none; 
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 ::-webkit-scrollbar {
@@ -55,7 +55,7 @@
 }
 
 .navLink {
-  transition: ease-in-out .2s opacity;
+  transition: ease-in-out 0.2s opacity;
 }
 
 .navLink:hover {
@@ -73,7 +73,7 @@ select {
   cursor: pointer;
   border: none;
   appearance: none;
-  transition: .2s ease-in-out background-color;
+  transition: 0.2s ease-in-out background-color;
   font-family: var(--nextui-fonts-sans);
   font-weight: var(--nextui-fontWeights-light);
   border: 1px solid rgba(139, 139, 139, 0.25);

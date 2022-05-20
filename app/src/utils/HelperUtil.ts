@@ -1,19 +1,23 @@
-import { utils } from 'ethers'
+import { utils } from "ethers";
 
 /**
  * Truncates string (in the middle) via given lenght value
  */
 export function truncate(value: string, length: number) {
   if (value?.length <= length) {
-    return value
+    return value;
   }
 
-  const separator = '...'
-  const stringLength = length - separator.length
-  const frontLength = Math.ceil(stringLength / 2)
-  const backLength = Math.floor(stringLength / 2)
+  const separator = "...";
+  const stringLength = length - separator.length;
+  const frontLength = Math.ceil(stringLength / 2);
+  const backLength = Math.floor(stringLength / 2);
 
-  return value.substring(0, frontLength) + separator + value.substring(value.length - backLength)
+  return (
+    value.substring(0, frontLength) +
+    separator +
+    value.substring(value.length - backLength)
+  );
 }
 
 /**
@@ -21,10 +25,10 @@ export function truncate(value: string, length: number) {
  */
 export function convertHexToUtf8(value: string) {
   if (utils.isHexString(value)) {
-    return utils.toUtf8String(value)
+    return utils.toUtf8String(value);
   }
 
-  return value
+  return value;
 }
 
 /**
@@ -33,9 +37,9 @@ export function convertHexToUtf8(value: string) {
  * If it is a hex string, it gets converted to utf8 string
  */
 export function getSignParamsMessage(params: string[]) {
-  const message = params.filter(p => !utils.isAddress(p))[0]
+  const message = params.filter((p) => !utils.isAddress(p))[0];
 
-  return convertHexToUtf8(message)
+  return convertHexToUtf8(message);
 }
 
 /**
@@ -44,13 +48,13 @@ export function getSignParamsMessage(params: string[]) {
  * If data is a string convert it to object
  */
 export function getSignTypedDataParamsData(params: string[]) {
-  const data = params.filter(p => !utils.isAddress(p))[0]
+  const data = params.filter((p) => !utils.isAddress(p))[0];
 
-  if (typeof data === 'string') {
-    return JSON.parse(data)
+  if (typeof data === "string") {
+    return JSON.parse(data);
   }
 
-  return data
+  return data;
 }
 
 /**
@@ -58,35 +62,35 @@ export function getSignTypedDataParamsData(params: string[]) {
  * of our wallet addresses
  */
 export function getWalletAddressFromParams(addresses: string[], params: any) {
-  const paramsString = JSON.stringify(params)
-  let address = ''
+  const paramsString = JSON.stringify(params);
+  let address = "";
 
-  addresses.forEach(addr => {
+  addresses.forEach((addr) => {
     if (paramsString.includes(addr)) {
-      address = addr
+      address = addr;
     }
-  })
+  });
 
-  return address
+  return address;
 }
 
 /**
  * Check if chain is part of EIP155 standard
  */
 export function isEIP155Chain(chain: string) {
-  return chain.includes('eip155')
+  return chain.includes("eip155");
 }
 
 /**
  * Check if chain is part of COSMOS standard
  */
 export function isCosmosChain(chain: string) {
-  return chain.includes('cosmos')
+  return chain.includes("cosmos");
 }
 
 /**
  * Check if chain is part of SOLANA standard
  */
 export function isSolanaChain(chain: string) {
-  return chain.includes('solana')
+  return chain.includes("solana");
 }

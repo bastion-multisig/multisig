@@ -1,10 +1,10 @@
-import { Col, Row, Text } from '@nextui-org/react'
+import { Col, Row, Text } from "@nextui-org/react";
 
 /**
  * Types
  */
 interface IProps {
-  methods: string[]
+  methods: string[];
 }
 
 /**
@@ -15,8 +15,10 @@ export default function RequestMethodCard({ methods }: IProps) {
     <Row>
       <Col>
         <Text h5>Methods</Text>
-        <Text color="$gray400">{methods.map(method => method).join(', ')}</Text>
+        <Text color="$gray400">
+          {methods.map((method) => method).join(", ")}
+        </Text>
       </Col>
     </Row>
-  )
+  );
 }

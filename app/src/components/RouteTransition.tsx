@@ -1,19 +1,19 @@
-import { AnimatePresence, motion } from 'framer-motion'
-import { useRouter } from 'next/router'
-import { ReactNode } from 'react'
+import { AnimatePresence, motion } from "framer-motion";
+import { useRouter } from "next/router";
+import { ReactNode } from "react";
 
 /**
  * Types
  */
 interface IProps {
-  children: ReactNode | ReactNode[]
+  children: ReactNode | ReactNode[];
 }
 
 /**
  * Components
  */
 export default function RouteTransition({ children }: IProps) {
-  const { pathname } = useRouter()
+  const { pathname } = useRouter();
 
   return (
     <AnimatePresence exitBeforeEnter>
@@ -28,5 +28,5 @@ export default function RouteTransition({ children }: IProps) {
         {children}
       </motion.div>
     </AnimatePresence>
-  )
+  );
 }

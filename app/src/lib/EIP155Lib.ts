@@ -1,49 +1,51 @@
-import { providers, Wallet } from 'ethers'
+import { providers, Wallet } from "ethers";
 
 /**
  * Types
  */
 interface IInitArgs {
-  mnemonic?: string
+  mnemonic?: string;
 }
 
 /**
  * Library
  */
 export default class EIP155Lib {
-  wallet: Wallet
+  wallet: Wallet;
 
   constructor(wallet: Wallet) {
-    this.wallet = wallet
+    this.wallet = wallet;
   }
 
   static init({ mnemonic }: IInitArgs) {
-    const wallet = mnemonic ? Wallet.fromMnemonic(mnemonic) : Wallet.createRandom()
+    const wallet = mnemonic
+      ? Wallet.fromMnemonic(mnemonic)
+      : Wallet.createRandom();
 
-    return new EIP155Lib(wallet)
+    return new EIP155Lib(wallet);
   }
 
   getMnemonic() {
-    return this.wallet.mnemonic.phrase
+    return this.wallet.mnemonic.phrase;
   }
 
   getAddress() {
-    return this.wallet.address
+    return this.wallet.address;
   }
 
   signMessage(message: string) {
-    return this.wallet.signMessage(message)
+    return this.wallet.signMessage(message);
   }
 
   _signTypedData(domain: any, types: any, data: any) {
-    return this.wallet._signTypedData(domain, types, data)
+    return this.wallet._signTypedData(domain, types, data);
   }
 
   connect(provider: providers.JsonRpcProvider) {
-    return this.wallet.connect(provider)
+    return this.wallet.connect(provider);
   }
 
   signTransaction(transaction: providers.TransactionRequest) {
-    return this.wallet.signTransaction(transaction)
+    return this.wallet.signTransaction(transaction);
   }
 }

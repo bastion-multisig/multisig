@@ -1,11 +1,11 @@
-import { Col, Row, Text } from '@nextui-org/react'
-import { CodeBlock, codepen } from 'react-code-blocks'
+import { Col, Row, Text } from "@nextui-org/react";
+import { CodeBlock, codepen } from "react-code-blocks";
 
 /**
  * Types
  */
 interface IProps {
-  data: Record<string, unknown>
+  data: Record<string, unknown>;
 }
 
 /**
@@ -24,5 +24,5 @@ export default function RequestDataCard({ data }: IProps) {
         />
       </Col>
     </Row>
-  )
+  );
 }

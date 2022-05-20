@@ -1,35 +1,35 @@
-import { SessionTypes } from '@walletconnect/types'
-import { proxy } from 'valtio'
+import { SessionTypes } from "@walletconnect/types";
+import { proxy } from "valtio";
 
 /**
  * Types
  */
 interface ModalData {
-  proposal?: SessionTypes.Proposal
-  created?: SessionTypes.Created
-  requestEvent?: SessionTypes.RequestEvent
-  requestSession?: SessionTypes.Settled
+  proposal?: SessionTypes.Proposal;
+  created?: SessionTypes.Created;
+  requestEvent?: SessionTypes.RequestEvent;
+  requestSession?: SessionTypes.Settled;
 }
 
 interface State {
-  open: boolean
+  open: boolean;
   view?:
-    | 'SessionProposalModal'
-    | 'SessionSignModal'
-    | 'SessionSignTypedDataModal'
-    | 'SessionSendTransactionModal'
-    | 'SessionUnsuportedMethodModal'
-    | 'SessionSignCosmosModal'
-    | 'SessionSignSolanaModal'
-  data?: ModalData
+    | "SessionProposalModal"
+    | "SessionSignModal"
+    | "SessionSignTypedDataModal"
+    | "SessionSendTransactionModal"
+    | "SessionUnsuportedMethodModal"
+    | "SessionSignCosmosModal"
+    | "SessionSignSolanaModal";
+  data?: ModalData;
 }
 
 /**
  * State
  */
 const state = proxy<State>({
-  open: false
-})
+  open: false,
+});
 
 /**
  * Store / Actions
@@ -37,15 +37,15 @@ const state = proxy<State>({
 const ModalStore = {
   state,
 
-  open(view: State['view'], data: State['data']) {
-    state.view = view
-    state.data = data
-    state.open = true
+  open(view: State["view"], data: State["data"]) {
+    state.view = view;
+    state.data = data;
+    state.open = true;
   },
 
   close() {
-    state.open = false
-  }
-}
+    state.open = false;
+  },
+};
 
-export default ModalStore
+export default ModalStore;

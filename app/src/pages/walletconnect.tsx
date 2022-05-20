@@ -13,6 +13,7 @@ export default function WalletConnectPage() {
       setLoading(true);
       await walletConnectClient.pair({ uri });
     } catch (err: unknown) {
+      console.log(err);
       alert(err);
     } finally {
       setUri("");

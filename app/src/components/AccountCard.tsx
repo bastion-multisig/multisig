@@ -1,22 +1,22 @@
-import { truncate } from '@/utils/HelperUtil'
-import { Avatar, Button, Card, Text, Tooltip } from '@nextui-org/react'
-import Image from 'next/image'
-import { useState } from 'react'
+import { truncate } from "@/utils/HelperUtil";
+import { Avatar, Button, Card, Text, Tooltip } from "@nextui-org/react";
+import Image from "next/image";
+import { useState } from "react";
 
 interface Props {
-  name: string
-  logo: string
-  rgb: string
-  address: string
+  name: string;
+  logo: string;
+  rgb: string;
+  address: string;
 }
 
 export default function AccountCard({ name, logo, rgb, address }: Props) {
-  const [copied, setCopied] = useState(false)
+  const [copied, setCopied] = useState(false);
 
   function onCopy() {
-    navigator?.clipboard?.writeText(address)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 1500)
+    navigator?.clipboard?.writeText(address);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
   }
 
   return (
@@ -27,36 +27,41 @@ export default function AccountCard({ name, logo, rgb, address }: Props) {
         borderColor: `rgba(${rgb}, 0.4)`,
         boxShadow: `0 0 10px 0 rgba(${rgb}, 0.15)`,
         backgroundColor: `rgba(${rgb}, 0.25)`,
-        marginBottom: '$6',
-        minHeight: '70px'
+        marginBottom: "$6",
+        minHeight: "70px",
       }}
     >
       <Card.Body
         css={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          overflow: 'hidden'
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "space-between",
+          overflow: "hidden",
         }}
       >
         <Avatar src={logo} />
         <div style={{ flex: 1 }}>
-          <Text h5 css={{ marginLeft: '$9' }}>
+          <Text h5 css={{ marginLeft: "$9" }}>
             {name}
           </Text>
-          <Text weight="light" size={13} css={{ marginLeft: '$9' }}>
+          <Text weight="light" size={13} css={{ marginLeft: "$9" }}>
             {truncate(address, 19)}
           </Text>
         </div>
 
-        <Tooltip content={copied ? 'Copied!' : 'Copy'} placement="left">
+        <Tooltip content={copied ? "Copied!" : "Copy"} placement="left">
           <Button
             size="sm"
-            css={{ minWidth: 'auto', backgroundColor: 'rgba(255, 255, 255, 0.15)' }}
+            css={{
+              minWidth: "auto",
+              backgroundColor: "rgba(255, 255, 255, 0.15)",
+            }}
             onClick={onCopy}
           >
             <Image
-              src={copied ? '/icons/checkmark-icon.svg' : '/icons/copy-icon.svg'}
+              src={
+                copied ? "/icons/checkmark-icon.svg" : "/icons/copy-icon.svg"
+              }
               width={15}
               height={15}
               alt="copy icon"
@@ -65,5 +70,5 @@ export default function AccountCard({ name, logo, rgb, address }: Props) {
         </Tooltip>
       </Card.Body>
     </Card>
-  )
+  );
 }

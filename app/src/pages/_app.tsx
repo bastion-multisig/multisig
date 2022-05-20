@@ -1,5 +1,5 @@
-import Layout from '@/components/Layout'
-import Modal from '@/components/Modal'
+import Layout from "@/components/Layout";
+import Modal from "@/components/Modal";
 import { ContextProviders } from "@/contexts/Contexts";
 import useInitialization from "@/hooks/useInitialization";
 import useWalletConnectEventsManager from "@/hooks/useWalletConnectEventsManager";
