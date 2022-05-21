@@ -4,17 +4,15 @@ import { Card, Container, Loading } from "@nextui-org/react";
 import { ReactNode } from "react";
 
 /**
- * Types
- */
-interface Props {
-  initialized: boolean;
-  children: ReactNode | ReactNode[];
-}
-
-/**
  * Container
  */
-export default function Layout({ children, initialized }: Props) {
+export default function Layout({
+  children,
+  initialized,
+}: {
+  initialized: boolean;
+  children: ReactNode | ReactNode[];
+}) {
   return (
     <Container
       display="flex"

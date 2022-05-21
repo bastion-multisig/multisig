@@ -27,7 +27,7 @@ export default function Navigation() {
         </a>
       </Link>
 
-      <Link href="/welcome" passHref>
+      <Link href="/" passHref>
         <a className="navLink">
           <Avatar
             size="lg"

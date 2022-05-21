@@ -13,8 +13,7 @@ import { Button, Divider, Modal, Text } from "@nextui-org/react";
 
 export default function SessionSignSolanaModal() {
   // Get request and wallet data from store
-  const requestEvent = ModalStore.state.data?.requestEvent;
-  const requestSession = ModalStore.state.data?.requestSession;
+  const {requestEvent, requestSession, interpreted} = ModalStore.state.data ?? {};
 
   // Ensure request and wallet are defined
   if (!requestEvent || !requestSession) {
@@ -27,7 +26,7 @@ export default function SessionSignSolanaModal() {
   // Handle approve action (logic varies based on request method)
   async function onApprove() {
     if (requestEvent) {
-      const response = await approveSolanaRequest(requestEvent);
+      const response = await approveSolanaRequest(requestEvent, );
       await walletConnectClient.respond({
         topic: requestEvent.topic,
         response,

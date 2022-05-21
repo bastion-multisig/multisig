@@ -6,6 +6,7 @@ import {
 import { AnchorProvider, Program } from "@project-serum/anchor";
 import {
   useConnection,
+  useLocalStorage,
   useWallet,
   WalletContextState,
 } from "@solana/wallet-adapter-react";
@@ -46,7 +47,7 @@ export const SmartWalletProvider: FC<{ children: ReactNode }> = ({
   const { connection } = useConnection();
   const wallet = useWallet();
   const { publicKey } = wallet;
-  const [smartWalletPk, setSmartWalletPk] = useState<string>();
+  const [smartWalletPk, setSmartWalletPk] = useLocalStorage<string | undefined>("smart-wallet", undefined);
   const [smartWallet, setSmartWallet] = useState<SmartWalletData>();
 
   const provider = useMemo(() => {

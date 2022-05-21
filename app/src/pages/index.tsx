@@ -1,8 +1,12 @@
 import PageHeader from "@/components/PageHeader";
+import { useSmartWallet } from "@/contexts/SmartWalletContext";
+import { shortenAddress } from "@/utils/solana";
 import { Button, Card, Text } from "@nextui-org/react";
 import Link from "next/link";
 
 export default function WelcomePage() {
+  const { smartWallet, smartWalletPk } = useSmartWallet();
+
   return (
     <>
       <PageHeader title="Welcome" />
@@ -10,6 +14,12 @@ export default function WelcomePage() {
       <Text h4 css={{ marginBottom: "$10" }}>
         Get started
       </Text>
+
+      {smartWallet && smartWalletPk && (
+        <Text css={{ marginBottom: "$10" }}>
+          You are connected to Smart Wallet {shortenAddress(smartWalletPk)}
+        </Text>
+      )}
 
       <Card
         bordered

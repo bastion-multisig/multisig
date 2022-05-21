@@ -13,7 +13,7 @@ export async function createSmartWallet(
   threshold: BN
 ) {
   if (!walletPubkey) {
-    return;
+    throw new Error("No wallet");
   }
 
   const maxOwners = owners.length;
@@ -26,10 +26,6 @@ export async function createSmartWallet(
     smartWalletBase.publicKey
   );
 
-  console.log(smartWallet);
-  console.log(treasuryWalletIndex);
-  console.log(smartWallet.toBuffer());
-  console.log(new BN(treasuryWalletIndex));
   const [treasury] = await findWalletDerivedAddress(
     smartWallet,
     treasuryWalletIndex
@@ -39,7 +35,7 @@ export async function createSmartWallet(
     treasury
   );
 
-  return program.methods
+  await program.methods
     .createSmartWallet(
       smartWalletBump,
       maxOwners,
@@ -71,4 +67,5 @@ export async function createSmartWallet(
     ])
     .signers([smartWalletBase])
     .rpc();
+  return smartWallet;
 }

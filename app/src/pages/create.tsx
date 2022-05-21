@@ -32,7 +32,7 @@ export default function CreatePage() {
   const [ownerKey, setOwnerKey] = useState(0);
   const [threshold, setThreshold] = useState(1);
   const rpcContext = useSmartWallet();
-  const { wallet } = rpcContext;
+  const { wallet, setSmartWalletPk } = rpcContext;
   const router = useRouter();
 
   function back() {
@@ -44,11 +44,6 @@ export default function CreatePage() {
 
   function handleAcceptCluster() {
     if (owners.length === 0 && wallet.publicKey) {
-      console.log(
-        owners.length,
-        wallet.publicKey === null,
-        wallet.publicKey.toBase58()
-      );
       const newOwners: Owner[] = [
         {
           key: ownerKey,
@@ -147,7 +142,8 @@ export default function CreatePage() {
       return;
     }
     createSmartWallet(rpcContext, ownerKeys, new BN(threshold))
-      .then(() => {
+      .then((smartWallet) => {
+        setSmartWalletPk(smartWallet.toBase58());
         router.push("/walletconnect");
       })
       .catch((err) => {
@@ -190,7 +186,7 @@ export default function CreatePage() {
                 marginTop: 20,
               }}
             >
-              <Link href={"/welcome"} passHref>
+              <Link href={"/"} passHref>
                 <Button bordered size="sm" onClick={back}>
                   Cancel
                 </Button>

@@ -98,14 +98,14 @@ export function decodeTransaction(params: SolanaSignTransaction) {
     : undefined;
 
   // Signatures
-  const signatures: SignaturePubkeyPair[] = params.partialSignatures.map(
-    (sig) => {
-      return {
-        publicKey: new PublicKey(sig.pubkey),
-        signature: Buffer.from(base58.decode(sig.signature)),
-      };
-    }
-  );
+  const signatures: SignaturePubkeyPair[] | undefined = params.partialSignatures
+    ? params.partialSignatures.map((sig) => {
+        return {
+          publicKey: new PublicKey(sig.pubkey),
+          signature: Buffer.from(base58.decode(sig.signature)),
+        };
+      })
+    : undefined;
 
   // Build the transaction
   const transaction = new Transaction({

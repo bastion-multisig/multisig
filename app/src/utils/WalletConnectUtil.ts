@@ -3,10 +3,6 @@ import WalletConnectClient from "@walletconnect/client";
 export let walletConnectClient: WalletConnectClient;
 
 export async function createWalletConnectClient() {
-  console.log(
-    process.env.NEXT_PUBLIC_PROJECT_ID,
-    process.env.NEXT_PUBLIC_RELAY_URL
-  );
   walletConnectClient = await WalletConnectClient.init({
     controller: true,
     projectId: process.env.NEXT_PUBLIC_PROJECT_ID,
