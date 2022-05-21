@@ -52,6 +52,15 @@ export default function WalletConnectPage() {
           </Button>
         }
       />
+
+      <Text
+        size={13}
+        css={{ textAlign: "center", marginTop: "$10", marginBottom: "$10" }}
+      >
+        <a href="https://react-app.walletconnect.com/" target={"_blank"}>
+          Go to a dApp with WalletConnect
+        </a>
+      </Text>
     </>
   );
 }

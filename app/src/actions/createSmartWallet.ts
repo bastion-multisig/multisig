@@ -1,3 +1,4 @@
+import { SmartWalletContextState } from "@/contexts/SmartWalletContext";
 import {
   findSmartWallet,
   findSubaccountInfoAddress,
@@ -5,10 +6,9 @@ import {
 } from "@multisig/multisig-tx";
 import { BN } from "@project-serum/anchor";
 import { Keypair, PublicKey, SystemProgram } from "@solana/web3.js";
-import { RpcContext } from "./../hooks/useRpcContext";
 
 export async function createSmartWallet(
-  { walletPubkey, program }: RpcContext,
+  { walletPubkey, program }: SmartWalletContextState,
   owners: PublicKey[],
   threshold: BN
 ) {

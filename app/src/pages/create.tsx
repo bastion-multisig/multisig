@@ -13,9 +13,9 @@ import { Fragment, useState } from "react";
 import { PublicKey } from "@solana/web3.js";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { createSmartWallet } from "@/actions/createSmartWallet";
-import { useRpcContext } from "@/hooks/useRpcContext";
 import BN from "bn.js";
 import { useRouter } from "next/router";
+import { useSmartWallet } from "@/contexts/SmartWalletContext";
 
 interface Owner {
   key: number;
@@ -31,7 +31,7 @@ export default function CreatePage() {
   const [owners, setOwners] = useState<Owner[]>([]);
   const [ownerKey, setOwnerKey] = useState(0);
   const [threshold, setThreshold] = useState(1);
-  const rpcContext = useRpcContext();
+  const rpcContext = useSmartWallet();
   const { wallet } = rpcContext;
   const router = useRouter();
 
