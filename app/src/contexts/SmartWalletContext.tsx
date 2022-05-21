@@ -46,8 +46,11 @@ export const SmartWalletProvider: FC<{ children: ReactNode }> = ({
 }) => {
   const { connection } = useConnection();
   const wallet = useWallet();
-  const { publicKey } = wallet;
-  const [smartWalletPk, setSmartWalletPk] = useLocalStorage<string | undefined>("smart-wallet", undefined);
+  const { publicKey: walletPubkey } = wallet;
+  const [smartWalletPk, setSmartWalletPk] = useLocalStorage<string | undefined>(
+    "smart-wallet",
+    undefined
+  );
   const [smartWallet, setSmartWallet] = useState<SmartWalletData>();
 
   const provider = useMemo(() => {
@@ -86,7 +89,7 @@ export const SmartWalletProvider: FC<{ children: ReactNode }> = ({
       value={{
         connection,
         wallet,
-        walletPubkey: publicKey,
+        walletPubkey,
         provider,
         program,
         smartWalletPk,

@@ -3,6 +3,7 @@ import RequestDataCard from "@/components/RequestDataCard";
 import RequesDetailsCard from "@/components/RequestDetalilsCard";
 import RequestMethodCard from "@/components/RequestMethodCard";
 import RequestModalContainer from "@/components/RequestModalContainer";
+import { useSmartWallet } from "@/contexts/SmartWalletContext";
 import ModalStore from "@/store/ModalStore";
 import {
   approveSolanaRequest,
@@ -12,8 +13,11 @@ import { walletConnectClient } from "@/utils/WalletConnectUtil";
 import { Button, Divider, Modal, Text } from "@nextui-org/react";
 
 export default function SessionSignSolanaModal() {
+  const smartWallet = useSmartWallet();
+
   // Get request and wallet data from store
-  const {requestEvent, requestSession, interpreted} = ModalStore.state.data ?? {};
+  const { requestEvent, requestSession, interpreted } =
+    ModalStore.state.data ?? {};
 
   // Ensure request and wallet are defined
   if (!requestEvent || !requestSession) {
@@ -26,7 +30,11 @@ export default function SessionSignSolanaModal() {
   // Handle approve action (logic varies based on request method)
   async function onApprove() {
     if (requestEvent) {
-      const response = await approveSolanaRequest(requestEvent, );
+      const response = await approveSolanaRequest(
+        requestEvent,
+        interpreted,
+        smartWallet
+      );
       await walletConnectClient.respond({
         topic: requestEvent.topic,
         response,

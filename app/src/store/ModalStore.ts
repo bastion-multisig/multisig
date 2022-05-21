@@ -17,11 +17,7 @@ interface State {
   open: boolean;
   view?:
     | "SessionProposalModal"
-    | "SessionSignModal"
-    | "SessionSignTypedDataModal"
-    | "SessionSendTransactionModal"
     | "SessionUnsuportedMethodModal"
-    | "SessionSignCosmosModal"
     | "SessionSignSolanaModal";
   data?: ModalData;
 }

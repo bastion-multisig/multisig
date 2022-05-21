@@ -1,7 +1,5 @@
 import { SmartWalletContextState } from "@/contexts/SmartWalletContext";
 import { SOLANA_SIGNING_METHODS } from "@/data/SolanaData";
-import { getWalletAddressFromParams } from "@/utils/HelperUtil";
-import { solanaAddresses, solanaWallets } from "@/utils/SolanaWalletUtil";
 import {
   formatJsonRpcError,
   formatJsonRpcResult,
@@ -17,9 +15,10 @@ import {
 } from "@solana/web3.js";
 import { RequestEvent } from "@walletconnect/types";
 import { ERROR } from "@walletconnect/utils";
+import bs58 from "bs58";
 import base58 from "bs58";
 import { SolanaSignTransaction } from "solana-wallet";
-import { NoSmartWalletError } from "./error";
+import { NoSmartWalletError, NoWalletError } from "./error";
 
 /** Interprets the solana request as a multisig transaction */
 export async function interpretSolanaRequest(
@@ -29,20 +28,21 @@ export async function interpretSolanaRequest(
   if (!smartWallet.smartWalletPk) {
     throw new NoSmartWalletError();
   }
+  if (!smartWallet.walletPubkey) {
+    throw new NoWalletError();
+  }
+
   const smartWalletAddress = translateAddress(smartWallet.smartWalletPk);
 
   const request = requestEvent.request as JsonRpcRequest<SolanaSignTransaction>;
   const { method, params, id } = request;
-
-  const wallet =
-    solanaWallets[getWalletAddressFromParams(solanaAddresses, params)];
 
   const transaction = decodeTransaction(params);
 
   const { interpreted, txPubkeys } = await TxInterpreter.multisig(
     smartWallet.program,
     smartWalletAddress,
-    wallet.keypair.publicKey,
+    smartWallet.walletPubkey,
     transaction
   );
 
@@ -50,22 +50,31 @@ export async function interpretSolanaRequest(
 }
 
 /** Signs a solana request using the wallet adapter */
-export async function approveSolanaRequest(requestEvent: RequestEvent) {
+export async function approveSolanaRequest(
+  requestEvent: RequestEvent,
+  interpreted: Transaction[] | undefined,
+  smartWallet: SmartWalletContextState
+) {
   const { method, params, id } = requestEvent.request;
-  const wallet =
-    solanaWallets[getWalletAddressFromParams(solanaAddresses, params)];
+  const { wallet } = smartWallet;
+
+  if (!wallet || !wallet.signMessage || !wallet.signAllTransactions) {
+    throw new NoWalletError();
+  }
 
   switch (method) {
     case SOLANA_SIGNING_METHODS.SOLANA_SIGN_MESSAGE:
-      const signedMessage = await wallet.signMessage(params.message);
-      return formatJsonRpcResult(id, signedMessage);
+      const signedMessage = await wallet.signMessage(
+        bs58.decode(params.message)
+      );
+      const bs58Signature = bs58.encode(signedMessage);
+      return formatJsonRpcResult(id, bs58Signature);
 
     case SOLANA_SIGNING_METHODS.SOLANA_SIGN_TRANSACTION:
-      const signedTransaction = await wallet.signTransaction(
-        params.feePayer,
-        params.recentBlockhash,
-        params.instructions
-      );
+      if (!interpreted) {
+        throw new Error("Missing interpreted transactions");
+      }
+      const signedTransaction = await wallet.signAllTransactions(interpreted);
 
       return formatJsonRpcResult(id, signedTransaction);
 

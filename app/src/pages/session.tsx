@@ -1,17 +1,9 @@
 import PageHeader from "@/components/PageHeader";
 import ProjectInfoCard from "@/components/ProjectInfoCard";
 import SessionSelectSection from "@/components/SessionSelectSection";
-import { COSMOS_MAINNET_CHAINS, TCosmosChain } from "@/data/COSMOSData";
-import { EIP155_CHAINS, TEIP155Chain } from "@/data/EIP155Data";
+import { useSmartWallet } from "@/contexts/SmartWalletContext";
 import { SOLANA_CHAINS, TSolanaChain } from "@/data/SolanaData";
-import { cosmosAddresses } from "@/utils/CosmosWalletUtil";
-import { eip155Addresses } from "@/utils/EIP155WalletUtil";
-import {
-  isCosmosChain,
-  isEIP155Chain,
-  isSolanaChain,
-} from "@/utils/HelperUtil";
-import { solanaAddresses } from "@/utils/SolanaWalletUtil";
+import { isSolanaChain } from "@/utils/HelperUtil";
 import { walletConnectClient } from "@/utils/WalletConnectUtil";
 import { Button, Col, Divider, Row, Text } from "@nextui-org/react";
 import { ERROR } from "@walletconnect/utils";
@@ -22,9 +14,12 @@ import { useEffect, useState } from "react";
  * Component
  */
 export default function SessionPage() {
+  const { walletPubkey } = useSmartWallet();
   const [topic, setTopic] = useState("");
   const [updated, setUpdated] = useState(new Date());
   const { query, replace } = useRouter();
+
+  const addresses = walletPubkey ? [walletPubkey.toBase58()] : [];
 
   useEffect(() => {
     if (query?.topic) {
@@ -85,37 +80,13 @@ export default function SessionPage() {
       <ProjectInfoCard metadata={session.peer.metadata} />
 
       {chains.map((chain) => {
-        if (isEIP155Chain(chain)) {
-          return (
-            <SessionSelectSection
-              key={chain}
-              chain={chain}
-              name={EIP155_CHAINS[chain as TEIP155Chain]?.name}
-              addresses={eip155Addresses}
-              selectedAddresses={accounts}
-              onDelete={onDeleteAccount}
-              onAdd={onAddAccount}
-            />
-          );
-        } else if (isCosmosChain(chain)) {
-          return (
-            <SessionSelectSection
-              key={chain}
-              chain={chain}
-              name={COSMOS_MAINNET_CHAINS[chain as TCosmosChain]?.name}
-              addresses={cosmosAddresses}
-              selectedAddresses={accounts}
-              onDelete={onDeleteAccount}
-              onAdd={onAddAccount}
-            />
-          );
-        } else if (isSolanaChain(chain)) {
+        if (isSolanaChain(chain)) {
           return (
             <SessionSelectSection
               key={chain}
               chain={chain}
               name={SOLANA_CHAINS[chain as TSolanaChain]?.name}
-              addresses={solanaAddresses}
+              addresses={addresses}
               selectedAddresses={accounts}
               onDelete={onDeleteAccount}
               onAdd={onAddAccount}
