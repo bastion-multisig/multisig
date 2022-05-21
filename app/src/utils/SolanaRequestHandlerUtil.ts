@@ -10,8 +10,8 @@ import {
 import { TxInterpreter } from "@multisig/multisig-tx";
 import { translateAddress } from "@project-serum/anchor";
 import {
-  NonceInformation,
   PublicKey,
+  SignaturePubkeyPair,
   Transaction,
   TransactionInstruction,
 } from "@solana/web3.js";
@@ -25,7 +25,7 @@ import { NoSmartWalletError } from "./error";
 export async function interpretSolanaRequest(
   requestEvent: RequestEvent,
   smartWallet: SmartWalletContextState
-): Promise<RequestEvent> {
+): Promise<Transaction[]> {
   if (!smartWallet.smartWalletPk) {
     throw new NoSmartWalletError();
   }
@@ -37,20 +37,16 @@ export async function interpretSolanaRequest(
   const wallet =
     solanaWallets[getWalletAddressFromParams(solanaAddresses, params)];
 
+  const transaction = decodeTransaction(params);
+
   const { interpreted, txPubkeys } = await TxInterpreter.multisig(
     smartWallet.program,
     smartWalletAddress,
-    wallet.keypair.publicKey
-    // transaction
+    wallet.keypair.publicKey,
+    transaction
   );
 
-  return {
-    ...requestEvent,
-    request: {
-      ...requestEvent.request,
-      params: interpreted,
-    },
-  };
+  return interpreted;
 }
 
 /** Signs a solana request using the wallet adapter */
@@ -88,24 +84,39 @@ export function rejectSolanaRequest(request: RequestEvent["request"]) {
   );
 }
 
-export function decodeTransaction(
-  request: JsonRpcRequest<SolanaSignTransaction>
-) {
-  const { params } = request;
-  const nonceInfo = (params as any).nonceInfo;
+export function decodeTransaction(params: SolanaSignTransaction) {
+  // Instructions
+  const instructions = params.instructions.map(decodeInstruction);
 
+  // Nonce, if any
+  const nonceParams = (params as any).nonceInfo;
+  const nonceInfo = nonceParams
+    ? {
+        nonce: nonceParams.nonce,
+        nonceInstruction: decodeInstruction(nonceParams.nonceInstruction),
+      }
+    : undefined;
+
+  // Signatures
+  const signatures: SignaturePubkeyPair[] = params.partialSignatures.map(
+    (sig) => {
+      return {
+        publicKey: new PublicKey(sig.pubkey),
+        signature: Buffer.from(base58.decode(sig.signature)),
+      };
+    }
+  );
+
+  // Build the transaction
   const transaction = new Transaction({
     recentBlockhash: params.recentBlockhash,
     feePayer: new PublicKey(params.feePayer),
-    nonceInfo: nonceInfo
-      ? {
-          nonce: nonceInfo.nonce,
-          nonceInstruction: decodeInstruction(nonceInfo.nonceInstruction),
-        }
-      : undefined,
+    nonceInfo,
+    signatures: signatures,
   });
+  transaction.add(...instructions);
 
-  // transaction.addSignature()
+  return transaction;
 }
 
 export function decodeInstruction(
