@@ -1,4 +1,8 @@
-import { TransactionError } from "@solana/web3.js";
+import {
+  WalletSendTransactionError,
+  WalletSignMessageError,
+  WalletSignTransactionError,
+} from "@solana/wallet-adapter-base";
 
 export class NoSmartWalletError extends Error {}
 
@@ -12,42 +16,20 @@ export function isNoWalletError(error: any): error is NoSmartWalletError {
   return error instanceof NoWalletError;
 }
 
-export class SendTransactionError extends Error {
-  txError: TransactionError | undefined;
-  txId: string;
-  constructor(message: string, txId: string, txError?: TransactionError) {
-    super(message);
-
-    this.txError = txError;
-    this.txId = txId;
-  }
-}
-
 export function isSendTransactionError(
   error: any
-): error is SendTransactionError {
-  return error instanceof SendTransactionError;
+): error is WalletSendTransactionError {
+  return error instanceof WalletSendTransactionError;
 }
-
-export class SignTransactionError extends Error {}
 
 export function isSignTransactionError(
   error: any
-): error is SignTransactionError {
-  return error instanceof SignTransactionError;
+): error is WalletSignTransactionError {
+  return error instanceof WalletSignTransactionError;
 }
 
-export class TransactionTimeoutError extends Error {
-  txId: string;
-  constructor(txId: string) {
-    super(`Transaction has timed out`);
-
-    this.txId = txId;
-  }
-}
-
-export function isTransactionTimeoutError(
+export function isSignMessageError(
   error: any
-): error is TransactionTimeoutError {
-  return error instanceof TransactionTimeoutError;
+): error is WalletSignMessageError {
+  return error instanceof WalletSignMessageError;
 }

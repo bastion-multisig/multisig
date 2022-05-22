@@ -1,20 +1,19 @@
 import { BN, utils } from "@project-serum/anchor";
+import { findProgramAddressSync } from "@project-serum/anchor/dist/cjs/utils/pubkey";
 import { PublicKey } from "@solana/web3.js";
 
-export const findSmartWallet = async (
-  base: PublicKey
-): Promise<[PublicKey, number]> => {
-  return await PublicKey.findProgramAddress(
+export const findSmartWallet = (base: PublicKey): [PublicKey, number] => {
+  return findProgramAddressSync(
     [utils.bytes.utf8.encode("GokiSmartWallet"), base.toBuffer()],
     GOKI_ADDRESSES.SmartWallet
   );
 };
 
-export const findTransactionAddress = async (
+export const findTransactionAddress = (
   smartWallet: PublicKey,
   index: number
-): Promise<[PublicKey, number]> => {
-  return await PublicKey.findProgramAddress(
+): [PublicKey, number] => {
+  return findProgramAddressSync(
     [
       utils.bytes.utf8.encode("GokiTransaction"),
       smartWallet.toBuffer(),
@@ -30,11 +29,11 @@ export const findTransactionAddress = async (
  * @param index
  * @returns
  */
-export const findWalletDerivedAddress = async (
+export const findWalletDerivedAddress = (
   smartWallet: PublicKey,
   index: number
-): Promise<[PublicKey, number]> => {
-  return await PublicKey.findProgramAddress(
+): [PublicKey, number] => {
+  return findProgramAddressSync(
     [
       utils.bytes.utf8.encode("GokiSmartWalletDerived"),
       smartWallet.toBuffer(),
@@ -50,11 +49,11 @@ export const findWalletDerivedAddress = async (
  * @param index
  * @returns
  */
-export const findOwnerInvokerAddress = async (
+export const findOwnerInvokerAddress = (
   smartWallet: PublicKey,
   index: number
-): Promise<[PublicKey, number]> => {
-  return await PublicKey.findProgramAddress(
+): [PublicKey, number] => {
+  return findProgramAddressSync(
     [
       utils.bytes.utf8.encode("GokiSmartWalletOwnerInvoker"),
       smartWallet.toBuffer(),
@@ -69,10 +68,10 @@ export const findOwnerInvokerAddress = async (
  * @param subaccount
  * @returns
  */
-export const findSubaccountInfoAddress = async (
+export const findSubaccountInfoAddress = (
   subaccount: PublicKey
-): Promise<[PublicKey, number]> => {
-  return await PublicKey.findProgramAddress(
+): [PublicKey, number] => {
+  return findProgramAddressSync(
     [utils.bytes.utf8.encode("GokiSubaccountInfo"), subaccount.toBuffer()],
     GOKI_ADDRESSES.SmartWallet
   );
@@ -84,11 +83,11 @@ export const findSubaccountInfoAddress = async (
  * @param index
  * @returns
  */
-export const findWalletPartialSignerAddress = async (
+export const findWalletPartialSignerAddress = (
   smartWallet: PublicKey,
   index: BN
-): Promise<[PublicKey, number]> => {
-  return await PublicKey.findProgramAddress(
+): [PublicKey, number] => {
+  return findProgramAddressSync(
     [
       utils.bytes.utf8.encode("GokiSmartWalletPartialSigner"),
       smartWallet.toBuffer(),

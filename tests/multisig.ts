@@ -59,17 +59,11 @@ describe("multisig", () => {
   it("Set owners", async () => {
     program = new Program(SmartWalletIDL, GOKI_ADDRESSES.SmartWallet, provider);
 
-    [smartWallet, smartWalletBump] = await findSmartWallet(
-      smartWalletBase.publicKey
-    );
-    [treasury] = await findWalletDerivedAddress(
-      smartWallet,
-      treasuryWalletIndex
-    );
+    [smartWallet, smartWalletBump] = findSmartWallet(smartWalletBase.publicKey);
+    [treasury] = findWalletDerivedAddress(smartWallet, treasuryWalletIndex);
 
-    let [subaccountInfo, subaccountInfoBump] = await findSubaccountInfoAddress(
-      treasury
-    );
+    let [subaccountInfo, subaccountInfoBump] =
+      findSubaccountInfoAddress(treasury);
 
     const owners = [wallet.publicKey, ownerB.publicKey, ownerC.publicKey];
 
@@ -209,7 +203,7 @@ describe("multisig", () => {
   let createMintTransaction: PublicKey;
   let mint: PublicKey;
   it("Propose create mint", async () => {
-    const mintPartialSigner = await getRandomPartialSigner(smartWallet);
+    const mintPartialSigner = getRandomPartialSigner(smartWallet);
     mint = mintPartialSigner.pubkey;
 
     const instructions: MultisigInstruction[] = [

@@ -112,14 +112,9 @@ function getUniqueKeys(
   return Object.values(unique);
 }
 
-export async function getRandomPartialSigner(
-  smartWallet: PublicKey
-): Promise<PartialSigner> {
+export function getRandomPartialSigner(smartWallet: PublicKey): PartialSigner {
   const index = randomU64();
-  const [pubkey, bump] = await findWalletPartialSignerAddress(
-    smartWallet,
-    index
-  );
+  const [pubkey, bump] = findWalletPartialSignerAddress(smartWallet, index);
   return {
     index,
     bump,

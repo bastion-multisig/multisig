@@ -8,7 +8,7 @@ import { walletConnectClient } from "@/utils/WalletConnectUtil";
 import { Button, Divider, Modal, Text } from "@nextui-org/react";
 
 export default function SessionProposalModal() {
-  const { walletPubkey } = useSmartWallet();
+  const { treasuryPk } = useSmartWallet();
 
   // Get proposal data and wallet address from store
   const proposal = ModalStore.state.data?.proposal;
@@ -25,7 +25,7 @@ export default function SessionProposalModal() {
 
   // Handle approve action
   async function onApprove() {
-    if (proposal && walletPubkey) {
+    if (proposal && treasuryPk) {
       // This connects to any cluster that the frontend requests
       // Chain consts are available in src/data/SolanaData.ts
 
@@ -33,7 +33,7 @@ export default function SessionProposalModal() {
       // cluster where the smart wallet does not exist.
       // Check if the smart wallet exists on the chain before continuing
       const accounts = chains.map(
-        (chain) => `${chain}:${walletPubkey.toBase58()}`
+        (chain) => `${chain}:${treasuryPk.toBase58()}`
       );
       const response = {
         state: {
@@ -69,10 +69,10 @@ export default function SessionProposalModal() {
 
       <Modal.Footer>
         <Button auto flat color="error" onClick={onReject}>
-          {walletPubkey ? "Reject" : "Wallet not connected"}
+          {treasuryPk ? "Reject" : "Smart Wallet not connected"}
         </Button>
 
-        {walletPubkey && (
+        {treasuryPk && (
           <Button auto flat color="success" onClick={onApprove}>
             Approve
           </Button>

@@ -2,10 +2,11 @@ import PageHeader from "@/components/PageHeader";
 import { useSmartWallet } from "@/contexts/SmartWalletContext";
 import { shortenAddress } from "@/utils/solana";
 import { Button, Card, Text } from "@nextui-org/react";
+import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import Link from "next/link";
 
 export default function WelcomePage() {
-  const { smartWallet, smartWalletPk } = useSmartWallet();
+  const { smartWallet, treasuryPk } = useSmartWallet();
 
   return (
     <>
@@ -15,9 +16,11 @@ export default function WelcomePage() {
         Get started
       </Text>
 
-      {smartWallet && smartWalletPk && (
+      <WalletMultiButton />
+
+      {smartWallet && treasuryPk && (
         <Text css={{ marginBottom: "$10" }}>
-          You are connected to Smart Wallet {shortenAddress(smartWalletPk)}
+          You are connected to Smart Wallet {shortenAddress(treasuryPk)}
         </Text>
       )}
 
