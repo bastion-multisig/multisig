@@ -3,12 +3,9 @@ import RequesDetailsCard from "@/components/RequestDetalilsCard";
 import RequestMethodCard from "@/components/RequestMethodCard";
 import RequestModalContainer from "@/components/RequestModalContainer";
 import { useSmartWallet } from "@/contexts/SmartWalletContext";
-import { SOLANA_MAINNET_CHAINS } from "@/data/SolanaData";
 import ModalStore from "@/store/ModalStore";
 import { walletConnectClient } from "@/utils/WalletConnectUtil";
 import { Button, Divider, Modal, Text } from "@nextui-org/react";
-import { useWalletModal } from "@solana/wallet-adapter-react-ui";
-import { useCallback } from "react";
 
 export default function SessionProposalModal() {
   const { walletPubkey } = useSmartWallet();
@@ -28,15 +25,16 @@ export default function SessionProposalModal() {
 
   // Handle approve action
   async function onApprove() {
-    if (proposal) {
-      const accounts = walletPubkey
-        ? [
-            `solana:${
-              SOLANA_MAINNET_CHAINS["solana:4sGjMW1sUnHzSxGspuhpqLDx6wiyjNtZ"]
-                .chainId
-            }:${walletPubkey.toBase58()}`,
-          ]
-        : [];
+    if (proposal && walletPubkey) {
+      // This connects to any cluster that the frontend requests
+      // Chain consts are available in src/data/SolanaData.ts
+
+      // FIXME! This may cause a problem when connecting to a
+      // cluster where the smart wallet does not exist.
+      // Check if the smart wallet exists on the chain before continuing
+      const accounts = chains.map(
+        (chain) => `${chain}:${walletPubkey.toBase58()}`
+      );
       const response = {
         state: {
           accounts,

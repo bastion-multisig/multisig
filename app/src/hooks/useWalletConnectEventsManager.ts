@@ -1,5 +1,5 @@
 import { useSmartWallet } from "@/contexts/SmartWalletContext";
-import { SOLANA_SIGNING_METHODS } from "@/data/SolanaData";
+import { SOLANA_SIGNING_METHODS } from "@/data/SolanaChains";
 import ModalStore from "@/store/ModalStore";
 import { interpretSolanaRequest } from "@/utils/SolanaRequestHandlerUtil";
 import { walletConnectClient } from "@/utils/WalletConnectUtil";

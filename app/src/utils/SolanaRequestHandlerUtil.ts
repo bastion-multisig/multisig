@@ -1,5 +1,5 @@
 import { SmartWalletContextState } from "@/contexts/SmartWalletContext";
-import { SOLANA_SIGNING_METHODS } from "@/data/SolanaData";
+import { SOLANA_SIGNING_METHODS } from "@/data/SolanaChains";
 import {
   formatJsonRpcError,
   formatJsonRpcResult,
@@ -18,7 +18,11 @@ import { ERROR } from "@walletconnect/utils";
 import bs58 from "bs58";
 import base58 from "bs58";
 import { SolanaSignTransaction } from "solana-wallet";
-import { NoSmartWalletError, NoWalletError } from "./error";
+import {
+  isSignTransactionError,
+  NoSmartWalletError,
+  NoWalletError,
+} from "./error";
 
 /** Interprets the solana request as a multisig transaction */
 export async function interpretSolanaRequest(
@@ -56,9 +60,14 @@ export async function approveSolanaRequest(
   smartWallet: SmartWalletContextState
 ) {
   const { method, params, id } = requestEvent.request;
-  const { wallet } = smartWallet;
+  const { wallet, walletPubkey } = smartWallet;
 
-  if (!wallet || !wallet.signMessage || !wallet.signAllTransactions) {
+  if (
+    !wallet ||
+    !walletPubkey ||
+    !wallet.signMessage ||
+    !wallet.signAllTransactions
+  ) {
     throw new NoWalletError();
   }
 
@@ -67,16 +76,30 @@ export async function approveSolanaRequest(
       const signedMessage = await wallet.signMessage(
         bs58.decode(params.message)
       );
-      const bs58Signature = bs58.encode(signedMessage);
+      const bs58Signature = { signature: bs58.encode(signedMessage) };
       return formatJsonRpcResult(id, bs58Signature);
 
     case SOLANA_SIGNING_METHODS.SOLANA_SIGN_TRANSACTION:
       if (!interpreted) {
         throw new Error("Missing interpreted transactions");
       }
-      const signedTransaction = await wallet.signAllTransactions(interpreted);
-
-      return formatJsonRpcResult(id, signedTransaction);
+      let walletSignature: SignaturePubkeyPair | undefined;
+      try {
+        const signedTransaction = await wallet.signAllTransactions(interpreted);
+        walletSignature = signedTransaction[0].signatures.find((sig) =>
+          sig.publicKey.equals(walletPubkey)
+        );
+        if (!walletSignature || !walletSignature.signature) {
+          return rejectSolanaRequest(requestEvent.request);
+        }
+      } catch (err: any) {
+        if (isSignTransactionError(err)) {
+          return rejectSolanaRequest(requestEvent.request);
+        }
+        throw err;
+      }
+      const signature = { signature: bs58.encode(walletSignature.signature) };
+      return formatJsonRpcResult(id, signature);
 
     default:
       throw new Error(ERROR.UNKNOWN_JSONRPC_METHOD.format().message);

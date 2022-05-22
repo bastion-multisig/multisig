@@ -1,7 +1,7 @@
 import AccountCard from "@/components/AccountCard";
 import PageHeader from "@/components/PageHeader";
 import { useSmartWallet } from "@/contexts/SmartWalletContext";
-import { SOLANA_MAINNET_CHAINS, SOLANA_TEST_CHAINS } from "@/data/SolanaData";
+import { SOLANA_MAINNET_CHAINS } from "@/data/SolanaChains";
 import { Text } from "@nextui-org/react";
 
 export default function HomePage() {
