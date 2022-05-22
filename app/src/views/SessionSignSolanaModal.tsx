@@ -16,8 +16,7 @@ export default function SessionSignSolanaModal() {
   const smartWallet = useSmartWallet();
 
   // Get request and wallet data from store
-  const { requestEvent, requestSession, interpreted } =
-    ModalStore.state.data ?? {};
+  const { requestEvent, requestSession } = ModalStore.state.data ?? {};
 
   // Ensure request and wallet are defined
   if (!requestEvent || !requestSession) {
@@ -30,11 +29,7 @@ export default function SessionSignSolanaModal() {
   // Handle approve action (logic varies based on request method)
   async function onApprove() {
     if (requestEvent) {
-      const response = await approveSolanaRequest(
-        requestEvent,
-        interpreted,
-        smartWallet
-      );
+      const response = await approveSolanaRequest(requestEvent, smartWallet);
       await walletConnectClient.respond({
         topic: requestEvent.topic,
         response,

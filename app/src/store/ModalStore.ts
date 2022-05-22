@@ -1,4 +1,3 @@
-import { Transaction } from "@solana/web3.js";
 import { SessionTypes } from "@walletconnect/types";
 import { proxy } from "valtio";
 
@@ -10,7 +9,6 @@ interface ModalData {
   created?: SessionTypes.Created;
   requestEvent?: SessionTypes.RequestEvent;
   requestSession?: SessionTypes.Settled;
-  interpreted?: Transaction[];
 }
 
 interface State {

@@ -1,7 +1,6 @@
 import { useSmartWallet } from "@/contexts/SmartWalletContext";
 import { SOLANA_SIGNING_METHODS } from "@/data/SolanaChains";
 import ModalStore from "@/store/ModalStore";
-import { interpretSolanaRequest } from "@/utils/SolanaRequestHandlerUtil";
 import { walletConnectClient } from "@/utils/WalletConnectUtil";
 import { CLIENT_EVENTS } from "@walletconnect/client";
 import { SessionTypes } from "@walletconnect/types";
@@ -40,16 +39,9 @@ export default function useWalletConnectEventsManager(initialized: boolean) {
           });
 
         case SOLANA_SIGNING_METHODS.SOLANA_SIGN_TRANSACTION:
-          // Interpret the transaction as multisig before passing it on
-          const interpreted = await interpretSolanaRequest(
-            requestEvent,
-            smartWallet
-          );
-
           return ModalStore.open("SessionSignSolanaModal", {
             requestEvent,
             requestSession,
-            interpreted,
           });
 
         default:

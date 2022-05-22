@@ -1,66 +1,26 @@
 import { SmartWalletContextState } from "@/contexts/SmartWalletContext";
 import { SOLANA_SIGNING_METHODS } from "@/data/SolanaChains";
-import {
-  formatJsonRpcError,
-  formatJsonRpcResult,
-  JsonRpcRequest,
-} from "@json-rpc-tools/utils";
+import { formatJsonRpcError, formatJsonRpcResult } from "@json-rpc-tools/utils";
 import { TxInterpreter } from "@multisig/multisig-tx";
 import { translateAddress } from "@project-serum/anchor";
-import {
-  PublicKey,
-  SignaturePubkeyPair,
-  Transaction,
-  TransactionInstruction,
-} from "@solana/web3.js";
+import { SignaturePubkeyPair } from "@solana/web3.js";
 import { RequestEvent } from "@walletconnect/types";
 import { ERROR } from "@walletconnect/utils";
 import bs58 from "bs58";
-import base58 from "bs58";
-import { SolanaSignTransaction } from "solana-wallet";
+import { deserialiseTransaction } from "solana-wallet";
 import {
   isSignTransactionError,
   NoSmartWalletError,
   NoWalletError,
 } from "./error";
 
-/** Interprets the solana request as a multisig transaction */
-export async function interpretSolanaRequest(
-  requestEvent: RequestEvent,
-  smartWallet: SmartWalletContextState
-): Promise<Transaction[]> {
-  if (!smartWallet.smartWalletPk) {
-    throw new NoSmartWalletError();
-  }
-  if (!smartWallet.walletPubkey) {
-    throw new NoWalletError();
-  }
-
-  const smartWalletAddress = translateAddress(smartWallet.smartWalletPk);
-
-  const request = requestEvent.request as JsonRpcRequest<SolanaSignTransaction>;
-  const { method, params, id } = request;
-
-  const transaction = decodeTransaction(params);
-
-  const { interpreted, txPubkeys } = await TxInterpreter.multisig(
-    smartWallet.program,
-    smartWalletAddress,
-    smartWallet.walletPubkey,
-    transaction
-  );
-
-  return interpreted;
-}
-
 /** Signs a solana request using the wallet adapter */
 export async function approveSolanaRequest(
   requestEvent: RequestEvent,
-  interpreted: Transaction[] | undefined,
   smartWallet: SmartWalletContextState
 ) {
   const { method, params, id } = requestEvent.request;
-  const { wallet, walletPubkey } = smartWallet;
+  const { wallet, walletPubkey, smartWalletPk } = smartWallet;
 
   if (
     !wallet ||
@@ -80,16 +40,34 @@ export async function approveSolanaRequest(
       return formatJsonRpcResult(id, bs58Signature);
 
     case SOLANA_SIGNING_METHODS.SOLANA_SIGN_TRANSACTION:
-      if (!interpreted) {
-        throw new Error("Missing interpreted transactions");
+      if (!smartWalletPk) {
+        throw new NoSmartWalletError();
       }
-      let walletSignature: SignaturePubkeyPair | undefined;
+      const smartWalletAddress = translateAddress(smartWalletPk);
+
+      // Hack to fix array being undefined in `deserializeTransaction`
+      // Delete this line when this is merged https://github.com/WalletConnect/solana-wallet/pull/1
+      params.partialSignatures ??= [];
+
+      // Interpret the solana request as a multisig transaction before passing it on
+      const transaction = deserialiseTransaction(params);
+      const { interpreted, txPubkeys } = await TxInterpreter.multisig(
+        smartWallet.program,
+        smartWalletAddress,
+        walletPubkey,
+        transaction
+      );
+
+      let result: SignaturePubkeyPair | undefined;
       try {
+        // Sign
         const signedTransaction = await wallet.signAllTransactions(interpreted);
-        walletSignature = signedTransaction[0].signatures.find((sig) =>
+
+        // Go fishing for the signature
+        result = signedTransaction[0].signatures.find((sig) =>
           sig.publicKey.equals(walletPubkey)
         );
-        if (!walletSignature || !walletSignature.signature) {
+        if (!result || !result.signature) {
           return rejectSolanaRequest(requestEvent.request);
         }
       } catch (err: any) {
@@ -98,7 +76,7 @@ export async function approveSolanaRequest(
         }
         throw err;
       }
-      const signature = { signature: bs58.encode(walletSignature.signature) };
+      const signature = { signature: bs58.encode(result.signature) };
       return formatJsonRpcResult(id, signature);
 
     default:
@@ -114,57 +92,4 @@ export function rejectSolanaRequest(request: RequestEvent["request"]) {
     id,
     ERROR.JSONRPC_REQUEST_METHOD_REJECTED.format().message
   );
-}
-
-export function decodeTransaction(params: SolanaSignTransaction) {
-  // Instructions
-  const instructions = params.instructions.map(decodeInstruction);
-
-  // Nonce, if any
-  const nonceParams = (params as any).nonceInfo;
-  const nonceInfo = nonceParams
-    ? {
-        nonce: nonceParams.nonce,
-        nonceInstruction: decodeInstruction(nonceParams.nonceInstruction),
-      }
-    : undefined;
-
-  // Signatures
-  const signatures: SignaturePubkeyPair[] | undefined = params.partialSignatures
-    ? params.partialSignatures.map((sig) => {
-        return {
-          publicKey: new PublicKey(sig.pubkey),
-          signature: Buffer.from(base58.decode(sig.signature)),
-        };
-      })
-    : undefined;
-
-  // Build the transaction
-  const transaction = new Transaction({
-    recentBlockhash: params.recentBlockhash,
-    feePayer: new PublicKey(params.feePayer),
-    nonceInfo,
-    signatures: signatures,
-  });
-  transaction.add(...instructions);
-
-  return transaction;
-}
-
-export function decodeInstruction(
-  instruction: SolanaSignTransaction["instructions"][0]
-): TransactionInstruction {
-  return new TransactionInstruction({
-    programId: new PublicKey(instruction.programId),
-    keys: instruction.keys.map((key) => {
-      return {
-        isSigner: key.isSigner,
-        isWritable: key.isWritable,
-        pubkey: new PublicKey(key.pubkey),
-      };
-    }),
-    data: instruction.data
-      ? Buffer.from(base58.decode(instruction.data))
-      : undefined,
-  });
 }
