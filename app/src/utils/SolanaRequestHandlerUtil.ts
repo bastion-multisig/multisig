@@ -3,7 +3,7 @@ import { SOLANA_SIGNING_METHODS } from "@/data/SolanaChains";
 import { formatJsonRpcError, formatJsonRpcResult } from "@json-rpc-tools/utils";
 import { RequestEvent } from "@walletconnect/types";
 import { ERROR } from "@walletconnect/utils";
-import { isSignMessageError, isSignTransactionError } from "./error";
+import { isSignTransactionError } from "./error";
 
 /** Signs a solana request using the wallet adapter */
 export async function approveSolanaRequest(
@@ -14,33 +14,35 @@ export async function approveSolanaRequest(
 
   switch (method) {
     case SOLANA_SIGNING_METHODS.SOLANA_SIGN_MESSAGE:
+      console.log(
+        "SmartWallet program derived addresses can't sign messages.",
+        params
+      );
+      return rejectSolanaRequest(requestEvent.request);
+
+    case SOLANA_SIGNING_METHODS.SOLANA_SIGN_ALL_TRANSACTIONs:
       try {
-        const signedMessage = await smartWallet.signMessage(params.message);
-        return formatJsonRpcResult(id, signedMessage);
+        const signedParams = await smartWallet.signAllTransactions(params);
+        return formatJsonRpcResult(id, signedParams);
       } catch (err: any) {
-        if (isSignMessageError(err)) {
-          return rejectSolanaRequest(requestEvent.request);
+        if (!isSignTransactionError(err)) {
+          console.log(err);
         }
-        console.log(err);
-        // Fixme! Need to return a failure response or frontend goes into limbo
-        throw err;
+        return rejectSolanaRequest(requestEvent.request);
       }
 
     case SOLANA_SIGNING_METHODS.SOLANA_SIGN_TRANSACTION:
       try {
-        const signature = await smartWallet.signTransaction(params);
-        return formatJsonRpcResult(id, signature);
+        const signedParams = await smartWallet.signTransaction(params);
+        return formatJsonRpcResult(id, signedParams);
       } catch (err: any) {
-        if (isSignTransactionError(err)) {
-          return rejectSolanaRequest(requestEvent.request);
+        if (!isSignTransactionError(err)) {
+          console.log(err);
         }
-        console.log(err);
-        // Fixme! Need to return a failure response or frontend goes into limbo
-        throw err;
+        return rejectSolanaRequest(requestEvent.request);
       }
-
     default:
-      throw new Error(ERROR.UNKNOWN_JSONRPC_METHOD.format().message);
+      return rejectSolanaRequest(requestEvent.request);
   }
 }
 

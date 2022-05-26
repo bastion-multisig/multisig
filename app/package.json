@@ -14,7 +14,7 @@
     "@cosmjs/encoding": "0.28.4",
     "@cosmjs/proto-signing": "0.28.4",
     "@json-rpc-tools/utils": "1.7.6",
-    "@multisig/multisig-tx": "link:./../lib/TxInterpreter",
+    "@multisig/multisig-tx": "link:../lib/TxInterpreter/",
     "@nextui-org/react": "1.0.8-beta.5",
     "@project-serum/anchor": "^0.24.2",
     "@solana/spl-token": "^0.2.0",
@@ -38,7 +38,7 @@
     "react-dom": "17.0.2",
     "react-qr-reader-es6": "2.2.1-2",
     "react-query": "^3.39.0",
-    "solana-wallet": "1.0.1",
+    "solana-wallet": "file:./solana-wallet-v2.0.0.tgz",
     "valtio": "1.5.2"
   },
   "devDependencies": {

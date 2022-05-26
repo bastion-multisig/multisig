@@ -1,8 +1,4 @@
-import {
-  NoSmartWalletError,
-  NoWalletError,
-  SignTransactionError,
-} from "@/utils/error";
+import { NoSmartWalletError, NoWalletError } from "@/utils/error";
 import {
   findWalletDerivedAddress,
   GOKI_ADDRESSES,
@@ -18,6 +14,7 @@ import {
   Program,
   translateAddress,
 } from "@project-serum/anchor";
+import { WalletSignTransactionError } from "@solana/wallet-adapter-base";
 import {
   useConnection,
   useLocalStorage,
@@ -36,7 +33,14 @@ import {
   useMemo,
   useState,
 } from "react";
-import { deserialiseTransaction, SolanaSignTransaction } from "solana-wallet";
+import {
+  deserialiseTransaction,
+  deserializeAllTransactions,
+  serialiseTransaction,
+  serializeAllTransactions,
+  SolanaSignAllTransactions,
+  SolanaSignTransaction,
+} from "solana-wallet";
 
 export interface SmartWalletContextState {
   connection: Connection;
@@ -51,9 +55,12 @@ export interface SmartWalletContextState {
   signMessage: (message: string) => Promise<{
     signature: string;
   }>;
-  signTransaction: (params: SolanaSignTransaction) => Promise<{
-    signature: string;
-  }>;
+  signAllTransactions: (
+    params: SolanaSignAllTransactions
+  ) => Promise<SolanaSignAllTransactions>;
+  signTransaction: (
+    params: SolanaSignTransaction
+  ) => Promise<SolanaSignTransaction>;
 }
 
 export const SmartWalletContext = createContext<SmartWalletContextState>(
@@ -118,12 +125,7 @@ export const SmartWalletProvider: FC<{ children: ReactNode }> = ({
   }, []);
 
   async function signMessage(message: string) {
-    if (
-      !wallet ||
-      !walletPubkey ||
-      !wallet.signMessage ||
-      !wallet.signAllTransactions
-    ) {
+    if (!wallet || !walletPubkey || !wallet.signMessage) {
       throw new NoWalletError();
     }
 
@@ -131,13 +133,8 @@ export const SmartWalletProvider: FC<{ children: ReactNode }> = ({
     return { signature: bs58.encode(signedMessage) };
   }
 
-  async function signTransaction(params: SolanaSignTransaction) {
-    if (
-      !wallet ||
-      !walletPubkey ||
-      !wallet.signMessage ||
-      !wallet.signAllTransactions
-    ) {
+  async function signAllTransactions(params: SolanaSignAllTransactions) {
+    if (!wallet || !walletPubkey || !wallet.signAllTransactions) {
       throw new NoWalletError();
     }
     if (!smartWalletPk) {
@@ -145,9 +142,29 @@ export const SmartWalletProvider: FC<{ children: ReactNode }> = ({
     }
     const smartWalletAddress = translateAddress(smartWalletPk);
 
-    // Hack to fix array being undefined in `deserializeTransaction`
-    // Delete this line when this is merged https://github.com/WalletConnect/solana-wallet/pull/1
-    params.partialSignatures ??= [];
+    // Interpret the solana request as a multisig transaction before passing it on
+    const transactions = deserializeAllTransactions(params);
+    const { interpreted, txPubkeys } = await TxInterpreter.multisig(
+      program,
+      smartWalletAddress,
+      walletPubkey,
+      ...transactions
+    );
+
+    // Sign
+    const signedTransactions = await wallet.signAllTransactions(interpreted);
+
+    return serializeAllTransactions(signedTransactions);
+  }
+
+  async function signTransaction(params: SolanaSignTransaction) {
+    if (!wallet || !walletPubkey || !wallet.signTransaction) {
+      throw new NoWalletError();
+    }
+    if (!smartWalletPk) {
+      throw new NoSmartWalletError();
+    }
+    const smartWalletAddress = translateAddress(smartWalletPk);
 
     // Interpret the solana request as a multisig transaction before passing it on
     const transaction = deserialiseTransaction(params);
@@ -158,18 +175,21 @@ export const SmartWalletProvider: FC<{ children: ReactNode }> = ({
       transaction
     );
 
-    // Sign
-    const signedTransaction = await wallet.signAllTransactions(interpreted);
-
-    // Go fishing for the signature
-    const result = signedTransaction[0].signatures.find((sig) =>
-      sig.publicKey.equals(walletPubkey)
-    );
-
-    if (!result || !result.signature) {
-      throw new SignTransactionError();
+    if (interpreted.length === 0) {
+      throw new WalletSignTransactionError(
+        "Signing one transaction and got none back."
+      );
     }
-    return { signature: bs58.encode(result.signature) };
+    if (interpreted.length > 1) {
+      throw new WalletSignTransactionError(
+        "Signing one transacton and got many back."
+      );
+    }
+
+    // Sign
+    const signedTransactions = await wallet.signTransaction(interpreted[0]);
+
+    return serialiseTransaction(signedTransactions);
   }
 
   return (
@@ -185,6 +205,7 @@ export const SmartWalletProvider: FC<{ children: ReactNode }> = ({
         smartWallet,
         treasuryPk,
         signMessage,
+        signAllTransactions,
         signTransaction,
       }}
     >
