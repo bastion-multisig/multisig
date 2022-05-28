@@ -177,19 +177,19 @@ export const SmartWalletProvider: FC<{ children: ReactNode }> = ({
 
     if (interpreted.length === 0) {
       throw new WalletSignTransactionError(
-        "Signing one transaction and got none back."
+        "Interpreting one transaction as multisig and got none back."
       );
     }
     if (interpreted.length > 1) {
       throw new WalletSignTransactionError(
-        "Signing one transacton and got many back."
+        "Interpreting one transacton as multisig and got many back."
       );
     }
 
     // Sign
-    const signedTransactions = await wallet.signTransaction(interpreted[0]);
+    const signedTransaction = await wallet.signTransaction(interpreted[0]);
 
-    return serialiseTransaction(signedTransactions);
+    return serialiseTransaction(signedTransaction);
   }
 
   return (

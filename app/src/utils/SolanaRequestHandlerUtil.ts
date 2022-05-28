@@ -20,7 +20,7 @@ export async function approveSolanaRequest(
       );
       return rejectSolanaRequest(requestEvent.request);
 
-    case SOLANA_SIGNING_METHODS.SOLANA_SIGN_ALL_TRANSACTIONs:
+    case SOLANA_SIGNING_METHODS.SOLANA_SIGN_ALL_TRANSACTIONS:
       try {
         const signedParams = await smartWallet.signAllTransactions(params);
         return formatJsonRpcResult(id, signedParams);

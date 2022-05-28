@@ -1,4 +1,4 @@
-import { Program } from "@project-serum/anchor";
+import { AnchorProvider, Program } from "@project-serum/anchor";
 import {
   PublicKey,
   Transaction,
@@ -8,7 +8,7 @@ import { SmartWallet } from "./idl/smart_wallet";
 import { createTransaction, getRandomPartialSigner } from "./multisigClient";
 import { MultisigInstruction, PartialSigner } from "./multisigInstruction";
 import { findSubaccountInfoAddress } from "./pda";
-import { SubaccountInfoData } from "./types";
+import { SmartWalletData, SubaccountInfoData } from "./types";
 export class TxInterpreter {
   /**
    * Rewrites transactions such that it will be uploaded to a 'Transaction'
@@ -18,7 +18,6 @@ export class TxInterpreter {
   static async multisig(
     program: Program<SmartWallet>,
     smartWallet: PublicKey,
-    proposer: PublicKey,
     ...transactions: Transaction[]
   ): Promise<{
     interpreted: Transaction[];
@@ -33,14 +32,13 @@ export class TxInterpreter {
     const filteredSigners = signers.filter(
       (signer) => !subaccounts[signer.toBase58()]
     );
-    const partialSigners = await this.getRandomPartialSigners(
+    const partialSigners = this.getRandomPartialSigners(
       smartWallet,
       filteredSigners
     );
     return await this.buildMultisigTransactions(
       program,
       smartWallet,
-      proposer,
       transactions,
       partialSigners
     );
@@ -69,7 +67,7 @@ export class TxInterpreter {
   ) {
     const addresses: PublicKey[] = [];
     for (let i = 0; i < keys.length; i++) {
-      const [address, _bump] = await findSubaccountInfoAddress(keys[i]);
+      const [address, _bump] = findSubaccountInfoAddress(keys[i]);
       addresses[i] = address;
     }
 
@@ -95,7 +93,7 @@ export class TxInterpreter {
    * For every signer, if the signer does not have a subaccount, return a
    * map of the signer pukbey to a partial signer record.
    */
-  private static async getRandomPartialSigners(
+  private static getRandomPartialSigners(
     smartWallet: PublicKey,
     signers: PublicKey[]
   ) {
@@ -105,7 +103,7 @@ export class TxInterpreter {
       const keyStr = signer.toBase58();
       const partialSigner = partialSigners[keyStr];
       if (!partialSigner) {
-        partialSigners[keyStr] = await getRandomPartialSigner(smartWallet);
+        partialSigners[keyStr] = getRandomPartialSigner(smartWallet);
       }
     }
     return partialSigners;
@@ -114,33 +112,40 @@ export class TxInterpreter {
   private static async buildMultisigTransactions(
     program: Program<SmartWallet>,
     smartWallet: PublicKey,
-    proposer: PublicKey,
     transactions: Transaction[],
     partialSigners: Record<string, PartialSigner>
   ) {
+    // Overwrite the recent blockhash again so that there is more time for the user to sign
+    const { blockhash } =
+      await program.provider.connection.getLatestBlockhash();
+    const smartWalletInfo: SmartWalletData =
+      await program.account.smartWallet.fetch(smartWallet);
+
     const interpreted: Transaction[] = [];
     const txAddresses: PublicKey[] = [];
     for (let i = 0; i < transactions.length; i++) {
       const transaction = transactions[i];
       const multisigInstructions: MultisigInstruction[] = [];
       for (let j = 0; j < transaction.instructions.length; j++) {
-        multisigInstructions[j] = await this.buildMultisigInstruction(
+        multisigInstructions[j] = this.buildMultisigInstruction(
           transaction.instructions[j],
           partialSigners
         );
       }
 
-      const { address, builder } = await createTransaction(
+      const { address, builder } = createTransaction(
         program,
         smartWallet,
-        proposer,
+        smartWalletInfo,
         multisigInstructions
       );
 
       const interpretedTx = await builder.transaction();
 
-      interpretedTx.recentBlockhash = transaction.recentBlockhash;
-      interpretedTx.feePayer = transaction.feePayer;
+      interpretedTx.recentBlockhash = blockhash;
+      interpretedTx.feePayer = (
+        program.provider as AnchorProvider
+      ).wallet.publicKey;
 
       interpreted.push(interpretedTx);
       txAddresses.push(address);
@@ -152,7 +157,7 @@ export class TxInterpreter {
     };
   }
 
-  private static async buildMultisigInstruction(
+  private static buildMultisigInstruction(
     instruction: TransactionInstruction,
     partialSigners: Record<string, PartialSigner>
   ) {

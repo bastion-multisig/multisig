@@ -35,7 +35,7 @@ export const SOLANA_CHAINS = {
  * Methods
  */
 export const SOLANA_SIGNING_METHODS = {
-  SOLANA_SIGN_ALL_TRANSACTIONs: "solana_signAllTransactions",
+  SOLANA_SIGN_ALL_TRANSACTIONS: "solana_signAllTransactions",
   SOLANA_SIGN_TRANSACTION: "solana_signTransaction",
   SOLANA_SIGN_MESSAGE: "solana_signMessage",
 };

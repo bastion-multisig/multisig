@@ -6,23 +6,22 @@ import {
   findWalletDerivedAddress,
   findWalletPartialSignerAddress,
 } from "./pda";
-import { SmartWalletTransactionData } from "./types";
+import { SmartWalletData, SmartWalletTransactionData } from "./types";
 import { SmartWallet } from "./idl/smart_wallet";
 
 export function multisigSize(owners: number) {
   return owners * 32 + 96;
 }
 
-export async function createTransaction(
+export function createTransaction(
   program: Program<SmartWallet>,
   smartWallet: PublicKey,
-  proposer: PublicKey,
+  smartWalletInfo: SmartWalletData,
   instructions: MultisigInstruction[]
 ) {
   const provider = program.provider as AnchorProvider;
-  const multisigInfo = await program.account.smartWallet.fetch(smartWallet);
-  const txIndex = multisigInfo.numTransactions.toNumber();
-  const [transaction, transactionBump] = await findTransactionAddress(
+  const txIndex = smartWalletInfo.numTransactions.toNumber();
+  const [transaction, transactionBump] = findTransactionAddress(
     smartWallet,
     txIndex
   );
@@ -32,7 +31,7 @@ export async function createTransaction(
     .accounts({
       smartWallet,
       transaction,
-      proposer,
+      proposer: provider.wallet.publicKey,
       payer: provider.wallet.publicKey,
       systemProgram: SystemProgram.programId,
     });

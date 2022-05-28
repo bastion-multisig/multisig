@@ -37,6 +37,7 @@ import {
 } from "@solana/spl-token";
 import { getRandomPartialSigner } from "../lib/TxInterpreter/src";
 import { MINT_SIZE } from "@solana/spl-token";
+import { SmartWalletData } from "../lib/TxInterpreter/lib";
 
 describe("multisig", () => {
   // Configure the client to use the local cluster.
@@ -53,6 +54,7 @@ describe("multisig", () => {
   const smartWalletBase = Keypair.generate();
   let smartWallet: PublicKey;
   let smartWalletBump: number;
+  let smartWalletInfo: SmartWalletData;
   const treasuryWalletIndex = 0;
   let treasury: PublicKey;
 
@@ -101,7 +103,7 @@ describe("multisig", () => {
       .signers([smartWalletBase])
       .rpc();
 
-    let smartWalletInfo = await program.account.smartWallet.fetch(smartWallet);
+    smartWalletInfo = await program.account.smartWallet.fetch(smartWallet);
 
     assert.ok(smartWalletInfo.threshold.eq(new BN(1)));
     assert.deepStrictEqual(smartWalletInfo.owners, owners);
@@ -135,10 +137,10 @@ describe("multisig", () => {
       lamports: 10 * LAMPORTS_PER_SOL,
     });
     // Propose that the multisig pays sol
-    const { address, builder } = await createTransaction(
+    const { address, builder } = createTransaction(
       program,
       smartWallet,
-      wallet.publicKey,
+      smartWalletInfo,
       [{ ...withdrawSolIx, partialSigners: [] }]
     );
 
@@ -165,22 +167,15 @@ describe("multisig", () => {
       toPubkey: receiver.publicKey,
       lamports: 10 * LAMPORTS_PER_SOL,
     });
-    const transaction = new Transaction({
-      recentBlockhash: (await connection.getLatestBlockhash()).blockhash,
-      feePayer: treasury,
-    }).add(withdrawSolIx);
+    const transaction = new Transaction().add(withdrawSolIx);
     const { interpreted, txPubkeys } = await TxInterpreter.multisig(
       program,
       smartWallet,
-      wallet.publicKey,
       transaction
     );
 
     intepretedWithdrawSolTxPubkeys = txPubkeys;
 
-    interpreted.forEach((tx) => {
-      tx.feePayer = wallet.publicKey;
-    });
     const signedByWallet = await wallet.signAllTransactions(interpreted);
 
     await provider.sendAll(
@@ -228,10 +223,10 @@ describe("multisig", () => {
       },
     ];
 
-    let { address, builder } = await createTransaction(
+    let { address, builder } = createTransaction(
       program,
       smartWallet,
-      wallet.publicKey,
+      smartWalletInfo,
       instructions
     );
     await builder.rpc();
@@ -260,23 +255,16 @@ describe("multisig", () => {
       }),
       createInitializeMintInstruction(mint.publicKey, 9, treasury, treasury),
     ];
-    const transaction = new Transaction({
-      feePayer: treasury,
-      recentBlockhash: (await connection.getLatestBlockhash()).blockhash,
-    }).add(...instructions);
+    const transaction = new Transaction().add(...instructions);
     transaction.partialSign(mint);
 
     const { interpreted, txPubkeys } = await TxInterpreter.multisig(
       program,
       smartWallet,
-      wallet.publicKey,
       transaction
     );
     interpretCreateMintTransactions = txPubkeys;
 
-    interpreted.forEach((tx) => {
-      tx.feePayer = wallet.publicKey;
-    });
     wallet.signAllTransactions(interpreted);
 
     await provider.sendAll(
@@ -301,20 +289,13 @@ describe("multisig", () => {
       mint
     );
 
-    const transaction = new Transaction({
-      feePayer: wallet.publicKey,
-    }).add(ataInstruction);
+    const transaction = new Transaction().add(ataInstruction);
 
     const { interpreted, txPubkeys } = await TxInterpreter.multisig(
       program,
       smartWallet,
-      wallet.publicKey,
       transaction
     );
-
-    interpreted.forEach((tx) => {
-      tx.feePayer = wallet.publicKey;
-    });
     wallet.signAllTransactions(interpreted);
 
     await provider.sendAll(
