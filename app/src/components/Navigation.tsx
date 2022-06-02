@@ -5,11 +5,11 @@ import Link from "next/link";
 export default function Navigation() {
   return (
     <Row justify="space-between" align="center">
-      <Link href="/accounts" passHref>
+      <Link href="/transactionQueue" passHref>
         <a className="navLink">
           <Image
-            alt="accounts icon"
-            src="/icons/accounts-icon.svg"
+            alt="transaction queue icon"
+            src="/icons/transaction-queue-icon.svg"
             width={27}
             height={27}
           />

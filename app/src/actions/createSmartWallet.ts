@@ -1,4 +1,6 @@
 import { SmartWalletContextState } from "@/contexts/SmartWalletContext";
+import { DEFAULT_WALLET_DERIVED_INDEX } from "@/data/SolanaChains";
+import { bnToNumber } from "@/utils/bn";
 import {
   findSmartWallet,
   findSubaccountInfoAddress,
@@ -18,7 +20,6 @@ export async function createSmartWallet(
 
   const maxOwners = owners.length;
   const minimumDelay = new BN(0);
-  const treasuryWalletIndex = 0;
 
   const smartWalletBase = Keypair.generate();
 
@@ -28,7 +29,7 @@ export async function createSmartWallet(
 
   const [treasury] = await findWalletDerivedAddress(
     smartWallet,
-    treasuryWalletIndex
+    bnToNumber(DEFAULT_WALLET_DERIVED_INDEX)
   );
 
   let [subaccountInfo, subaccountInfoBump] = await findSubaccountInfoAddress(
@@ -55,7 +56,7 @@ export async function createSmartWallet(
           subaccountInfoBump,
           treasury,
           smartWallet,
-          new BN(treasuryWalletIndex),
+          DEFAULT_WALLET_DERIVED_INDEX,
           { derived: {} }
         )
         .accounts({

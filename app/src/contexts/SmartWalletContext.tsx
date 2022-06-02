@@ -1,8 +1,11 @@
+import { NOT_EXECUTED } from "@/data/SolanaChains";
+import { bnToNumber } from "@/utils/bn";
 import { NoSmartWalletError, NoWalletError } from "@/utils/error";
 import {
   findWalletDerivedAddress,
   GOKI_ADDRESSES,
   SmartWalletData,
+  SmartWalletTransactionData,
   TxInterpreter,
 } from "@multisig/multisig-tx";
 import {
@@ -12,6 +15,7 @@ import {
 import {
   AnchorProvider,
   Program,
+  ProgramAccount,
   translateAddress,
 } from "@project-serum/anchor";
 import { WalletSignTransactionError } from "@solana/wallet-adapter-base";
@@ -21,7 +25,7 @@ import {
   useWallet,
   WalletContextState,
 } from "@solana/wallet-adapter-react";
-import { PublicKey } from "@solana/web3.js";
+import { MemcmpFilter, PublicKey } from "@solana/web3.js";
 import { Connection } from "@solana/web3.js";
 import bs58 from "bs58";
 import {
@@ -61,6 +65,10 @@ export interface SmartWalletContextState {
   signTransaction: (
     params: SolanaSignTransaction
   ) => Promise<SolanaSignTransaction>;
+
+  refresh: () => void;
+  transactionQueue?: ProgramAccount<SmartWalletTransactionData>[];
+  transactionHistory?: ProgramAccount<SmartWalletTransactionData>[];
 }
 
 export const SmartWalletContext = createContext<SmartWalletContextState>(
@@ -83,6 +91,12 @@ export const SmartWalletProvider: FC<{ children: ReactNode }> = ({
   );
   const [smartWallet, setSmartWallet] = useState<SmartWalletData>();
   const [treasuryPk, setTreasuryPk] = useState<PublicKey>();
+
+  const [refreshCounter, setRefreshCounter] = useState(0);
+  const [transactionQueue, setTransactionQueue] =
+    useState<ProgramAccount<SmartWalletTransactionData>[]>();
+  const [transactionHistory, setTransactionHistory] =
+    useState<ProgramAccount<SmartWalletTransactionData>[]>();
 
   const provider = useMemo(() => {
     return new AnchorProvider(connection, wallet as any, {
@@ -122,7 +136,42 @@ export const SmartWalletProvider: FC<{ children: ReactNode }> = ({
     return () => {
       abort = true;
     };
-  }, []);
+  }, [refreshCounter]);
+  useEffect(() => {
+    if (!smartWalletPk) {
+      setTransactionQueue(undefined);
+      setTransactionHistory(undefined);
+      return;
+    }
+    let abort = false;
+    const smartWalletFilter: MemcmpFilter = {
+      memcmp: {
+        offset: 8 + 1,
+        bytes: smartWalletPk,
+      },
+    };
+    program.account.transaction.all([smartWalletFilter]).then((txs) => {
+      if (abort) {
+        return;
+      }
+      const queued = txs
+        .filter((tx) => tx.account.executedAt.eq(NOT_EXECUTED))
+        .sort((a, b) => bnToNumber(b.account.index.sub(a.account.index)));
+
+      const history = txs
+        .filter((tx) => !tx.account.executedAt.eq(NOT_EXECUTED))
+        .sort((a, b) =>
+          bnToNumber(b.account.executedAt.sub(a.account.executedAt))
+        );
+
+      // FIXME! Resolve type mismatch
+      setTransactionQueue(queued as any);
+      setTransactionHistory(history as any);
+    });
+    return () => {
+      abort = true;
+    };
+  }, [smartWalletPk, program, refreshCounter]);
 
   async function signMessage(message: string) {
     if (!wallet || !walletPubkey || !wallet.signMessage) {
@@ -192,6 +241,10 @@ export const SmartWalletProvider: FC<{ children: ReactNode }> = ({
     return serialiseTransaction(signedTransaction);
   }
 
+  function refresh() {
+    setRefreshCounter((count) => count + 1);
+  }
+
   return (
     <SmartWalletContext.Provider
       value={{
@@ -207,6 +260,10 @@ export const SmartWalletProvider: FC<{ children: ReactNode }> = ({
         signMessage,
         signAllTransactions,
         signTransaction,
+
+        transactionQueue,
+        transactionHistory,
+        refresh,
       }}
     >
       {children}
