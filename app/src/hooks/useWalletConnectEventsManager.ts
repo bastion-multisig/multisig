@@ -6,7 +6,7 @@ import { CLIENT_EVENTS } from "@walletconnect/client";
 import { SessionTypes } from "@walletconnect/types";
 import { useCallback, useEffect } from "react";
 
-export default function useWalletConnectEventsManager(initialized: boolean) {
+export default function useWalletConnectEventsManager() {
   const smartWallet = useSmartWallet();
 
   /******************************************************************************
@@ -29,7 +29,7 @@ export default function useWalletConnectEventsManager(initialized: boolean) {
     async (requestEvent: SessionTypes.RequestEvent) => {
       const { topic, request } = requestEvent;
       const { method } = request;
-      const requestSession = await walletConnectClient.session.get(topic);
+      const requestSession = await walletConnectClient?.session.get(topic);
 
       switch (method) {
         case SOLANA_SIGNING_METHODS.SOLANA_SIGN_MESSAGE:
@@ -59,12 +59,27 @@ export default function useWalletConnectEventsManager(initialized: boolean) {
    * Set up WalletConnect event listeners
    *****************************************************************************/
   useEffect(() => {
-    if (initialized) {
-      walletConnectClient.on(CLIENT_EVENTS.session.proposal, onSessionProposal);
+    let client = walletConnectClient;
+    if (client) {
+      client.on(CLIENT_EVENTS.session.proposal, onSessionProposal);
 
-      walletConnectClient.on(CLIENT_EVENTS.session.created, onSessionCreated);
+      client.on(CLIENT_EVENTS.session.created, onSessionCreated);
 
-      walletConnectClient.on(CLIENT_EVENTS.session.request, onSessionRequest);
+      client.on(CLIENT_EVENTS.session.request, onSessionRequest);
     }
-  }, [initialized, onSessionProposal, onSessionCreated, onSessionRequest]);
+    return () => {
+      if (client) {
+        client.off(CLIENT_EVENTS.session.proposal, onSessionProposal);
+
+        client.off(CLIENT_EVENTS.session.created, onSessionCreated);
+
+        client.off(CLIENT_EVENTS.session.request, onSessionRequest);
+      }
+    };
+  }, [
+    walletConnectClient,
+    onSessionProposal,
+    onSessionCreated,
+    onSessionRequest,
+  ]);
 }

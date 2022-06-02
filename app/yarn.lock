@@ -861,12 +861,6 @@
   version "0.0.0"
   uid ""
 
-"@multisig/multisig-tx@link:../lib/TxInterpreter/":
-  version "0.3.2"
-  dependencies:
-    "@project-serum/anchor" "^0.24.2"
-    "@solana/spl-token" "^0.2.0"
-
 "@next/env@12.1.5":
   version "12.1.5"
   resolved "https://registry.npmjs.org/@next/env/-/env-12.1.5.tgz"

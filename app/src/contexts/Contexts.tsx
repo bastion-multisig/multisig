@@ -7,18 +7,12 @@ import { WalletContextProvider } from "./WalletContext";
 
 let theme = createTheme({ type: "dark" });
 
-export const ContextProviders = ({
-  isInitialized,
-  children,
-}: {
-  isInitialized: (initialized: boolean) => void;
-  children: ReactNode;
-}) => {
+export const ContextProviders = ({ children }: { children: ReactNode }) => {
   return (
     <AutoConnectProvider>
       <WalletContextProvider>
         <SmartWalletProvider>
-          <WalletConnectProvider isInitialized={isInitialized}>
+          <WalletConnectProvider>
             <NextUIProvider theme={theme}>{children}</NextUIProvider>
           </WalletConnectProvider>
         </SmartWalletProvider>

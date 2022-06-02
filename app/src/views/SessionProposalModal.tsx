@@ -40,7 +40,7 @@ export default function SessionProposalModal() {
           accounts,
         },
       };
-      await walletConnectClient.approve({ proposal, response });
+      await walletConnectClient?.approve({ proposal, response });
     }
     ModalStore.close();
   }
@@ -48,7 +48,7 @@ export default function SessionProposalModal() {
   // Hanlde reject action
   async function onReject() {
     if (proposal) {
-      await walletConnectClient.reject({ proposal });
+      await walletConnectClient?.reject({ proposal });
     }
     ModalStore.close();
   }

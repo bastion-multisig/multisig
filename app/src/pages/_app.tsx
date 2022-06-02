@@ -7,16 +7,13 @@ import "@solana/wallet-adapter-react-ui/styles.css";
 import { useState } from "react";
 
 export default function App({ Component, pageProps }: AppProps) {
-  const [initialized, setInitialized] = useState(false);
   return (
-    <>
-      <ContextProviders isInitialized={setInitialized}>
-        <Layout initialized={initialized}>
-          <Component {...pageProps} />
-        </Layout>
+    <ContextProviders>
+      <Layout>
+        <Component {...pageProps} />
+      </Layout>
 
-        <Modal />
-      </ContextProviders>
-    </>
+      <Modal />
+    </ContextProviders>
   );
 }

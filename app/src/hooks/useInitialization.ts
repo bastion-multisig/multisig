@@ -1,14 +1,13 @@
-import { createWalletConnectClient } from "@/utils/WalletConnectUtil";
+import {
+  createWalletConnectClient,
+  walletConnectClient,
+} from "@/utils/WalletConnectUtil";
 import { useCallback, useEffect, useState } from "react";
 
 export default function useInitialization() {
-  const [initialized, setInitialized] = useState(false);
-
   const onInitialize = useCallback(async () => {
     try {
       await createWalletConnectClient();
-
-      setInitialized(true);
     } catch (err: unknown) {
       console.log(err);
       alert(err);
@@ -16,10 +15,8 @@ export default function useInitialization() {
   }, []);
 
   useEffect(() => {
-    if (!initialized) {
+    if (!walletConnectClient) {
       onInitialize();
     }
-  }, [initialized, onInitialize]);
-
-  return initialized;
+  }, [walletConnectClient, onInitialize]);
 }

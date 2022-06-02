@@ -5,12 +5,12 @@ import { Text } from "@nextui-org/react";
 import { useState } from "react";
 
 export default function SessionsPage() {
-  const [sessions, setSessions] = useState(walletConnectClient.session.values);
+  const sessions = walletConnectClient?.session.values;
 
   return (
     <>
       <PageHeader title="Sessions" />
-      {sessions.length ? (
+      {sessions && sessions.length ? (
         sessions.map((session) => {
           const { name, icons, url } = session.peer.metadata;
 
@@ -26,7 +26,7 @@ export default function SessionsPage() {
         })
       ) : (
         <Text css={{ opacity: "0.5", textAlign: "center", marginTop: "$20" }}>
-          No sessions
+          {walletConnectClient ? "No sessions" : "Connecting to Walletconnect"}
         </Text>
       )}
     </>

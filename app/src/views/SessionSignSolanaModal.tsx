@@ -30,7 +30,7 @@ export default function SessionSignSolanaModal() {
   async function onApprove() {
     if (requestEvent) {
       const response = await approveSolanaRequest(requestEvent, smartWallet);
-      await walletConnectClient.respond({
+      await walletConnectClient?.respond({
         topic: requestEvent.topic,
         response,
       });
@@ -42,7 +42,7 @@ export default function SessionSignSolanaModal() {
   async function onReject() {
     if (requestEvent) {
       const response = rejectSolanaRequest(requestEvent.request);
-      await walletConnectClient.respond({
+      await walletConnectClient?.respond({
         topic: requestEvent.topic,
         response,
       });

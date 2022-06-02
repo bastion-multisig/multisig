@@ -6,21 +6,23 @@ import { ERROR } from "@walletconnect/utils";
 import { useState } from "react";
 
 export default function PairingsPage() {
-  const [pairings, setPairings] = useState(walletConnectClient.pairing.values);
+  const [pairings, setPairings] = useState(walletConnectClient?.pairing.values);
 
   async function onDelete(topic: string) {
-    await walletConnectClient.pairing.delete({
-      topic,
-      reason: ERROR.DELETED.format(),
-    });
-    const newPairings = pairings.filter((pairing) => pairing.topic !== topic);
-    setPairings(newPairings);
+    if (walletConnectClient && pairings) {
+      await walletConnectClient.pairing.delete({
+        topic,
+        reason: ERROR.DELETED.format(),
+      });
+      const newPairings = pairings.filter((pairing) => pairing.topic !== topic);
+      setPairings(newPairings);
+    }
   }
 
   return (
     <>
       <PageHeader title="Pairings" />
-      {pairings.length ? (
+      {pairings && pairings.length ? (
         pairings.map((pairing) => {
           const { metadata } = pairing.state;
 
@@ -36,7 +38,7 @@ export default function PairingsPage() {
         })
       ) : (
         <Text css={{ opacity: "0.5", textAlign: "center", marginTop: "$20" }}>
-          No pairings
+          {walletConnectClient ? "No pairings" : "Connecting to Walletconnect"}
         </Text>
       )}
     </>

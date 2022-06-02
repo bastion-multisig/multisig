@@ -27,7 +27,7 @@ export default function SessionPage() {
     }
   }, [query]);
 
-  const session = walletConnectClient.session.values.find(
+  const session = walletConnectClient?.session.values.find(
     (s) => s.topic === topic
   );
 
@@ -43,7 +43,7 @@ export default function SessionPage() {
 
   // Handle deletion of a session
   async function onDeleteSession() {
-    await walletConnectClient.session.delete({
+    await walletConnectClient?.session.delete({
       topic,
       reason: ERROR.DELETED.format(),
     });
@@ -53,7 +53,7 @@ export default function SessionPage() {
   // Hanlde deletion of session account
   async function onDeleteAccount(account: string) {
     const newAccounts = accounts.filter((a) => a !== account);
-    await walletConnectClient.session.update({
+    await walletConnectClient?.session.update({
       topic,
       state: {
         accounts: newAccounts,
@@ -64,7 +64,7 @@ export default function SessionPage() {
 
   // Handle addition of account to the session
   async function onAddAccount(account: string) {
-    await walletConnectClient.session.update({
+    await walletConnectClient?.session.update({
       topic,
       state: {
         accounts: [...accounts, account],
