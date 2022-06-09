@@ -12,11 +12,13 @@ export function TransactionGroup({
   return (
     <table>
       <thead>
-        <th>{header}</th>
-        <th>Time Proposed</th>
-        <th>Token</th>
-        <th>Signatures</th>
-        <th>Amount</th>
+        <tr>
+          <th>{header}</th>
+          <th>Time Proposed</th>
+          <th>Token</th>
+          <th>Signatures</th>
+          <th>Amount</th>
+        </tr>
       </thead>
       {transactions.map((tx) => (
         <TransactionGroupEntry transaction={tx} />

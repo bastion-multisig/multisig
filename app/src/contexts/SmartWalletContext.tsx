@@ -20,7 +20,6 @@ import {
 } from "@project-serum/anchor";
 import { WalletSignTransactionError } from "@solana/wallet-adapter-base";
 import {
-  useConnection,
   useLocalStorage,
   useWallet,
   WalletContextState,
@@ -82,7 +81,10 @@ export function useSmartWallet() {
 export const SmartWalletProvider: FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const { connection } = useConnection();
+  const connection = useMemo(
+    () => new Connection("https://api.devnet.solana.com"),
+    []
+  );
   const wallet = useWallet();
   const { publicKey: walletPubkey } = wallet;
   const [smartWalletPk, setSmartWalletPk] = useLocalStorage<string | undefined>(
@@ -136,7 +138,7 @@ export const SmartWalletProvider: FC<{ children: ReactNode }> = ({
     return () => {
       abort = true;
     };
-  }, [refreshCounter]);
+  }, [refreshCounter, smartWalletPk, program]);
   useEffect(() => {
     if (!smartWalletPk) {
       setTransactionQueue(undefined);
@@ -146,7 +148,7 @@ export const SmartWalletProvider: FC<{ children: ReactNode }> = ({
     let abort = false;
     const smartWalletFilter: MemcmpFilter = {
       memcmp: {
-        offset: 8 + 1,
+        offset: 8,
         bytes: smartWalletPk,
       },
     };
@@ -165,8 +167,8 @@ export const SmartWalletProvider: FC<{ children: ReactNode }> = ({
         );
 
       // FIXME! Resolve type mismatch
-      setTransactionQueue(queued as any);
-      setTransactionHistory(history as any);
+      setTransactionQueue(queued);
+      setTransactionHistory(history);
     });
     return () => {
       abort = true;
@@ -202,6 +204,8 @@ export const SmartWalletProvider: FC<{ children: ReactNode }> = ({
     // Sign
     const signedTransactions = await wallet.signAllTransactions(interpreted);
 
+    console.log(interpreted[0].recentBlockhash);
+
     return serializeAllTransactions(signedTransactions);
   }
 
@@ -222,6 +226,7 @@ export const SmartWalletProvider: FC<{ children: ReactNode }> = ({
       smartWalletAddress,
       transaction
     );
+    console.log(interpreted[0].recentBlockhash);
 
     if (interpreted.length === 0) {
       throw new WalletSignTransactionError(
