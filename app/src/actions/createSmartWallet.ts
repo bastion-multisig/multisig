@@ -23,18 +23,17 @@ export async function createSmartWallet(
 
   const smartWalletBase = Keypair.generate();
 
-  const [smartWallet, smartWalletBump] = await findSmartWallet(
+  const [smartWallet, smartWalletBump] = findSmartWallet(
     smartWalletBase.publicKey
   );
 
-  const [treasury] = await findWalletDerivedAddress(
+  const [treasury] = findWalletDerivedAddress(
     smartWallet,
     bnToNumber(DEFAULT_WALLET_DERIVED_INDEX)
   );
 
-  let [subaccountInfo, subaccountInfoBump] = await findSubaccountInfoAddress(
-    treasury
-  );
+  let [subaccountInfo, subaccountInfoBump] =
+    findSubaccountInfoAddress(treasury);
 
   await program.methods
     .createSmartWallet(

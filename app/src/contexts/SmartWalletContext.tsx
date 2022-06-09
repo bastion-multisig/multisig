@@ -196,7 +196,6 @@ export const SmartWalletProvider: FC<{ children: ReactNode }> = ({
     const { interpreted, txPubkeys } = await TxInterpreter.multisig(
       program,
       smartWalletAddress,
-      walletPubkey,
       ...transactions
     );
 
@@ -217,10 +216,10 @@ export const SmartWalletProvider: FC<{ children: ReactNode }> = ({
 
     // Interpret the solana request as a multisig transaction before passing it on
     const transaction = deserialiseTransaction(params);
+    console.log(transaction);
     const { interpreted, txPubkeys } = await TxInterpreter.multisig(
       program,
       smartWalletAddress,
-      walletPubkey,
       transaction
     );
 
