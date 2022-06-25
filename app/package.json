@@ -3,7 +3,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "yarn build:lib && pwd && next build",
+    "build:lib": "cd ../lib/TxInterpreter && npm i && npm run build",
     "start": "next start",
     "lint": "next lint",
     "fmt": "prettier --check .",
