@@ -3,6 +3,7 @@ import { bnToNumber } from "@/utils/bn";
 import {
   findWalletDerivedAddress,
   SmartWalletTransactionData,
+  executeTransaction,
 } from "@multisig/multisig-tx";
 import { BN, ProgramAccount } from "@project-serum/anchor";
 import { PublicKey } from "@solana/web3.js";
@@ -48,18 +49,17 @@ export async function approveAndTryExecutingTransaction(
 
   const [index, bump] = findWalletDerivedAddress(
     new PublicKey(smartWalletPk),
-    bnToNumber(walletDerivedIndex)
+    walletDerivedIndex
   );
   // Execute on a separate transaction to have maximum compute budget
   const executeTx = willPassThreshold
-    ? await program.methods
-        .executeTransactionDerived(walletDerivedIndex, bump)
-        .accounts({
-          smartWallet: smartWalletPk,
-          transaction: transaction.publicKey,
-          owner: walletPubkey,
-        })
-        .transaction()
+    ? await (
+        await executeTransaction(
+          program,
+          transaction.publicKey,
+          walletDerivedIndex
+        )
+      ).transaction()
     : undefined;
 
   const transactions = executeTx ? [approveTx, executeTx] : [approveTx];

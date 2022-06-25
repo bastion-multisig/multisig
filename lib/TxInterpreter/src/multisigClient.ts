@@ -1,6 +1,11 @@
 import { MultisigInstruction, PartialSigner } from "./multisigInstruction";
 import { AnchorProvider, Program, BN } from "@project-serum/anchor";
-import { AccountMeta, PublicKey, SystemProgram } from "@solana/web3.js";
+import {
+  AccountMeta,
+  PublicKey,
+  SystemProgram,
+  TransactionInstruction,
+} from "@solana/web3.js";
 import {
   findTransactionAddress,
   findWalletDerivedAddress,
@@ -42,29 +47,28 @@ export function createTransaction(
 export async function executeTransaction(
   program: Program<SmartWallet>,
   transaction: PublicKey,
-  walletIndex: number
+  walletDerivedIndex: BN
 ) {
   const { accounts, remainingAccounts, walletBump } =
-    await executeTransactionContext(program, transaction, walletIndex);
+    await executeTransactionContext(program, transaction, walletDerivedIndex);
 
-  return await program.methods
-    .executeTransactionDerived(new BN(walletIndex), walletBump)
+  return program.methods
+    .executeTransactionDerived(new BN(walletDerivedIndex), walletBump)
     .accounts(accounts)
-    .remainingAccounts(remainingAccounts)
-    .rpc();
+    .remainingAccounts(remainingAccounts);
 }
 
 async function executeTransactionContext(
   program: Program<SmartWallet>,
   transaction: PublicKey,
-  walletIndex: number
+  walletDerivedIndex: BN
 ) {
   const txInfo = (await program.account.transaction.fetch(
     transaction
   )) as SmartWalletTransactionData;
   const smartWallet = txInfo.smartWallet;
 
-  const remainingAccounts = getUniqueKeys(txInfo.instructions);
+  const remainingAccounts = getUniqueKeys((txInfo as any).instructions);
 
   for (let i = 0; i < remainingAccounts.length; i++) {
     if (remainingAccounts[i].isSigner) {
@@ -72,9 +76,9 @@ async function executeTransactionContext(
     }
   }
 
-  const [_walletDerivedAddress, walletBump] = await findWalletDerivedAddress(
+  const [_walletDerivedAddress, walletBump] = findWalletDerivedAddress(
     smartWallet,
-    walletIndex
+    walletDerivedIndex
   );
 
   return {
@@ -87,9 +91,7 @@ async function executeTransactionContext(
   };
 }
 
-function getUniqueKeys(
-  instructions: SmartWalletTransactionData["instructions"]
-) {
+function getUniqueKeys(instructions: TransactionInstruction[]) {
   // Concat all keys and programIds into a AccountMeta[]
   const keys = instructions.flatMap((ix) =>
     ix.keys.concat({ pubkey: ix.programId, isSigner: false, isWritable: false })

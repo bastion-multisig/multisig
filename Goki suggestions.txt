@@ -7,3 +7,6 @@ Create partial signer subaccounts stored in separate program
 Where Pubkeys can be Pubkey.default in instructions, make them an option instead
 Delete unused code such as buffer init
 Add transaction proposed time
+Add a way to veto transactions
+Add a way to make transaction execute once even if it fails
+- Handle things like the vault account going below rent exempt minimum 

@@ -29,7 +29,7 @@ export async function createSmartWallet(
 
   const [treasury] = findWalletDerivedAddress(
     smartWallet,
-    bnToNumber(DEFAULT_WALLET_DERIVED_INDEX)
+    DEFAULT_WALLET_DERIVED_INDEX
   );
 
   let [subaccountInfo, subaccountInfoBump] =

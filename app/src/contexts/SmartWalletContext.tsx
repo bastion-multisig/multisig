@@ -1,4 +1,7 @@
-import { NOT_EXECUTED } from "@/data/SolanaChains";
+import {
+  DEFAULT_WALLET_DERIVED_INDEX,
+  NOT_EXECUTED,
+} from "@/data/SolanaChains";
 import { bnToNumber } from "@/utils/bn";
 import { NoSmartWalletError, NoWalletError } from "@/utils/error";
 import {
@@ -128,7 +131,7 @@ export const SmartWalletProvider: FC<{ children: ReactNode }> = ({
               setSmartWallet(newSmartWallet ?? undefined);
               const [treasuryPk] = findWalletDerivedAddress(
                 smartWalletAddress,
-                0
+                DEFAULT_WALLET_DERIVED_INDEX
               );
               setTreasuryPk(treasuryPk);
             }

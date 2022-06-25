@@ -55,14 +55,14 @@ describe("multisig", () => {
   let smartWallet: PublicKey;
   let smartWalletBump: number;
   let smartWalletInfo: SmartWalletData;
-  const treasuryWalletIndex = 0;
+  const walletDerivedIndex = new BN(0);
   let treasury: PublicKey;
 
   it("Set owners", async () => {
     program = new Program(SmartWalletIDL, GOKI_ADDRESSES.SmartWallet, provider);
 
     [smartWallet, smartWalletBump] = findSmartWallet(smartWalletBase.publicKey);
-    [treasury] = findWalletDerivedAddress(smartWallet, treasuryWalletIndex);
+    [treasury] = findWalletDerivedAddress(smartWallet, walletDerivedIndex);
 
     let [subaccountInfo, subaccountInfoBump] =
       findSubaccountInfoAddress(treasury);
@@ -90,7 +90,7 @@ describe("multisig", () => {
             subaccountInfoBump,
             treasury,
             smartWallet,
-            new BN(treasuryWalletIndex),
+            walletDerivedIndex,
             { derived: {} }
           )
           .accounts({
@@ -149,11 +149,13 @@ describe("multisig", () => {
   });
 
   it("Execute sol withdrawal from treasury", async () => {
-    await executeTransaction(
-      program,
-      withdrawSolTransaction,
-      treasuryWalletIndex
-    );
+    (
+      await executeTransaction(
+        program,
+        withdrawSolTransaction,
+        walletDerivedIndex
+      )
+    ).rpc();
 
     const treasuryInfo = await connection.getAccountInfo(treasury);
 
@@ -187,7 +189,9 @@ describe("multisig", () => {
 
   it("Execute interpreted sol withdrawal from treasury", async () => {
     for (const txPubkey of intepretedWithdrawSolTxPubkeys) {
-      await executeTransaction(program, txPubkey, treasuryWalletIndex);
+      await (
+        await executeTransaction(program, txPubkey, walletDerivedIndex)
+      ).rpc();
     }
 
     const treasuryInfo = await connection.getAccountInfo(treasury);
@@ -234,11 +238,13 @@ describe("multisig", () => {
   });
 
   it("Execute create mint", async () => {
-    await executeTransaction(
-      program,
-      createMintTransaction,
-      treasuryWalletIndex
-    );
+    await (
+      await executeTransaction(
+        program,
+        createMintTransaction,
+        walletDerivedIndex
+      )
+    ).rpc();
   });
 
   let interpretCreateMintTransactions: PublicKey[];
@@ -276,7 +282,9 @@ describe("multisig", () => {
 
   it("Execute interpreted create mint", async () => {
     for (const txPubkey of interpretCreateMintTransactions) {
-      await executeTransaction(program, txPubkey, treasuryWalletIndex);
+      await (
+        await executeTransaction(program, txPubkey, walletDerivedIndex)
+      ).rpc();
     }
   });
 
@@ -305,7 +313,9 @@ describe("multisig", () => {
     );
 
     for (const txPubkey of txPubkeys) {
-      await executeTransaction(program, txPubkey, treasuryWalletIndex);
+      await (
+        await executeTransaction(program, txPubkey, walletDerivedIndex)
+      ).rpc();
     }
   });
 });

@@ -1,4 +1,3 @@
-import { MultisigInstruction } from "./multisigInstruction";
 import {
   AllAccountsMap,
   IdlTypes,
@@ -13,9 +12,7 @@ export type SmartWalletData = TypeDef<
 export type SmartWalletTransactionData = Omit<
   TypeDef<AllAccountsMap<SmartWallet>["transaction"], IdlTypes<SmartWallet>>,
   "instructions"
-> & {
-  instructions: MultisigInstruction[];
-};
+>;
 export type InstructionBufferData = TypeDef<
   AllAccountsMap<SmartWallet>["instructionBuffer"],
   IdlTypes<SmartWallet>

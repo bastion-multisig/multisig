@@ -31,13 +31,13 @@ export const findTransactionAddress = (
  */
 export const findWalletDerivedAddress = (
   smartWallet: PublicKey,
-  index: number
+  index: BN
 ): [PublicKey, number] => {
   return findProgramAddressSync(
     [
       utils.bytes.utf8.encode("GokiSmartWalletDerived"),
       smartWallet.toBuffer(),
-      new BN(index).toArrayLike(Buffer, "le", 8),
+      index.toArrayLike(Buffer, "le", 8),
     ],
     GOKI_ADDRESSES.SmartWallet
   );
@@ -98,6 +98,6 @@ export const findWalletPartialSignerAddress = (
 };
 
 export const GOKI_ADDRESSES = {
-  SmartWallet: new PublicKey("GokivDYuQXPZCWRkwMhdH2h91KpDQXBEmpgBgs55bnpH"),
+  SmartWallet: new PublicKey("oGGQGGbVsdTR1DLkCQoj7Uee3RNBTr9vWtxUZgPMnDi"),
   TokenSigner: new PublicKey("NFTUJzSHuUCsMMqMRJpB7PmbsaU7Wm51acdPk2FXMLn"),
 };
