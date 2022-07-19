@@ -7,3 +7,6 @@
 [submodule "lib/wallet-adapter"]
 	path = lib/wallet-adapter
 	url = https://github.com/bastion-multisig/wallet-adapter
+[submodule "lib/apps/mango-ui-v3"]
+	path = lib/apps/mango-ui-v3
+	url = https://github.com/bastion-multisig/mango-ui-v3
