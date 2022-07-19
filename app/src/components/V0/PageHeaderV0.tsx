@@ -12,7 +12,7 @@ interface Props {
 /**
  * Component
  */
-export default function PageHeader({ title, children }: Props) {
+export default function PageHeaderV0({ title, children }: Props) {
   return (
     <>
       <Row

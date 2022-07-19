@@ -1,5 +1,6 @@
-import PageHeader from "@/components/PageHeader";
 import PairingCard from "@/components/PairingCard";
+import LayoutV0 from "@/components/V0/LayoutV0";
+import PageHeaderV0 from "@/components/V0/PageHeaderV0";
 import { walletConnectClient } from "@/utils/WalletConnectUtil";
 import { Text } from "@nextui-org/react";
 import { ERROR } from "@walletconnect/utils";
@@ -20,8 +21,8 @@ export default function PairingsPage() {
   }
 
   return (
-    <>
-      <PageHeader title="Pairings" />
+    <LayoutV0>
+      <PageHeaderV0 title="Pairings" />
       {pairings && pairings.length ? (
         pairings.map((pairing) => {
           const { metadata } = pairing.state;
@@ -41,6 +42,6 @@ export default function PairingsPage() {
           {walletConnectClient ? "No pairings" : "Connecting to Walletconnect"}
         </Text>
       )}
-    </>
+    </LayoutV0>
   );
 }

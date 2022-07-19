@@ -1,6 +1,7 @@
-import PageHeader from "@/components/PageHeader";
 import { TransactionGroup } from "@/components/Transactions/TransactionGroup";
+import LayoutV0 from "@/components/V0/LayoutV0";
 import { useSmartWallet } from "@/contexts/SmartWalletContext";
+import { PageHeader } from "antd";
 import { useEffect } from "react";
 
 export default function TransactionQueuePage() {
@@ -13,7 +14,7 @@ export default function TransactionQueuePage() {
   }, []);
 
   return (
-    <>
+    <LayoutV0>
       <PageHeader title="Transactions" />
       {transactionQueue && (
         <TransactionGroup
@@ -27,6 +28,6 @@ export default function TransactionQueuePage() {
           transactions={transactionHistory}
         />
       )}
-    </>
+    </LayoutV0>
   );
 }

@@ -1,4 +1,3 @@
-import PageHeader from "@/components/PageHeader";
 import {
   Button,
   Card,
@@ -16,6 +15,8 @@ import { createSmartWallet } from "@/actions/createSmartWallet";
 import BN from "bn.js";
 import { useRouter } from "next/router";
 import { useSmartWallet } from "@/contexts/SmartWalletContext";
+import LayoutV0 from "@/components/V0/LayoutV0";
+import PageHeaderV0 from "@/components/V0/PageHeaderV0";
 
 interface Owner {
   key: number;
@@ -152,8 +153,8 @@ export default function CreatePage() {
   }
 
   return (
-    <>
-      <PageHeader title="Create new Smart Wallet" />
+    <LayoutV0>
+      <PageHeaderV0 title="Create new Smart Wallet" />
 
       <Collapse.Group accordion>
         <Collapse
@@ -186,7 +187,7 @@ export default function CreatePage() {
                 marginTop: 20,
               }}
             >
-              <Link href={"/"} passHref>
+              <Link href={"/v0/welcome"} passHref>
                 <Button bordered size="sm" onClick={back}>
                   Cancel
                 </Button>
@@ -392,6 +393,6 @@ export default function CreatePage() {
           </>
         </Collapse>
       </Collapse.Group>
-    </>
+    </LayoutV0>
   );
 }

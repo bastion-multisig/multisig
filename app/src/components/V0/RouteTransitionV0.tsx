@@ -12,7 +12,7 @@ interface IProps {
 /**
  * Components
  */
-export default function RouteTransition({ children }: IProps) {
+export default function RouteTransitionV0({ children }: IProps) {
   const { pathname } = useRouter();
 
   return (

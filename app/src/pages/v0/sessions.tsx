@@ -1,15 +1,15 @@
-import PageHeader from "@/components/PageHeader";
 import SessionCard from "@/components/SessionCard";
+import LayoutV0 from "@/components/V0/LayoutV0";
+import PageHeaderV0 from "@/components/V0/PageHeaderV0";
 import { walletConnectClient } from "@/utils/WalletConnectUtil";
 import { Text } from "@nextui-org/react";
-import { useState } from "react";
 
 export default function SessionsPage() {
   const sessions = walletConnectClient?.session.values;
 
   return (
-    <>
-      <PageHeader title="Sessions" />
+    <LayoutV0>
+      <PageHeaderV0 title="Sessions" />
       {sessions && sessions.length ? (
         sessions.map((session) => {
           const { name, icons, url } = session.peer.metadata;
@@ -29,6 +29,6 @@ export default function SessionsPage() {
           {walletConnectClient ? "No sessions" : "Connecting to Walletconnect"}
         </Text>
       )}
-    </>
+    </LayoutV0>
   );
 }

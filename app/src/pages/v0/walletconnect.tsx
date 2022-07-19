@@ -1,5 +1,6 @@
-import PageHeader from "@/components/PageHeader";
 import QrReader from "@/components/QrReader";
+import LayoutV0 from "@/components/V0/LayoutV0";
+import PageHeaderV0 from "@/components/V0/PageHeaderV0";
 import { walletConnectClient } from "@/utils/WalletConnectUtil";
 import { Button, Input, Loading, Text } from "@nextui-org/react";
 import { useState } from "react";
@@ -22,8 +23,8 @@ export default function WalletConnectPage() {
   }
 
   return (
-    <>
-      <PageHeader title="WalletConnect" />
+    <LayoutV0>
+      <PageHeaderV0 title="WalletConnect" />
 
       {walletConnectClient ? (
         <>
@@ -67,6 +68,6 @@ export default function WalletConnectPage() {
       ) : (
         "Connecting to Walletconnect"
       )}
-    </>
+    </LayoutV0>
   );
 }

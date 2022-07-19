@@ -2,10 +2,10 @@ import { Avatar, Row } from "@nextui-org/react";
 import Image from "next/image";
 import Link from "next/link";
 
-export default function Navigation() {
+export default function NavigationV0() {
   return (
     <Row justify="space-between" align="center">
-      <Link href="/transactionQueue" passHref>
+      <Link href="/v0/transactionQueue" passHref>
         <a className="navLink">
           <Image
             alt="transaction queue icon"
@@ -16,7 +16,7 @@ export default function Navigation() {
         </a>
       </Link>
 
-      <Link href="/sessions" passHref>
+      <Link href="/v0/sessions" passHref>
         <a className="navLink">
           <Image
             alt="sessions icon"
@@ -27,7 +27,7 @@ export default function Navigation() {
         </a>
       </Link>
 
-      <Link href="/" passHref>
+      <Link href="/v0/welcome" passHref>
         <a className="navLink">
           <Avatar
             size="lg"
@@ -45,7 +45,7 @@ export default function Navigation() {
         </a>
       </Link>
 
-      <Link href="/walletconnect" passHref>
+      <Link href="/v0/walletconnect" passHref>
         <a className="navLink">
           <Image
             alt="wallet connect icon"
@@ -56,7 +56,7 @@ export default function Navigation() {
         </a>
       </Link>
 
-      <Link href="/pairings" passHref>
+      <Link href="/v0/pairings" passHref>
         <a className="navLink">
           <Image
             alt="pairings icon"

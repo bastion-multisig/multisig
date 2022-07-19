@@ -1,6 +1,7 @@
-import PageHeader from "@/components/PageHeader";
 import ProjectInfoCard from "@/components/ProjectInfoCard";
 import SessionSelectSection from "@/components/SessionSelectSection";
+import LayoutV0 from "@/components/V0/LayoutV0";
+import PageHeaderV0 from "@/components/V0/PageHeaderV0";
 import { useSmartWallet } from "@/contexts/SmartWalletContext";
 import { SOLANA_CHAINS, TSolanaChain } from "@/data/SolanaChains";
 import { isSolanaChain } from "@/utils/HelperUtil";
@@ -74,8 +75,8 @@ export default function SessionPage() {
   }
 
   return (
-    <>
-      <PageHeader title="Session Details" />
+    <LayoutV0>
+      <PageHeaderV0 title="Session Details" />
 
       <ProjectInfoCard metadata={session.peer.metadata} />
 
@@ -132,6 +133,6 @@ export default function SessionPage() {
           Delete Session
         </Button>
       </Row>
-    </>
+    </LayoutV0>
   );
 }

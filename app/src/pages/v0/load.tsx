@@ -1,5 +1,6 @@
-import PageHeader from "@/components/PageHeader";
-import { Button, Card, Collapse, Divider, Text } from "@nextui-org/react";
+import LayoutV0 from "@/components/V0/LayoutV0";
+import PageHeaderV0 from "@/components/V0/PageHeaderV0";
+import { Text } from "@nextui-org/react";
 import { useState } from "react";
 
 export default function CreatePage() {
@@ -12,9 +13,9 @@ export default function CreatePage() {
     setCurrent((current) => Math.min(current + 1, 3));
   }
   return (
-    <>
-      <PageHeader title="Load Smart Wallet" />
+    <LayoutV0>
+      <PageHeaderV0 title="Load Smart Wallet" />
       <Text>Coming soon</Text>
-    </>
+    </LayoutV0>
   );
 }
