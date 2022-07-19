@@ -4,3 +4,6 @@
 [submodule "lib/solana-wallet"]
 	path = lib/solana-wallet
 	url = https://github.com/bastion-multisig/solana-wallet
+[submodule "lib/wallet-adapter"]
+	path = lib/wallet-adapter
+	url = https://github.com/bastion-multisig/wallet-adapter
