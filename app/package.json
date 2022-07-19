@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "yarn build:lib && pwd && next build",
+    "build": "yarn build:lib && next build",
     "build:lib": "cd ../lib/TxInterpreter && npm i && npm run build",
     "start": "next start",
     "lint": "next lint",
