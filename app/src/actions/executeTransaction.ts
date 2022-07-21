@@ -1,7 +1,7 @@
 import { SmartWalletContextState } from "@/contexts/SmartWalletContext";
-import { SmartWalletTransactionData } from "@multisig/multisig-tx";
+import { SmartWalletTransactionData } from "@bastion-multisig/multisig-tx";
 import { BN, ProgramAccount } from "@project-serum/anchor";
-import { executeTransaction as execTransaction } from "@multisig/multisig-tx";
+import { executeTransaction as execTransaction } from "@bastion-multisig/multisig-tx";
 
 export async function executeTransaction(
   { program }: SmartWalletContextState,

@@ -1,11 +1,10 @@
 import { SmartWalletContextState } from "@/contexts/SmartWalletContext";
 import { DEFAULT_WALLET_DERIVED_INDEX } from "@/data/SolanaChains";
-import { bnToNumber } from "@/utils/bn";
 import {
   findSmartWallet,
   findSubaccountInfoAddress,
   findWalletDerivedAddress,
-} from "@multisig/multisig-tx";
+} from "@bastion-multisig/multisig-tx";
 import { BN } from "@project-serum/anchor";
 import { Keypair, PublicKey, SystemProgram } from "@solana/web3.js";
 

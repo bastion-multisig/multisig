@@ -7,7 +7,7 @@ import {
   usetransactionInQueue,
   useTransactionSignatures,
 } from "@/hooks/useTransaction";
-import { SmartWalletTransactionData } from "@multisig/multisig-tx";
+import { SmartWalletTransactionData } from "@bastion-multisig/multisig-tx";
 import { ProgramAccount } from "@project-serum/anchor";
 import { Button } from "antd";
 

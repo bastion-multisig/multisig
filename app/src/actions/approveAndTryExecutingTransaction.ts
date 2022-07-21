@@ -4,7 +4,7 @@ import {
   findWalletDerivedAddress,
   SmartWalletTransactionData,
   executeTransaction,
-} from "@multisig/multisig-tx";
+} from "@bastion-multisig/multisig-tx";
 import { BN, ProgramAccount } from "@project-serum/anchor";
 import { PublicKey } from "@solana/web3.js";
 

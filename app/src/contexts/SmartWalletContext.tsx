@@ -10,11 +10,11 @@ import {
   SmartWalletData,
   SmartWalletTransactionData,
   TxInterpreter,
-} from "@multisig/multisig-tx";
+} from "@bastion-multisig/multisig-tx";
 import {
   IDL as SmartWalletIdl,
   SmartWallet,
-} from "@multisig/multisig-tx/lib/idl/smart_wallet";
+} from "@bastion-multisig/multisig-tx/lib/idl/smart_wallet";
 import {
   AnchorProvider,
   Program,
