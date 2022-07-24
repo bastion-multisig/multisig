@@ -1,12 +1,3 @@
 [submodule "goki"]
 	path = goki
 	url = https://github.com/fedsimp/goki
-[submodule "lib/solana-wallet"]
-	path = lib/solana-wallet
-	url = https://github.com/bastion-multisig/solana-wallet
-[submodule "lib/wallet-adapter"]
-	path = lib/wallet-adapter
-	url = https://github.com/bastion-multisig/wallet-adapter
-[submodule "lib/apps/mango-ui-v3"]
-	path = lib/apps/mango-ui-v3
-	url = https://github.com/bastion-multisig/mango-ui-v3

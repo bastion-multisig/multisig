@@ -145,7 +145,7 @@ export default function CreatePage() {
     createSmartWallet(rpcContext, ownerKeys, new BN(threshold))
       .then((smartWallet) => {
         setSmartWalletPk(smartWallet.toBase58());
-        router.push("/walletconnect");
+        router.push("/v0/walletconnect");
       })
       .catch((err) => {
         console.log(err);
