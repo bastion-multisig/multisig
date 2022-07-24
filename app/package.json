@@ -2,7 +2,7 @@
   "name": "solana-multisig",
   "private": true,
   "scripts": {
-    "dev": "bash -c 'NODE_OPTIONS=--inspect next dev'",
+    "dev": "bash -c 'NODE_OPTIONS=--inspect next dev -p 3004'",
     "build": "yarn build:lib && next build",
     "build:lib": "cd ../lib/TxInterpreter && npm i && npm run build",
     "start": "next start",

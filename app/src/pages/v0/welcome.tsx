@@ -21,7 +21,7 @@ export default function WelcomePage() {
 
       {smartWallet && treasuryPk && (
         <Text css={{ marginBottom: "$10" }}>
-          You are connected to Smart Wallet {shortenAddress(treasuryPk)}
+          You are connected to Smart Wallet {treasuryPk.toBase58()}
         </Text>
       )}
 
