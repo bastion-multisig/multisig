@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@bastion-multisig/multisig-tx": "^0.3.3",
-    "@bastion-multisig/solana-wallet": "^2.0.4",
+    "@bastion-multisig/solana-wallet": "^2.0.5",
     "@cosmjs/amino": "0.28.4",
     "@cosmjs/encoding": "0.28.4",
     "@cosmjs/proto-signing": "0.28.4",

@@ -46,7 +46,7 @@ import {
   serializeAllTransactions,
   SolanaSignAllTransactions,
   SolanaSignTransaction,
-} from "solana-wallet";
+} from "@bastion-multisig/solana-wallet";
 
 export interface SmartWalletContextState {
   connection: Connection;

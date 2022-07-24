@@ -184,10 +184,10 @@
     "@project-serum/anchor" "^0.24.2"
     "@solana/spl-token" "^0.2.0"
 
-"@bastion-multisig/solana-wallet@^2.0.4":
-  version "2.0.4"
-  resolved "https://registry.yarnpkg.com/@bastion-multisig/solana-wallet/-/solana-wallet-2.0.4.tgz#d3a2f1ae1246a20f57b5ffc3640d65c5bdac1662"
-  integrity sha512-9YxE42NIc2WZHZEjbGj4r+K4gxl9FkZSMes69GUFvauNtYNDd7PdB1tMVKlz2LGUTd3Qy9YkBsJcoRLH6gEWeg==
+"@bastion-multisig/solana-wallet@^2.0.5":
+  version "2.0.5"
+  resolved "https://registry.yarnpkg.com/@bastion-multisig/solana-wallet/-/solana-wallet-2.0.5.tgz#9fdfafce1b20b2ef51773c519f10f8bcc797993c"
+  integrity sha512-26VN6NVhK9BVsd9Jjl4xXq62Q7AhpvZpFQAVn2L1ZF0Nh7Zh9LL4gP9La4LWDDUo9eF9I931umiDXAshb6azpw==
   dependencies:
     "@solana/web3.js" "^1.35.1"
     bs58 "^5.0.0"
