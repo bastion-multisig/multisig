@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@bastion-multisig/multisig-tx": "^0.3.3",
-    "@bastion-multisig/wallet-adapter": "^0.2.5",
+    "@bastion-multisig/solana-wallet": "^2.0.4",
     "@cosmjs/amino": "0.28.4",
     "@cosmjs/encoding": "0.28.4",
     "@cosmjs/proto-signing": "0.28.4",
@@ -40,7 +40,6 @@
     "react-dom": "17.0.2",
     "react-qr-reader-es6": "2.2.1-2",
     "react-query": "^3.39.0",
-    "solana-wallet": "file:./solana-wallet-v2.0.0.tgz",
     "valtio": "1.5.2"
   },
   "devDependencies": {
