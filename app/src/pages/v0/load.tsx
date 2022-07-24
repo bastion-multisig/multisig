@@ -1,5 +1,5 @@
-import LayoutV0 from "@/components/V0/LayoutV0";
-import PageHeaderV0 from "@/components/V0/PageHeaderV0";
+import LayoutV0 from "../../components/V0/LayoutV0";
+import PageHeaderV0 from "../../components/V0/PageHeaderV0";
 import { Text } from "@nextui-org/react";
 import { useState } from "react";
 

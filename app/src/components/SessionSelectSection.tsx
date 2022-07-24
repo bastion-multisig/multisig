@@ -1,4 +1,4 @@
-import AccountSelectCard from "@/components/AccountSelectCard";
+import AccountSelectCard from "../components/AccountSelectCard";
 import { Col, Divider, Row, Text } from "@nextui-org/react";
 
 /**

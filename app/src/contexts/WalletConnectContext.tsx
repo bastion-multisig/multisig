@@ -1,5 +1,5 @@
-import useInitialization from "@/hooks/useInitialization";
-import useWalletConnectEventsManager from "@/hooks/useWalletConnectEventsManager";
+import useInitialization from "../hooks/useInitialization";
+import useWalletConnectEventsManager from "../hooks/useWalletConnectEventsManager";
 import { ReactNode } from "react";
 
 export const WalletConnectProvider = ({

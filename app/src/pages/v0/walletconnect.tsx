@@ -1,7 +1,7 @@
-import QrReader from "@/components/QrReader";
-import LayoutV0 from "@/components/V0/LayoutV0";
-import PageHeaderV0 from "@/components/V0/PageHeaderV0";
-import { walletConnectClient } from "@/utils/WalletConnectUtil";
+import QrReader from "../../components/QrReader";
+import LayoutV0 from "../../components/V0/LayoutV0";
+import PageHeaderV0 from "../../components/V0/PageHeaderV0";
+import { walletConnectClient } from "../../utils/WalletConnectUtil";
 import { Button, Input, Loading, Text } from "@nextui-org/react";
 import { useState } from "react";
 

@@ -2,7 +2,7 @@
   "name": "solana-multisig",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "bash -c 'NODE_OPTIONS=--inspect next dev'",
     "build": "yarn build:lib && next build",
     "build:lib": "cd ../lib/TxInterpreter && npm i && npm run build",
     "start": "next start",
@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@bastion-multisig/multisig-tx": "^0.3.3",
+    "@bastion-multisig/wallet-adapter": "^0.2.5",
     "@cosmjs/amino": "0.28.4",
     "@cosmjs/encoding": "0.28.4",
     "@cosmjs/proto-signing": "0.28.4",

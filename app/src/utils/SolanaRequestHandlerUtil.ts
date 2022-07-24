@@ -1,5 +1,5 @@
-import { SmartWalletContextState } from "@/contexts/SmartWalletContext";
-import { SOLANA_SIGNING_METHODS } from "@/data/SolanaChains";
+import { SmartWalletContextState } from "../contexts/SmartWalletContext";
+import { SOLANA_SIGNING_METHODS } from "../data/SolanaChains";
 import { formatJsonRpcError, formatJsonRpcResult } from "@json-rpc-tools/utils";
 import { RequestEvent } from "@walletconnect/types";
 import { ERROR } from "@walletconnect/utils";

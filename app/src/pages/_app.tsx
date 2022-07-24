@@ -1,5 +1,5 @@
-import Modal from "@/components/Modal";
-import { ContextProviders } from "@/contexts/Contexts";
+import Modal from "../components/Modal";
+import { ContextProviders } from "../contexts/Contexts";
 import { AppProps } from "next/app";
 import "../../public/main.css";
 import "@solana/wallet-adapter-react-ui/styles.css";

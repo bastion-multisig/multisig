@@ -1,4 +1,4 @@
-import { truncate } from "@/utils/HelperUtil";
+import { truncate } from "../utils/HelperUtil";
 import { Card, Checkbox, Row, Text } from "@nextui-org/react";
 
 /**

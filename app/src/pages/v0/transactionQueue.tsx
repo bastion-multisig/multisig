@@ -1,6 +1,6 @@
-import { TransactionGroup } from "@/components/Transactions/TransactionGroup";
-import LayoutV0 from "@/components/V0/LayoutV0";
-import { useSmartWallet } from "@/contexts/SmartWalletContext";
+import { TransactionGroup } from "../../components/Transactions/TransactionGroup";
+import LayoutV0 from "../../components/V0/LayoutV0";
+import { useSmartWallet } from "../../contexts/SmartWalletContext";
 import { PageHeader } from "antd";
 import { useEffect } from "react";
 

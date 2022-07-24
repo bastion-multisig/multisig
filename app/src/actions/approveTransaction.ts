@@ -1,4 +1,4 @@
-import { SmartWalletContextState } from "@/contexts/SmartWalletContext";
+import { SmartWalletContextState } from "../contexts/SmartWalletContext";
 import { PublicKey } from "@solana/web3.js";
 
 export async function approveTransaction(

@@ -1,4 +1,4 @@
-import { useSmartWallet } from "@/contexts/SmartWalletContext";
+import { useSmartWallet } from "../../contexts/SmartWalletContext";
 import styles from "./SidebarHeader.module.css";
 
 export function SidebarHeader() {

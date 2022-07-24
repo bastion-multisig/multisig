@@ -1,4 +1,4 @@
-import RouteTransitionV0 from "@/components/V0/RouteTransitionV0";
+import RouteTransitionV0 from "../../components/V0/RouteTransitionV0";
 import {
   Card,
   Container,

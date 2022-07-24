@@ -1,10 +1,10 @@
-import ProjectInfoCard from "@/components/ProjectInfoCard";
-import RequesDetailsCard from "@/components/RequestDetalilsCard";
-import RequestMethodCard from "@/components/RequestMethodCard";
-import RequestModalContainer from "@/components/RequestModalContainer";
-import { useSmartWallet } from "@/contexts/SmartWalletContext";
-import ModalStore from "@/store/ModalStore";
-import { walletConnectClient } from "@/utils/WalletConnectUtil";
+import ProjectInfoCard from "../components/ProjectInfoCard";
+import RequesDetailsCard from "../components/RequestDetalilsCard";
+import RequestMethodCard from "../components/RequestMethodCard";
+import RequestModalContainer from "../components/RequestModalContainer";
+import { useSmartWallet } from "../contexts/SmartWalletContext";
+import ModalStore from "../store/ModalStore";
+import { walletConnectClient } from "../utils/WalletConnectUtil";
 import { Button, Divider, Modal, Text } from "@nextui-org/react";
 
 export default function SessionProposalModal() {

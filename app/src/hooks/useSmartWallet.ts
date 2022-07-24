@@ -1,4 +1,4 @@
-import { useSmartWallet } from "@/contexts/SmartWalletContext";
+import { useSmartWallet } from "../contexts/SmartWalletContext";
 
 export function useSmartWalletOwnerIndex() {
   const { walletPubkey, smartWallet } = useSmartWallet();

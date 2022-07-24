@@ -1,4 +1,4 @@
-import { SOLANA_CHAINS, TSolanaChain } from "@/data/SolanaChains";
+import { SOLANA_CHAINS, TSolanaChain } from "../data/SolanaChains";
 import { Col, Divider, Row, Text } from "@nextui-org/react";
 
 /**

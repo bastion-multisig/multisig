@@ -1,7 +1,7 @@
-import PairingCard from "@/components/PairingCard";
-import LayoutV0 from "@/components/V0/LayoutV0";
-import PageHeaderV0 from "@/components/V0/PageHeaderV0";
-import { walletConnectClient } from "@/utils/WalletConnectUtil";
+import PairingCard from "../../components/PairingCard";
+import LayoutV0 from "../../components/V0/LayoutV0";
+import PageHeaderV0 from "../../components/V0/PageHeaderV0";
+import { walletConnectClient } from "../../utils/WalletConnectUtil";
 import { Text } from "@nextui-org/react";
 import { ERROR } from "@walletconnect/utils";
 import { useState } from "react";

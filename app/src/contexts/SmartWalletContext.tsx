@@ -1,9 +1,9 @@
 import {
   DEFAULT_WALLET_DERIVED_INDEX,
   NOT_EXECUTED,
-} from "@/data/SolanaChains";
-import { bnToNumber } from "@/utils/bn";
-import { NoSmartWalletError, NoWalletError } from "@/utils/error";
+} from "../data/SolanaChains";
+import { bnToNumber } from "../utils/bn";
+import { NoSmartWalletError, NoWalletError } from "../utils/error";
 import {
   findWalletDerivedAddress,
   GOKI_ADDRESSES,

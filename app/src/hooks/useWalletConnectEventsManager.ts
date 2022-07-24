@@ -1,7 +1,7 @@
-import { useSmartWallet } from "@/contexts/SmartWalletContext";
-import { SOLANA_SIGNING_METHODS } from "@/data/SolanaChains";
-import ModalStore from "@/store/ModalStore";
-import { walletConnectClient } from "@/utils/WalletConnectUtil";
+import { useSmartWallet } from "../contexts/SmartWalletContext";
+import { SOLANA_SIGNING_METHODS } from "../data/SolanaChains";
+import ModalStore from "../store/ModalStore";
+import { walletConnectClient } from "../utils/WalletConnectUtil";
 import { CLIENT_EVENTS } from "@walletconnect/client";
 import { SessionTypes } from "@walletconnect/types";
 import { useCallback, useEffect } from "react";

@@ -11,12 +11,12 @@ import Image from "next/image";
 import { Fragment, useState } from "react";
 import { PublicKey } from "@solana/web3.js";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
-import { createSmartWallet } from "@/actions/createSmartWallet";
+import { createSmartWallet } from "../../actions/createSmartWallet";
 import BN from "bn.js";
 import { useRouter } from "next/router";
-import { useSmartWallet } from "@/contexts/SmartWalletContext";
-import LayoutV0 from "@/components/V0/LayoutV0";
-import PageHeaderV0 from "@/components/V0/PageHeaderV0";
+import { useSmartWallet } from "../../contexts/SmartWalletContext";
+import LayoutV0 from "../../components/V0/LayoutV0";
+import PageHeaderV0 from "../../components/V0/PageHeaderV0";
 
 interface Owner {
   key: number;

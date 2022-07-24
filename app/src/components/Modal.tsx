@@ -1,7 +1,7 @@
-import ModalStore from "@/store/ModalStore";
-import SessionProposalModal from "@/views/SessionProposalModal";
-import SessionSignSolanaModal from "@/views/SessionSignSolanaModal";
-import SessionUnsuportedMethodModal from "@/views/SessionUnsuportedMethodModal";
+import ModalStore from "../store/ModalStore";
+import SessionProposalModal from "../views/SessionProposalModal";
+import SessionSignSolanaModal from "../views/SessionSignSolanaModal";
+import SessionUnsuportedMethodModal from "../views/SessionUnsuportedMethodModal";
 import { Modal as NextModal } from "@nextui-org/react";
 import { useSnapshot } from "valtio";
 

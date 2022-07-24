@@ -1,6 +1,6 @@
-import { useSmartWallet } from "@/contexts/SmartWalletContext";
-import { NOT_EXECUTED } from "@/data/SolanaChains";
-import { bnToNumber } from "@/utils/bn";
+import { useSmartWallet } from "../contexts/SmartWalletContext";
+import { NOT_EXECUTED } from "../data/SolanaChains";
+import { bnToNumber } from "../utils/bn";
 import { SmartWalletTransactionData } from "@bastion-multisig/multisig-tx";
 import { BN, ProgramAccount } from "@project-serum/anchor";
 import { useSmartWalletOwnerIndex } from "./useSmartWallet";

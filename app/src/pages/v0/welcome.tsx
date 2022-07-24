@@ -1,7 +1,7 @@
-import LayoutV0 from "@/components/V0/LayoutV0";
-import PageHeaderV0 from "@/components/V0/PageHeaderV0";
-import { useSmartWallet } from "@/contexts/SmartWalletContext";
-import { shortenAddress } from "@/utils/solana";
+import LayoutV0 from "../../components/V0/LayoutV0";
+import PageHeaderV0 from "../../components/V0/PageHeaderV0";
+import { useSmartWallet } from "../../contexts/SmartWalletContext";
+import { shortenAddress } from "../../utils/solana";
 import { Button, Card, Text } from "@nextui-org/react";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import Link from "next/link";

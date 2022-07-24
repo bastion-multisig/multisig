@@ -1,8 +1,8 @@
-import ProjectInfoCard from "@/components/ProjectInfoCard";
-import RequesDetailsCard from "@/components/RequestDetalilsCard";
-import RequestMethodCard from "@/components/RequestMethodCard";
-import RequestModalContainer from "@/components/RequestModalContainer";
-import ModalStore from "@/store/ModalStore";
+import ProjectInfoCard from "../components/ProjectInfoCard";
+import RequesDetailsCard from "../components/RequestDetalilsCard";
+import RequestMethodCard from "../components/RequestMethodCard";
+import RequestModalContainer from "../components/RequestModalContainer";
+import ModalStore from "../store/ModalStore";
 import { Button, Divider, Modal, Text } from "@nextui-org/react";
 
 export default function SessionUnsuportedMethodModal() {

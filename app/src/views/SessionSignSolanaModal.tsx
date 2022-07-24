@@ -1,15 +1,15 @@
-import ProjectInfoCard from "@/components/ProjectInfoCard";
-import RequestDataCard from "@/components/RequestDataCard";
-import RequesDetailsCard from "@/components/RequestDetalilsCard";
-import RequestMethodCard from "@/components/RequestMethodCard";
-import RequestModalContainer from "@/components/RequestModalContainer";
-import { useSmartWallet } from "@/contexts/SmartWalletContext";
-import ModalStore from "@/store/ModalStore";
+import ProjectInfoCard from "../components/ProjectInfoCard";
+import RequestDataCard from "../components/RequestDataCard";
+import RequesDetailsCard from "../components/RequestDetalilsCard";
+import RequestMethodCard from "../components/RequestMethodCard";
+import RequestModalContainer from "../components/RequestModalContainer";
+import { useSmartWallet } from "../contexts/SmartWalletContext";
+import ModalStore from "../store/ModalStore";
 import {
   approveSolanaRequest,
   rejectSolanaRequest,
-} from "@/utils/SolanaRequestHandlerUtil";
-import { walletConnectClient } from "@/utils/WalletConnectUtil";
+} from "../utils/SolanaRequestHandlerUtil";
+import { walletConnectClient } from "../utils/WalletConnectUtil";
 import { Button, Divider, Modal, Text } from "@nextui-org/react";
 
 export default function SessionSignSolanaModal() {

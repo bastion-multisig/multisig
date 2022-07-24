@@ -1,12 +1,12 @@
-import { approveAndTryExecutingTransaction } from "@/actions/approveAndTryExecutingTransaction";
-import { executeTransaction } from "@/actions/executeTransaction";
-import { useSmartWallet } from "@/contexts/SmartWalletContext";
-import { DEFAULT_WALLET_DERIVED_INDEX } from "@/data/SolanaChains";
+import { approveAndTryExecutingTransaction } from "../../actions/approveAndTryExecutingTransaction";
+import { executeTransaction } from "../../actions/executeTransaction";
+import { useSmartWallet } from "../../contexts/SmartWalletContext";
+import { DEFAULT_WALLET_DERIVED_INDEX } from "../../data/SolanaChains";
 import {
   useTransactionExecutedTime,
   usetransactionInQueue,
   useTransactionSignatures,
-} from "@/hooks/useTransaction";
+} from "../../hooks/useTransaction";
 import { SmartWalletTransactionData } from "@bastion-multisig/multisig-tx";
 import { ProgramAccount } from "@project-serum/anchor";
 import { Button } from "antd";

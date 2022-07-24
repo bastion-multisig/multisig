@@ -1,4 +1,4 @@
-import { truncate } from "@/utils/HelperUtil";
+import { truncate } from "../utils/HelperUtil";
 import { Avatar, Card, Link, Text } from "@nextui-org/react";
 import Image from "next/image";
 import NextLink from "next/link";

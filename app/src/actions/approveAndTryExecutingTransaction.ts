@@ -1,5 +1,5 @@
-import { SmartWalletContextState } from "@/contexts/SmartWalletContext";
-import { bnToNumber } from "@/utils/bn";
+import { SmartWalletContextState } from "../contexts/SmartWalletContext";
+import { bnToNumber } from "../utils/bn";
 import {
   findWalletDerivedAddress,
   SmartWalletTransactionData,

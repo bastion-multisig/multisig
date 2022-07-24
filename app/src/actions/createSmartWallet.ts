@@ -1,5 +1,5 @@
-import { SmartWalletContextState } from "@/contexts/SmartWalletContext";
-import { DEFAULT_WALLET_DERIVED_INDEX } from "@/data/SolanaChains";
+import { SmartWalletContextState } from "../contexts/SmartWalletContext";
+import { DEFAULT_WALLET_DERIVED_INDEX } from "../data/SolanaChains";
 import {
   findSmartWallet,
   findSubaccountInfoAddress,
