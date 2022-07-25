@@ -6,7 +6,6 @@ export {
   getRandomPartialSigner,
   multisigSize,
 } from "./multisigClient";
-export { MultisigInstruction, PartialSigner } from "./multisigInstruction";
 export {
   findSmartWallet,
   findTransactionAddress,
@@ -22,4 +21,6 @@ export {
   SmartWalletTransactionData,
   InstructionBufferData,
   SubaccountInfoData,
+  TXInstruction,
+  PartialSigner,
 } from "./types";

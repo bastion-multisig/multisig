@@ -3,9 +3,10 @@
   "scripts": {
     "fmt": "npx prettier --check tests/",
     "fmt:fix": "npx prettier --write tests/",
-    "submodules": "git submodule update --init --recursive && (cd goki && yarn && yarn prepare)",
+    "submodules": "git submodule update --init --recursive && npm i && anchor build && (cd goki && yarn && yarn prepare) ",
     "test": "npm run build && anchor test --skip-build",
-    "build": "(cd goki && anchor build && yarn idl:generate) && mkdir -p deps && cp goki/target/deploy/*.so deps && cp goki/target/types/*.ts lib/TxInterpreter/src/idl",
+    "test:nodeploy": "anchor test --skip-build --skip-deploy --skip-local-validator",
+    "build": "(cd goki && anchor build) && mkdir -p deps && cp goki/target/deploy/*.so deps && cp goki/target/types/*.ts lib/TxInterpreter/src/idl",
     "amman": "amman",
     "mod:init": "git submodule update --init --remote --recursive"
   },

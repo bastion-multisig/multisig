@@ -158,7 +158,7 @@ export type SmartWallet = {
           "name": "instructions",
           "type": {
             "vec": {
-              "defined": "TXInstruction"
+              "defined": "TXInstructionArg"
             }
           }
         }
@@ -223,7 +223,7 @@ export type SmartWallet = {
           "name": "instructions",
           "type": {
             "vec": {
-              "defined": "TXInstruction"
+              "defined": "TXInstructionArg"
             }
           }
         },
@@ -819,6 +819,50 @@ export type SmartWallet = {
       }
     },
     {
+      "name": "TXInstructionArg",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "keys",
+            "type": {
+              "vec": {
+                "defined": "TXAccountMetaArg"
+              }
+            }
+          },
+          {
+            "name": "data",
+            "type": "bytes"
+          },
+          {
+            "name": "partialSigners",
+            "type": {
+              "vec": {
+                "defined": "PartialSigner"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "TXAccountMetaArg",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "isSigner",
+            "type": "bool"
+          },
+          {
+            "name": "isWritable",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
       "name": "PartialSigner",
       "type": {
         "kind": "struct",
@@ -1373,7 +1417,7 @@ export const IDL: SmartWallet = {
           "name": "instructions",
           "type": {
             "vec": {
-              "defined": "TXInstruction"
+              "defined": "TXInstructionArg"
             }
           }
         }
@@ -1438,7 +1482,7 @@ export const IDL: SmartWallet = {
           "name": "instructions",
           "type": {
             "vec": {
-              "defined": "TXInstruction"
+              "defined": "TXInstructionArg"
             }
           }
         },
@@ -2022,6 +2066,50 @@ export const IDL: SmartWallet = {
             "name": "pubkey",
             "type": "publicKey"
           },
+          {
+            "name": "isSigner",
+            "type": "bool"
+          },
+          {
+            "name": "isWritable",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "TXInstructionArg",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "keys",
+            "type": {
+              "vec": {
+                "defined": "TXAccountMetaArg"
+              }
+            }
+          },
+          {
+            "name": "data",
+            "type": "bytes"
+          },
+          {
+            "name": "partialSigners",
+            "type": {
+              "vec": {
+                "defined": "PartialSigner"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "TXAccountMetaArg",
+      "type": {
+        "kind": "struct",
+        "fields": [
           {
             "name": "isSigner",
             "type": "bool"

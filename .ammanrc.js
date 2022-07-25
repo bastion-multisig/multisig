@@ -7,7 +7,7 @@ module.exports = {
     programs: [
       {
         label: "smart_wallet",
-        programId: new PublicKey("GokivDYuQXPZCWRkwMhdH2h91KpDQXBEmpgBgs55bnpH"),
+        programId: new PublicKey("oGGQGGbVsdTR1DLkCQoj7Uee3RNBTr9vWtxUZgPMnDi"),
         deployPath: "deps/smart_wallet.so"
       }
     ],

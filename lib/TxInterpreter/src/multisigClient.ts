@@ -1,4 +1,3 @@
-import { MultisigInstruction, PartialSigner } from "./multisigInstruction";
 import { AnchorProvider, Program, BN } from "@project-serum/anchor";
 import {
   AccountMeta,
@@ -11,7 +10,13 @@ import {
   findWalletDerivedAddress,
   findWalletPartialSignerAddress,
 } from "./pda";
-import { SmartWalletData, SmartWalletTransactionData } from "./types";
+import {
+  PartialSignerAndKey,
+  SmartWalletData,
+  SmartWalletTransactionData,
+  TXInstruction,
+  TXInstructionArg,
+} from "./types";
 import { SmartWallet } from "./idl/smart_wallet";
 
 export function multisigSize(owners: number) {
@@ -22,7 +27,7 @@ export function createTransaction(
   program: Program<SmartWallet>,
   smartWallet: PublicKey,
   smartWalletInfo: SmartWalletData,
-  instructions: MultisigInstruction[]
+  instructions: TXInstruction[]
 ) {
   const provider = program.provider as AnchorProvider;
   const txIndex = smartWalletInfo.numTransactions.toNumber();
@@ -30,6 +35,25 @@ export function createTransaction(
     smartWallet,
     txIndex
   );
+
+  const remainingAccounts: AccountMeta[] = instructions
+    .map((ix) => {
+      return [
+        {
+          pubkey: ix.programId,
+          isSigner: false,
+          isWritable: false,
+        },
+        ...ix.keys.map((key) => {
+          return {
+            pubkey: key.pubkey,
+            isSigner: false,
+            isWritable: false,
+          };
+        }),
+      ];
+    })
+    .reduce((reducer, keys) => [...reducer, ...keys], []);
 
   const builder = program.methods
     .createTransaction(transactionBump, instructions)
@@ -39,7 +63,8 @@ export function createTransaction(
       proposer: provider.wallet.publicKey,
       payer: provider.wallet.publicKey,
       systemProgram: SystemProgram.programId,
-    });
+    })
+    .remainingAccounts(remainingAccounts);
 
   return { address: transaction, builder };
 }
@@ -113,7 +138,9 @@ function getUniqueKeys(instructions: TransactionInstruction[]) {
   return Object.values(unique);
 }
 
-export function getRandomPartialSigner(smartWallet: PublicKey): PartialSigner {
+export function getRandomPartialSigner(
+  smartWallet: PublicKey
+): PartialSignerAndKey {
   const index = randomU64();
   const [pubkey, bump] = findWalletPartialSignerAddress(smartWallet, index);
   return {

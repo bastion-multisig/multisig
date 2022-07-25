@@ -6,9 +6,13 @@ import {
 } from "@solana/web3.js";
 import { SmartWallet } from "./idl/smart_wallet";
 import { createTransaction, getRandomPartialSigner } from "./multisigClient";
-import { MultisigInstruction, PartialSigner } from "./multisigInstruction";
 import { findSubaccountInfoAddress } from "./pda";
-import { SmartWalletData, SubaccountInfoData } from "./types";
+import {
+  TXInstruction,
+  SmartWalletData,
+  SubaccountInfoData,
+  PartialSignerAndKey,
+} from "./types";
 export class TxInterpreter {
   /**
    * Rewrites transactions such that it will be uploaded to a 'Transaction'
@@ -18,7 +22,7 @@ export class TxInterpreter {
   static async multisig(
     program: Program<SmartWallet>,
     smartWallet: PublicKey,
-    ...transactions: Transaction[]
+    transactions: Transaction[]
   ): Promise<{
     interpreted: Transaction[];
     txPubkeys: PublicKey[];
@@ -97,7 +101,7 @@ export class TxInterpreter {
     smartWallet: PublicKey,
     signers: PublicKey[]
   ) {
-    const partialSigners: Record<string, PartialSigner> = {};
+    const partialSigners: Record<string, PartialSignerAndKey> = {};
     for (let i = 0; i < signers.length; i++) {
       const signer = signers[i];
       const keyStr = signer.toBase58();
@@ -113,7 +117,7 @@ export class TxInterpreter {
     program: Program<SmartWallet>,
     smartWallet: PublicKey,
     transactions: Transaction[],
-    partialSigners: Record<string, PartialSigner>
+    partialSigners: Record<string, PartialSignerAndKey>
   ) {
     // Overwrite the recent blockhash again so that there is more time for the user to sign
     const { blockhash } =
@@ -125,7 +129,7 @@ export class TxInterpreter {
     const txAddresses: PublicKey[] = [];
     for (let i = 0; i < transactions.length; i++) {
       const transaction = transactions[i];
-      const multisigInstructions: MultisigInstruction[] = [];
+      const multisigInstructions: TXInstruction[] = [];
       for (let j = 0; j < transaction.instructions.length; j++) {
         multisigInstructions[j] = this.buildMultisigInstruction(
           transaction.instructions[j],
@@ -159,12 +163,12 @@ export class TxInterpreter {
 
   private static buildMultisigInstruction(
     instruction: TransactionInstruction,
-    partialSigners: Record<string, PartialSigner>
+    partialSigners: Record<string, PartialSignerAndKey>
   ) {
     let programId = instruction.programId;
     const keys = [...instruction.keys];
     const data = Buffer.from(instruction.data);
-    const partialSignersInInstruction: Record<string, PartialSigner> = {};
+    const partialSignersInInstruction: Record<string, PartialSignerAndKey> = {};
 
     // Subsitute program id
     const keyStr = programId.toBase58();
@@ -207,7 +211,7 @@ export class TxInterpreter {
       }
     }
 
-    const multisigInstruction: MultisigInstruction = {
+    const multisigInstruction: TXInstruction = {
       programId,
       keys,
       data,
