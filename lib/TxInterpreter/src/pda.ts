@@ -98,6 +98,6 @@ export const findWalletPartialSignerAddress = (
 };
 
 export const GOKI_ADDRESSES = {
-  SmartWallet: new PublicKey("oGGQGGbVsdTR1DLkCQoj7Uee3RNBTr9vWtxUZgPMnDi"),
+  SmartWallet: new PublicKey("BXY7CPSCWkyTanQiwq2kHpC6nQWrpSwJYQbW7aihuGyG"),
   TokenSigner: new PublicKey("NFTUJzSHuUCsMMqMRJpB7PmbsaU7Wm51acdPk2FXMLn"),
 };

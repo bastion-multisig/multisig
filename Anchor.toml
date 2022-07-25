@@ -5,7 +5,7 @@ cluster = "localnet"
 wallet = "~/.config/solana/id.json"
 
 [[test.genesis]]
-address = "oGGQGGbVsdTR1DLkCQoj7Uee3RNBTr9vWtxUZgPMnDi"
+address = "BXY7CPSCWkyTanQiwq2kHpC6nQWrpSwJYQbW7aihuGyG"
 program = "./deps/smart_wallet.so"
 
 [[test.genesis]]
