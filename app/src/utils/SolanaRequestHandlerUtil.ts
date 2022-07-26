@@ -25,9 +25,7 @@ export async function approveSolanaRequest(
         const signedParams = await smartWallet.signAllTransactions(params);
         return formatJsonRpcResult(id, signedParams);
       } catch (err: any) {
-        if (!isSignTransactionError(err)) {
-          console.log(err);
-        }
+        console.log(err);
         return rejectSolanaRequest(requestEvent.request);
       }
 

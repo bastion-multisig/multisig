@@ -150,7 +150,7 @@ describe("multisig", () => {
       const { address, builder } = createTransaction(
         program,
         smartWallet,
-        smartWalletInfo,
+        smartWalletInfo.numTransactions,
         [{ ...withdrawSolIx, partialSigners: [] }]
       );
 
@@ -247,7 +247,7 @@ describe("multisig", () => {
       let { address, builder } = createTransaction(
         program,
         smartWallet,
-        smartWalletInfo,
+        smartWalletInfo.numTransactions,
         instructions
       );
       await builder.rpc();

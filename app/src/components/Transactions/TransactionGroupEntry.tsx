@@ -22,7 +22,7 @@ export function TransactionGroupEntry({
   const title = inQueue ? "Queued Transaction" : "Executed Transaction";
 
   const executedTime = useTransactionExecutedTime(transaction);
-  const date = inQueue ? "--" : executedTime;
+  const date = inQueue ? transaction.account.index.toString() : executedTime;
 
   const {
     badOwnerSetSeqNo,
@@ -56,7 +56,6 @@ export function TransactionGroupEntry({
     <tr>
       <td>{title}</td>
       <td>{date}</td>
-      <td>--</td>
       <td>
         {signatures} out of {threshold}
       </td>

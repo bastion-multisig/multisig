@@ -6,7 +6,7 @@ export function TransactionGroup({
   header,
   transactions,
 }: {
-  header: string;
+  header: "Transaction Queue" | "Transaction History";
   transactions: ProgramAccount<SmartWalletTransactionData>[];
 }) {
   return (
@@ -14,8 +14,7 @@ export function TransactionGroup({
       <thead>
         <tr>
           <th>{header}</th>
-          <th>Time Proposed</th>
-          <th>Token</th>
+          <th>{header === "Transaction Queue" ? "ID" : "Time Proposed"}</th>
           <th>Signatures</th>
           <th>Amount</th>
         </tr>

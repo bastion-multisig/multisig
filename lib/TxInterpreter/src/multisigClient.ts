@@ -12,10 +12,8 @@ import {
 } from "./pda";
 import {
   PartialSignerAndKey,
-  SmartWalletData,
   SmartWalletTransactionData,
   TXInstruction,
-  TXInstructionArg,
 } from "./types";
 import { SmartWallet } from "./idl/smart_wallet";
 
@@ -26,14 +24,13 @@ export function multisigSize(owners: number) {
 export function createTransaction(
   program: Program<SmartWallet>,
   smartWallet: PublicKey,
-  smartWalletInfo: SmartWalletData,
+  transactionIndex: BN,
   instructions: TXInstruction[]
 ) {
   const provider = program.provider as AnchorProvider;
-  const txIndex = smartWalletInfo.numTransactions.toNumber();
   const [transaction, transactionBump] = findTransactionAddress(
     smartWallet,
-    txIndex
+    transactionIndex
   );
 
   const remainingAccounts: AccountMeta[] = instructions

@@ -161,7 +161,7 @@ export const SmartWalletProvider: FC<{ children: ReactNode }> = ({
       }
       const queued = txs
         .filter((tx) => tx.account.executedAt.eq(NOT_EXECUTED))
-        .sort((a, b) => bnToNumber(b.account.index.sub(a.account.index)));
+        .sort((a, b) => bnToNumber(a.account.index.sub(b.account.index)));
 
       const history = txs
         .filter((tx) => !tx.account.executedAt.eq(NOT_EXECUTED))
@@ -201,7 +201,7 @@ export const SmartWalletProvider: FC<{ children: ReactNode }> = ({
     const { interpreted, txPubkeys } = await TxInterpreter.multisig(
       program,
       smartWalletAddress,
-      ...transactions
+      transactions
     );
 
     // Sign
@@ -227,7 +227,7 @@ export const SmartWalletProvider: FC<{ children: ReactNode }> = ({
     const { interpreted, txPubkeys } = await TxInterpreter.multisig(
       program,
       smartWalletAddress,
-      transaction
+      [transaction]
     );
     console.log(interpreted[0].recentBlockhash);
 

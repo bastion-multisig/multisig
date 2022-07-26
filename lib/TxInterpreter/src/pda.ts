@@ -11,13 +11,13 @@ export const findSmartWallet = (base: PublicKey): [PublicKey, number] => {
 
 export const findTransactionAddress = (
   smartWallet: PublicKey,
-  index: number
+  index: BN
 ): [PublicKey, number] => {
   return findProgramAddressSync(
     [
       utils.bytes.utf8.encode("GokiTransaction"),
       smartWallet.toBuffer(),
-      new BN(index).toArrayLike(Buffer, "le", 8),
+      index.toArrayLike(Buffer, "le", 8),
     ],
     GOKI_ADDRESSES.SmartWallet
   );
@@ -51,13 +51,13 @@ export const findWalletDerivedAddress = (
  */
 export const findOwnerInvokerAddress = (
   smartWallet: PublicKey,
-  index: number
+  index: BN
 ): [PublicKey, number] => {
   return findProgramAddressSync(
     [
       utils.bytes.utf8.encode("GokiSmartWalletOwnerInvoker"),
       smartWallet.toBuffer(),
-      new BN(index).toArrayLike(Buffer, "le", 8),
+      index.toArrayLike(Buffer, "le", 8),
     ],
     GOKI_ADDRESSES.SmartWallet
   );

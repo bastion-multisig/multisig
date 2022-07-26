@@ -1,7 +1,7 @@
 import { TransactionGroup } from "../../components/Transactions/TransactionGroup";
 import LayoutV0 from "../../components/V0/LayoutV0";
 import { useSmartWallet } from "../../contexts/SmartWalletContext";
-import { PageHeader } from "antd";
+import { Button, PageHeader } from "antd";
 import { useEffect } from "react";
 
 export default function TransactionQueuePage() {
@@ -16,6 +16,9 @@ export default function TransactionQueuePage() {
   return (
     <LayoutV0>
       <PageHeader title="Transactions" />
+      <Button type="primary" onClick={refresh} style={{ width: 150 }}>
+        Refresh
+      </Button>
       {transactionQueue && (
         <TransactionGroup
           header="Transaction Queue"

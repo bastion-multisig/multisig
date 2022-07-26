@@ -176,10 +176,10 @@
     "@babel/helper-validator-identifier" "^7.16.7"
     to-fast-properties "^2.0.0"
 
-"@bastion-multisig/multisig-tx@^0.3.3":
-  version "0.3.3"
-  resolved "https://registry.yarnpkg.com/@bastion-multisig/multisig-tx/-/multisig-tx-0.3.3.tgz#fb0c96d13bd6cbd483cb03a98257cc150bc18c8f"
-  integrity sha512-wFfAE1Ctk+KY8ZbSp9PpBlR3bwGRiW5XiDGTo/bKs1Dot+bnhHgWa9jG3jCzW5B4ngi9eO6MwsO+0d6Zn0X6nA==
+"@bastion-multisig/multisig-tx@^0.3.5":
+  version "0.3.5"
+  resolved "https://registry.yarnpkg.com/@bastion-multisig/multisig-tx/-/multisig-tx-0.3.5.tgz#ba0f2557e8961d74f5a9b3f842794a813c9e1a7b"
+  integrity sha512-pSPY5+Qyex4pZ/I80zY4MisMQhSNplghj5SOg0/DxIYHWaBTxDezOcFeS3fGKens1I/9TLi9feWO6M0FdMbzFw==
   dependencies:
     "@project-serum/anchor" "^0.24.2"
     "@solana/spl-token" "^0.2.0"

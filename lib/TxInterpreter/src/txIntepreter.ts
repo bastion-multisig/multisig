@@ -1,4 +1,4 @@
-import { AnchorProvider, Program } from "@project-serum/anchor";
+import { AnchorProvider, BN, Program } from "@project-serum/anchor";
 import {
   PublicKey,
   Transaction,
@@ -129,6 +129,7 @@ export class TxInterpreter {
     const txAddresses: PublicKey[] = [];
     for (let i = 0; i < transactions.length; i++) {
       const transaction = transactions[i];
+      const transactionIndex = smartWalletInfo.numTransactions.add(new BN(i));
       const multisigInstructions: TXInstruction[] = [];
       for (let j = 0; j < transaction.instructions.length; j++) {
         multisigInstructions[j] = this.buildMultisigInstruction(
@@ -140,7 +141,7 @@ export class TxInterpreter {
       const { address, builder } = createTransaction(
         program,
         smartWallet,
-        smartWalletInfo,
+        transactionIndex,
         multisigInstructions
       );
 

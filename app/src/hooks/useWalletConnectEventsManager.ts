@@ -5,6 +5,9 @@ import { walletConnectClient } from "../utils/WalletConnectUtil";
 import { CLIENT_EVENTS } from "@walletconnect/client";
 import { SessionTypes } from "@walletconnect/types";
 import { useCallback, useEffect } from "react";
+import { approveSolanaRequest } from "../utils/SolanaRequestHandlerUtil";
+
+const AUTO_APPROVE = true;
 
 export default function useWalletConnectEventsManager() {
   const smartWallet = useSmartWallet();
@@ -40,11 +43,21 @@ export default function useWalletConnectEventsManager() {
 
         case SOLANA_SIGNING_METHODS.SOLANA_SIGN_TRANSACTION:
         case SOLANA_SIGNING_METHODS.SOLANA_SIGN_ALL_TRANSACTIONS:
-          return ModalStore.open("SessionSignSolanaModal", {
-            requestEvent,
-            requestSession,
-          });
-
+          if (AUTO_APPROVE) {
+            const response = await approveSolanaRequest(
+              requestEvent,
+              smartWallet
+            );
+            return await walletConnectClient?.respond({
+              topic: requestEvent.topic,
+              response,
+            });
+          } else {
+            return ModalStore.open("SessionSignSolanaModal", {
+              requestEvent,
+              requestSession,
+            });
+          }
         default:
           return ModalStore.open("SessionUnsuportedMethodModal", {
             requestEvent,
