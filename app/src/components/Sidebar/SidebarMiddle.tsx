@@ -8,7 +8,10 @@ export function SidebarMiddle() {
       <p>Total Balance</p>
       <p>Navigaton</p>
       <p>
-        <Link href="/v0/welcome">View Old Pages</Link>
+        <Link href="/apps">Vault Apps</Link>
+      </p>
+      <p>
+        <Link href="/v0/welcome">WalletConnect</Link>
       </p>
     </div>
   );

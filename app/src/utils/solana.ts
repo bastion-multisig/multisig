@@ -1,6 +1,6 @@
-import { PublicKey } from "@solana/web3.js";
+import { Address, translateAddress } from "@project-serum/anchor";
 
-export function shortenAddress(address: PublicKey, chars = 4): string {
-  let str = address.toBase58();
+export function shortenAddress(address: Address, chars = 4): string {
+  let str = translateAddress(address).toBase58();
   return `${str.slice(0, chars)}...${str.slice(-chars)}`;
 }

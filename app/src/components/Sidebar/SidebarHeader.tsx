@@ -1,4 +1,5 @@
 import { useSmartWallet } from "../../contexts/SmartWalletContext";
+import { shortenAddress } from "../../utils/solana";
 import styles from "./SidebarHeader.module.css";
 
 export function SidebarHeader() {
@@ -6,7 +7,11 @@ export function SidebarHeader() {
   return (
     <div className={styles.sidebar_header}>
       <p>My Vault</p>
-      <p>{smartWalletPk ?? "Not Connected To Vault"}</p>
+      <p>
+        {smartWalletPk
+          ? shortenAddress(smartWalletPk)
+          : "Not Connected To Vault"}
+      </p>
     </div>
   );
 }
