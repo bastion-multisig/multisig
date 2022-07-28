@@ -39,7 +39,9 @@ export default function Apps() {
         </Link>
       </p>
       <p>
-        <Link href={`https://${devnet}bastion.community/apps`}>
+        <Link
+          href={`https://${devnetLinks ? "" : "devnet."}bastion.community/apps`}
+        >
           Go to Bastion {devnetLinks ? "Mainnet-beta" : "Devnet"}
         </Link>
       </p>
