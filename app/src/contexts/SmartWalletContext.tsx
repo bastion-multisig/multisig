@@ -85,7 +85,7 @@ export const SmartWalletProvider: FC<{ children: ReactNode }> = ({
   children,
 }) => {
   const connection = useMemo(
-    () => new Connection("https://api.devnet.solana.com"),
+    () => new Connection(process.env.NEXT_PUBLIC_RPC_URL!),
     []
   );
   const wallet = useWallet();
@@ -198,16 +198,16 @@ export const SmartWalletProvider: FC<{ children: ReactNode }> = ({
 
     // Interpret the solana request as a multisig transaction before passing it on
     const transactions = deserializeAllTransactions(params);
+    console.log("tx", transactions);
     const { interpreted, txPubkeys } = await TxInterpreter.multisig(
       program,
       smartWalletAddress,
       transactions
     );
+    console.log("interpreted", interpreted);
 
     // Sign
     const signedTransactions = await wallet.signAllTransactions(interpreted);
-
-    console.log(interpreted[0].recentBlockhash);
 
     return serializeAllTransactions(signedTransactions);
   }
@@ -223,13 +223,13 @@ export const SmartWalletProvider: FC<{ children: ReactNode }> = ({
 
     // Interpret the solana request as a multisig transaction before passing it on
     const transaction = deserialiseTransaction(params);
-    console.log(transaction);
+    console.log("tx", transaction);
     const { interpreted, txPubkeys } = await TxInterpreter.multisig(
       program,
       smartWalletAddress,
       [transaction]
     );
-    console.log(interpreted[0].recentBlockhash);
+    console.log("interpreted", interpreted);
 
     if (interpreted.length === 0) {
       throw new WalletSignTransactionError(

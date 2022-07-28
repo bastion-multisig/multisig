@@ -52,8 +52,22 @@ export function createTransaction(
     })
     .reduce((reducer, keys) => [...reducer, ...keys], []);
 
+  // It is not strictly necessary to only necessary fields, but it's done anyway
+  const instructionArgs = instructions.map((ix) => {
+    return {
+      keys: ix.keys.map((key) => {
+        return {
+          isSigner: key.isSigner,
+          isWritable: key.isWritable,
+        };
+      }),
+      data: ix.data,
+      partialSigners: ix.partialSigners,
+    };
+  });
+
   const builder = program.methods
-    .createTransaction(transactionBump, instructions)
+    .createTransaction(transactionBump, instructionArgs)
     .accounts({
       smartWallet,
       transaction,

@@ -10,3 +10,12 @@ Add transaction proposed time
 Add a way to veto transactions
 Add a way to make transaction execute once even if it fails
 - Handle things like the vault account going below rent exempt minimum 
+
+
+fixes to frontends
+- Add bastion wallet adapter
+ - When installing bastion wallet adapter, open yarn.lock or package-lock.json prefer 'beta.26' versions of @walletconnect packages over 'rc.0' versions
+- Search for calls to 'getAssociatedTokenAddress' and set 'allowOwnerOffCurve' to true
+- Transaction partial signers and Keypair.generate() may cause the transaction to fali
+- The multisig program uses extra tx space, and may cause transactions to fail.
+ - Find big transactions and split them up into smaller ones. Send with AnchorProvider.sendAll()
