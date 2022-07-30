@@ -16,14 +16,14 @@ import {
 } from "@project-serum/anchor";
 import assert from "assert";
 import {
-  createTransaction,
-  executeTransaction,
+  createMultisigTransaction,
+  executeMultisigTransaction,
   findSmartWallet,
   findSubaccountInfoAddress,
   findWalletDerivedAddress,
+  getRandomMultisigPartialSigner,
   GOKI_ADDRESSES,
   TxInterpreter,
-  getRandomPartialSigner,
 } from "../lib/TxInterpreter/src";
 import {
   IDL as SmartWalletIDL,
@@ -147,7 +147,7 @@ describe("multisig", () => {
         smartWallet
       );
       // Propose that the multisig pays sol
-      const { address, builder } = createTransaction(
+      const { address, builder } = createMultisigTransaction(
         program,
         smartWallet,
         smartWalletInfo.numTransactions,
@@ -160,7 +160,7 @@ describe("multisig", () => {
 
     it("Execute sol withdrawal from treasury", async () => {
       (
-        await executeTransaction(
+        await executeMultisigTransaction(
           program,
           withdrawSolTransaction,
           walletDerivedIndex
@@ -204,7 +204,11 @@ describe("multisig", () => {
     it("Execute interpreted sol withdrawal from treasury", async () => {
       for (const txPubkey of intepretedWithdrawSolTxPubkeys) {
         await (
-          await executeTransaction(program, txPubkey, walletDerivedIndex)
+          await executeMultisigTransaction(
+            program,
+            txPubkey,
+            walletDerivedIndex
+          )
         ).rpc();
       }
 
@@ -217,7 +221,7 @@ describe("multisig", () => {
   describe("Propose create mint", () => {
     let createMintTransaction: PublicKey;
     it("Propose create mint", async () => {
-      const mintPartialSigner = getRandomPartialSigner(smartWallet);
+      const mintPartialSigner = getRandomMultisigPartialSigner(smartWallet);
 
       const instructions: TXInstruction[] = [
         {
@@ -244,7 +248,7 @@ describe("multisig", () => {
         smartWallet
       );
 
-      let { address, builder } = createTransaction(
+      let { address, builder } = createMultisigTransaction(
         program,
         smartWallet,
         smartWalletInfo.numTransactions,
@@ -256,12 +260,80 @@ describe("multisig", () => {
 
     it("Execute create mint", async () => {
       await (
-        await executeTransaction(
+        await executeMultisigTransaction(
           program,
           createMintTransaction,
           walletDerivedIndex
         )
       ).rpc();
+    });
+  });
+
+  describe("Interpret very long transaction", () => {
+    let interpretVeryLongTransactions: PublicKey[];
+    it("Interpret very long transaction", async () => {
+      const transferIx = SystemProgram.transfer({
+        fromPubkey: treasury,
+        toPubkey: Keypair.generate().publicKey,
+        lamports: LAMPORTS_PER_SOL * 0.1,
+      });
+      const instructions: TransactionInstruction[] = [
+        transferIx,
+        transferIx,
+        transferIx,
+        transferIx,
+        transferIx,
+        transferIx,
+        transferIx,
+        transferIx,
+        transferIx,
+        transferIx,
+        transferIx,
+        transferIx,
+        transferIx,
+        transferIx,
+        transferIx,
+        transferIx,
+        transferIx,
+        transferIx,
+        transferIx,
+        transferIx,
+        transferIx,
+        transferIx,
+        transferIx,
+        transferIx,
+      ];
+      const transaction = new Transaction({
+        feePayer: treasury,
+        recentBlockhash: (await connection.getLatestBlockhash()).blockhash,
+      }).add(...instructions);
+
+      const { interpreted, txPubkeys } = await TxInterpreter.multisig(
+        program,
+        smartWallet,
+        [transaction]
+      );
+      interpretVeryLongTransactions = txPubkeys;
+
+      const signed = await wallet.signAllTransactions(interpreted);
+
+      await provider.sendAll(
+        signed.map((tx) => {
+          return { tx };
+        })
+      );
+    });
+
+    it("Execute interpreted very long transaction", async () => {
+      for (const txPubkey of interpretVeryLongTransactions) {
+        await (
+          await executeMultisigTransaction(
+            program,
+            txPubkey,
+            walletDerivedIndex
+          )
+        ).rpc();
+      }
     });
   });
 
@@ -300,10 +372,10 @@ describe("multisig", () => {
       );
       interpretCreateMintTransactions = txPubkeys;
 
-      wallet.signAllTransactions(interpreted);
+      const signed = await wallet.signAllTransactions(interpreted);
 
       await provider.sendAll(
-        interpreted.map((tx) => {
+        signed.map((tx) => {
           return { tx };
         })
       );
@@ -312,7 +384,11 @@ describe("multisig", () => {
     it("Execute interpreted create mint", async () => {
       for (const txPubkey of interpretCreateMintTransactions) {
         await (
-          await executeTransaction(program, txPubkey, walletDerivedIndex)
+          await executeMultisigTransaction(
+            program,
+            txPubkey,
+            walletDerivedIndex
+          )
         ).rpc();
       }
     });

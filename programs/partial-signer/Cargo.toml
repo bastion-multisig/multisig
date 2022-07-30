@@ -1,0 +1,25 @@
+[package]
+name = "partial_signer"
+version = "0.1.0"
+description = "Invoke an instruction with partial signer PDAs in a similar way web3 clients can."
+homepage = "https://bastion.community"
+repository = "https://github.com/bastion-multisig/multisig"
+authors = ["Tristyn Stimpson <tristynstmipson@gmail.com>"]
+license = "AGPL-3.0"
+edition = "2021"
+keywords = ["solana", "bastion", "multisig", "anchor"]
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "partial_signer"
+
+[features]
+no-entrypoint = []
+no-idl = []
+cpi = ["no-entrypoint"]
+default = []
+
+[dependencies]
+anchor-lang = ">=0.22, <=0.24"
+vipers = "^2.0"
+bytemuck = "^1.9.1"

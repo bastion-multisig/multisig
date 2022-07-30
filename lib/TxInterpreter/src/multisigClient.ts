@@ -1,11 +1,7 @@
 import { AnchorProvider, Program, BN } from "@project-serum/anchor";
+import { AccountMeta, PublicKey, SystemProgram } from "@solana/web3.js";
 import {
-  AccountMeta,
-  PublicKey,
-  SystemProgram,
-  TransactionInstruction,
-} from "@solana/web3.js";
-import {
+  findSubaccountInfoAddress,
   findTransactionAddress,
   findWalletDerivedAddress,
   findWalletPartialSignerAddress,
@@ -13,15 +9,17 @@ import {
 import {
   PartialSignerAndKey,
   SmartWalletTransactionData,
+  SubaccountInfoData,
   TXInstruction,
 } from "./types";
 import { SmartWallet } from "./idl/smart_wallet";
+import { getUniqueKeys, randomU64 } from "./transactionUtil";
 
 export function multisigSize(owners: number) {
   return owners * 32 + 96;
 }
 
-export function createTransaction(
+export function createMultisigTransaction(
   program: Program<SmartWallet>,
   smartWallet: PublicKey,
   transactionIndex: BN,
@@ -80,13 +78,17 @@ export function createTransaction(
   return { address: transaction, builder };
 }
 
-export async function executeTransaction(
+export async function executeMultisigTransaction(
   program: Program<SmartWallet>,
   transaction: PublicKey,
   walletDerivedIndex: BN
 ) {
   const { accounts, remainingAccounts, walletBump } =
-    await executeTransactionContext(program, transaction, walletDerivedIndex);
+    await executeMultisigTransactionContext(
+      program,
+      transaction,
+      walletDerivedIndex
+    );
 
   return program.methods
     .executeTransactionDerived(new BN(walletDerivedIndex), walletBump)
@@ -94,7 +96,7 @@ export async function executeTransaction(
     .remainingAccounts(remainingAccounts);
 }
 
-async function executeTransactionContext(
+async function executeMultisigTransactionContext(
   program: Program<SmartWallet>,
   transaction: PublicKey,
   walletDerivedIndex: BN
@@ -127,29 +129,56 @@ async function executeTransactionContext(
   };
 }
 
-function getUniqueKeys(instructions: TransactionInstruction[]) {
-  // Concat all keys and programIds into a AccountMeta[]
-  const keys = instructions.flatMap((ix) =>
-    ix.keys.concat({ pubkey: ix.programId, isSigner: false, isWritable: false })
-  );
+export async function keysToMultisigSubaccounts(
+  program: Program<SmartWallet>,
+  smartWallet: PublicKey,
+  keys: PublicKey[]
+) {
+  const addresses: PublicKey[] = [];
+  for (let i = 0; i < keys.length; i++) {
+    const [address, _bump] = findSubaccountInfoAddress(keys[i]);
+    addresses[i] = address;
+  }
 
-  const unique: Record<string, AccountMeta> = {};
+  let subaccounts = (await program.account.subaccountInfo.fetchMultiple(
+    addresses
+  )) as (SubaccountInfoData | null)[];
 
-  // Dedupe keys
-  for (const key of keys) {
-    const keyStr = key.pubkey.toBase58();
-    const entry = unique[keyStr];
-    if (entry) {
-      entry.isSigner ||= key.isSigner;
-      entry.isWritable ||= key.isWritable;
-    } else {
-      unique[keyStr] = { ...key };
+  const map: Record<string, SubaccountInfoData> = {};
+  for (let i = 0; i < keys.length; i++) {
+    const subaccount = subaccounts[i];
+    if (
+      subaccount &&
+      subaccount.smartWallet.equals(smartWallet) &&
+      subaccount.subaccountType.hasOwnProperty("derived")
+    ) {
+      map[keys[i].toBase58()] = subaccount;
     }
   }
-  return Object.values(unique);
+  return map;
 }
 
-export function getRandomPartialSigner(
+/**
+ * For every signer, if the signer does not have a subaccount, return a
+ * map of the signer pubkey to a partial signer record.
+ */
+export function getRandomMultisigPartialSigners(
+  smartWallet: PublicKey,
+  signers: PublicKey[]
+) {
+  const partialSigners: Record<string, PartialSignerAndKey> = {};
+  for (let i = 0; i < signers.length; i++) {
+    const signer = signers[i];
+    const keyStr = signer.toBase58();
+    const partialSigner = partialSigners[keyStr];
+    if (!partialSigner) {
+      partialSigners[keyStr] = getRandomMultisigPartialSigner(smartWallet);
+    }
+  }
+  return partialSigners;
+}
+
+export function getRandomMultisigPartialSigner(
   smartWallet: PublicKey
 ): PartialSignerAndKey {
   const index = randomU64();
@@ -159,14 +188,4 @@ export function getRandomPartialSigner(
     bump,
     pubkey,
   };
-}
-
-/** Return a random u64 by combining 2 random u32s */
-function randomU64() {
-  const min = 0;
-  const max = 2 ** 32;
-  let firstHalf = Math.floor(Math.random() * (max - min) + min);
-  let secondHalf = Math.floor(Math.random() * (max - min) + min);
-  const word = new BN(firstHalf).add(new BN(secondHalf).ushln(32));
-  return word;
 }

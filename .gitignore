@@ -1,5 +1,4 @@
 .anchor
 node_modules
 target
-deps
 test-ledger

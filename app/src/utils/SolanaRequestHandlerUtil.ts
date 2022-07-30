@@ -3,7 +3,6 @@ import { SOLANA_SIGNING_METHODS } from "../data/SolanaChains";
 import { formatJsonRpcError, formatJsonRpcResult } from "@json-rpc-tools/utils";
 import { RequestEvent } from "@walletconnect/types";
 import { ERROR } from "@walletconnect/utils";
-import { isSignTransactionError } from "./error";
 
 /** Signs a solana request using the wallet adapter */
 export async function approveSolanaRequest(

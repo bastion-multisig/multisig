@@ -8,7 +8,22 @@ module.exports = {
       {
         label: "smart_wallet",
         programId: new PublicKey("BXY7CPSCWkyTanQiwq2kHpC6nQWrpSwJYQbW7aihuGyG"),
-        deployPath: "deps/smart_wallet.so"
+        deployPath: "goki/target/deploy/smart_wallet.so"
+      },
+      {
+        label: "partial_signer",
+        programId: new PublicKey("5wmGZYQhfGLDdo1zUh2cUnbs8KjF2HZWwwt6VAkUQwpF"),
+        deployPath: "target/deploy/partial_signer.so"
+      },
+      {
+        label: "transaction_loader",
+        programId: new PublicKey("8FjwT1Bbjaxx3uYhvMne4vKQsQvx2mP7fwYfw3EAuWzF"),
+        deployPath: "target/deploy/transaction_loader.so"
+      },
+      {
+        label: "spl_governance",
+        programId: new PublicKey("GovER5Lthms3bLBqWub97yVrMmEogzX7xNjdXpPPCVZw"),
+        deployPath: "deps/spl_governance.so"
       }
     ],
     jsonRpcUrl: LOCALHOST,

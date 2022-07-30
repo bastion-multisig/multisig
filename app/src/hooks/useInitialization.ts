@@ -2,7 +2,7 @@ import {
   createWalletConnectClient,
   walletConnectClient,
 } from "../utils/WalletConnectUtil";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect } from "react";
 
 export default function useInitialization() {
   const onInitialize = useCallback(async () => {

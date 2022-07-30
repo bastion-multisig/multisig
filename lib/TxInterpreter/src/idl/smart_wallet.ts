@@ -1253,6 +1253,11 @@ export type SmartWallet = {
       "code": 6015,
       "name": "InvalidPartialSignerBump",
       "msg": "Partial signer seeds do not lead to the provided bump."
+    },
+    {
+      "code": 6016,
+      "name": "TooManyOwners",
+      "msg": "Too many owners."
     }
   ]
 };
@@ -2512,6 +2517,11 @@ export const IDL: SmartWallet = {
       "code": 6015,
       "name": "InvalidPartialSignerBump",
       "msg": "Partial signer seeds do not lead to the provided bump."
+    },
+    {
+      "code": 6016,
+      "name": "TooManyOwners",
+      "msg": "Too many owners."
     }
   ]
 };

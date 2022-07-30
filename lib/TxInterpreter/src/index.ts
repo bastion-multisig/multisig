@@ -1,9 +1,9 @@
 export { IDL as SmartWalletIDL, SmartWallet } from "./idl/smart_wallet";
 export { IDL as TokenSignerIDL, TokenSigner } from "./idl/token_signer";
 export {
-  createTransaction,
-  executeTransaction,
-  getRandomPartialSigner,
+  createMultisigTransaction,
+  executeMultisigTransaction,
+  getRandomMultisigPartialSigner,
   multisigSize,
 } from "./multisigClient";
 export {

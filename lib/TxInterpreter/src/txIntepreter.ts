@@ -5,14 +5,14 @@ import {
   TransactionInstruction,
 } from "@solana/web3.js";
 import { SmartWallet } from "./idl/smart_wallet";
-import { createTransaction, getRandomPartialSigner } from "./multisigClient";
-import { findSubaccountInfoAddress } from "./pda";
 import {
-  TXInstruction,
-  SmartWalletData,
-  SubaccountInfoData,
-  PartialSignerAndKey,
-} from "./types";
+  createMultisigTransaction,
+  getRandomMultisigPartialSigners,
+  keysToMultisigSubaccounts,
+} from "./multisigClient";
+import { getUniqueKeys } from "./transactionUtil";
+import { TXInstruction, SmartWalletData, PartialSignerAndKey } from "./types";
+
 export class TxInterpreter {
   /**
    * Rewrites transactions such that it will be uploaded to a 'Transaction'
@@ -27,18 +27,25 @@ export class TxInterpreter {
     interpreted: Transaction[];
     txPubkeys: PublicKey[];
   }> {
-    const signers = this.getSigners(transactions);
-    const subaccounts = await this.keysToGokiSubaccounts(
+    const signerKeys = getUniqueKeys(
+      transactions.flatMap((tx) => tx.instructions)
+    )
+      .filter((meta) => meta.isSigner)
+      .map((meta) => meta.pubkey);
+
+    const subaccounts = await keysToMultisigSubaccounts(
       program,
       smartWallet,
-      signers
+      signerKeys
     );
-    const filteredSigners = signers.filter(
+
+    // This filter step may be unnesecary
+    const signersWithoutMultisigSubaccounts = signerKeys.filter(
       (signer) => !subaccounts[signer.toBase58()]
     );
-    const partialSigners = this.getRandomPartialSigners(
+    const partialSigners = getRandomMultisigPartialSigners(
       smartWallet,
-      filteredSigners
+      signersWithoutMultisigSubaccounts
     );
     return await this.buildMultisigTransactions(
       program,
@@ -46,71 +53,6 @@ export class TxInterpreter {
       transactions,
       partialSigners
     );
-  }
-
-  private static getSigners(transactions: Transaction[]) {
-    const signers: Record<string, PublicKey> = {};
-
-    for (const tx of transactions) {
-      for (const instruction of tx.instructions) {
-        for (const key of instruction.keys) {
-          if (key.isSigner) {
-            signers[key.pubkey.toBase58()] = key.pubkey;
-          }
-        }
-      }
-    }
-
-    return Object.values(signers);
-  }
-
-  private static async keysToGokiSubaccounts(
-    program: Program<SmartWallet>,
-    smartWallet: PublicKey,
-    keys: PublicKey[]
-  ) {
-    const addresses: PublicKey[] = [];
-    for (let i = 0; i < keys.length; i++) {
-      const [address, _bump] = findSubaccountInfoAddress(keys[i]);
-      addresses[i] = address;
-    }
-
-    let subaccounts = (await program.account.subaccountInfo.fetchMultiple(
-      addresses
-    )) as (SubaccountInfoData | null)[];
-
-    const map: Record<string, SubaccountInfoData> = {};
-    for (let i = 0; i < keys.length; i++) {
-      const subaccount = subaccounts[i];
-      if (
-        subaccount &&
-        subaccount.smartWallet.equals(smartWallet) &&
-        subaccount.subaccountType.hasOwnProperty("derived")
-      ) {
-        map[keys[i].toBase58()] = subaccount;
-      }
-    }
-    return map;
-  }
-
-  /**
-   * For every signer, if the signer does not have a subaccount, return a
-   * map of the signer pukbey to a partial signer record.
-   */
-  private static getRandomPartialSigners(
-    smartWallet: PublicKey,
-    signers: PublicKey[]
-  ) {
-    const partialSigners: Record<string, PartialSignerAndKey> = {};
-    for (let i = 0; i < signers.length; i++) {
-      const signer = signers[i];
-      const keyStr = signer.toBase58();
-      const partialSigner = partialSigners[keyStr];
-      if (!partialSigner) {
-        partialSigners[keyStr] = getRandomPartialSigner(smartWallet);
-      }
-    }
-    return partialSigners;
   }
 
   private static async buildMultisigTransactions(
@@ -138,7 +80,7 @@ export class TxInterpreter {
         );
       }
 
-      const { address, builder } = createTransaction(
+      const { address, builder } = createMultisigTransaction(
         program,
         smartWallet,
         transactionIndex,
