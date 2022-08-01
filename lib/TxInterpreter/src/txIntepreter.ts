@@ -1,4 +1,5 @@
 import { AnchorProvider, BN, Program } from "@project-serum/anchor";
+import { InstructionData } from "@solana/spl-governance";
 import {
   PublicKey,
   Transaction,
@@ -162,5 +163,24 @@ export class TxInterpreter {
     };
 
     return multisigInstruction;
+  }
+
+  /**
+   * Create a dao proposal instruction. This is different from interpreting a multisig transaction
+   * in that the SPL govenance UI will wrap this in spl_goverance::execute_instruction elsewhere.
+   * It also isn't necessary to set account_meta::is_signer to false for all keys because keys are
+   * stored in instruction data where it isn't validated by the runtime. */
+  static async proposal(
+    transactions: Transaction[]
+  ): Promise<InstructionData[][]> {
+    return transactions.map((tx) => {
+      return tx.instructions.map<InstructionData>((ix) => {
+        return {
+          programId: ix.programId,
+          accounts: ix.keys,
+          data: new Uint8Array(ix.data),
+        };
+      });
+    });
   }
 }
