@@ -1,6 +1,6 @@
 {
   "name": "@bastion-multisig/multisig-tx",
-  "version": "0.3.6",
+  "version": "0.3.7",
   "description": "Rewrite transactions to be routed through a multisig program.",
   "main": "lib/index.js",
   "scripts": {

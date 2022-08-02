@@ -11,7 +11,7 @@
     "fmt:fix": "prettier --write ."
   },
   "dependencies": {
-    "@bastion-multisig/multisig-tx": "^0.3.5",
+    "@bastion-multisig/multisig-tx": "^0.3.7",
     "@bastion-multisig/solana-wallet": "^2.0.5",
     "@cosmjs/amino": "0.28.4",
     "@cosmjs/encoding": "0.28.4",
