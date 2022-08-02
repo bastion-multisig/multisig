@@ -1,6 +1,6 @@
 {
   "name": "@bastion-multisig/multisig-tx",
-  "version": "0.3.7",
+  "version": "0.3.8",
   "description": "Rewrite transactions to be routed through a multisig program.",
   "main": "lib/index.js",
   "scripts": {
@@ -16,7 +16,6 @@
   },
   "dependencies": {
     "@project-serum/anchor": "^0.24.2",
-    "@solana/spl-governance": "^0.0.34",
     "@solana/spl-token": "^0.2.0",
     "node-fetch": "2.6.1"
   },

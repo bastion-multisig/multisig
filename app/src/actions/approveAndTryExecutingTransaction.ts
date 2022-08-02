@@ -3,7 +3,7 @@ import { bnToNumber } from "../utils/bn";
 import {
   findWalletDerivedAddress,
   SmartWalletTransactionData,
-  executeTransaction,
+  executeMultisigTransaction,
 } from "@bastion-multisig/multisig-tx";
 import { BN, ProgramAccount } from "@project-serum/anchor";
 import { PublicKey } from "@solana/web3.js";
@@ -54,7 +54,7 @@ export async function approveAndTryExecutingTransaction(
   // Execute on a separate transaction to have maximum compute budget
   const executeTx = willPassThreshold
     ? await (
-        await executeTransaction(
+        await executeMultisigTransaction(
           program,
           transaction.publicKey,
           walletDerivedIndex
