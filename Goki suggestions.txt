@@ -19,3 +19,5 @@ fixes to frontends
 - Transaction partial signers and Keypair.generate() may cause the transaction to fali
 - The multisig program uses extra tx space, and may cause transactions to fail.
  - Find big transactions and split them up into smaller ones. Send with AnchorProvider.sendAll()
+
+detect transacions that require no signers and only a fee payer and offer to send those transactions without going through multisig

@@ -1,4 +1,4 @@
-import { BN, Idl, ProgramAccount } from "@project-serum/anchor";
+import { BN, Idl } from "@project-serum/anchor";
 import { IdlTypeDef } from "@project-serum/anchor/dist/cjs/idl";
 import {
   AccountMap,
@@ -6,8 +6,7 @@ import {
   IdlTypes,
   TypeDef,
 } from "@project-serum/anchor/dist/cjs/program/namespace/types";
-import { Governance, InstructionData } from "@solana/spl-governance";
-import { Keypair, PublicKey, TransactionInstruction } from "@solana/web3.js";
+import { PublicKey } from "@solana/web3.js";
 import { SmartWallet } from "./idl/smart_wallet";
 
 /****************************
@@ -98,23 +97,4 @@ export interface PartialSignerAndKey {
   bump: number;
   /** The resulting public key of the signer seeds. */
   pubkey: PublicKey;
-}
-
-/****************************
- * SPL Governance UI Compatibility Interfaces
- ****************************/
-
-export interface UiInstruction {
-  serializedInstruction: string;
-  additionalSerializedInstructions?: string[];
-  transactions?: InstructionData[][];
-  isValid: boolean;
-  governance: ProgramAccount<Governance> | undefined;
-  customHoldUpTime?: number;
-  prerequisiteInstructions?: TransactionInstruction[];
-  chunkSplitByDefault?: boolean;
-  prerequisiteInstructionsSigners?: Keypair[];
-  chunkBy?: number;
-  signers?: Keypair[];
-  shouldSplitIntoSeparateTxs?: boolean | undefined;
 }

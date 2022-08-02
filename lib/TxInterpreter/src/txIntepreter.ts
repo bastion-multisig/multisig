@@ -1,5 +1,4 @@
 import { AnchorProvider, BN, Program } from "@project-serum/anchor";
-import { InstructionData } from "@solana/spl-governance";
 import {
   PublicKey,
   Transaction,
@@ -172,15 +171,7 @@ export class TxInterpreter {
    * stored in instruction data where it isn't validated by the runtime. */
   static async proposal(
     transactions: Transaction[]
-  ): Promise<InstructionData[][]> {
-    return transactions.map((tx) => {
-      return tx.instructions.map<InstructionData>((ix) => {
-        return {
-          programId: ix.programId,
-          accounts: ix.keys,
-          data: new Uint8Array(ix.data),
-        };
-      });
-    });
+  ): Promise<TransactionInstruction[][]> {
+    return transactions.map((tx) => tx.instructions);
   }
 }
