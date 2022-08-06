@@ -1,4 +1,4 @@
-anchor_version = "0.19.0"
+anchor_version = "0.24.2"
 
 [provider]
 cluster = "localnet"
@@ -6,11 +6,19 @@ wallet = "~/.config/solana/id.json"
 
 [[test.genesis]]
 address = "BXY7CPSCWkyTanQiwq2kHpC6nQWrpSwJYQbW7aihuGyG"
-program = "./deps/smart_wallet.so"
+program = "./goki/target/deploy/smart_wallet.so"
 
 [[test.genesis]]
-address = "NFTUJzSHuUCsMMqMRJpB7PmbsaU7Wm51acdPk2FXMLn"
-program = "./deps/token_signer.so"
+address = "5wmGZYQhfGLDdo1zUh2cUnbs8KjF2HZWwwt6VAkUQwpF"
+program = "./target/deploy/partial_signer.so"
+
+[[test.genesis]]
+address = "8FjwT1Bbjaxx3uYhvMne4vKQsQvx2mP7fwYfw3EAuWzF"
+program = "./target/deploy/transaction-loader.so"
+
+[[test.genesis]]
+address = "GovER5Lthms3bLBqWub97yVrMmEogzX7xNjdXpPPCVZw"
+program = "./deps/spl_governance.so"
 
 [scripts]
 test = "npx ts-mocha -p ./tsconfig.json -t 1000000 tests/*.ts"

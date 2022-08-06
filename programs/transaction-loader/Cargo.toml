@@ -1,7 +1,7 @@
 [package]
-name = "partial_signer"
+name = "transaction_loader"
 version = "0.1.0"
-description = "Invoke an instruction with partial signer PDAs in a similar way web3 clients can."
+description = "Load transaction data into an account while being mindful of size limits."
 homepage = "https://bastion.community"
 repository = "https://github.com/bastion-multisig/multisig"
 authors = ["Tristyn Stimpson <tristynstimpson@gmail.com>"]
@@ -11,7 +11,7 @@ keywords = ["solana", "bastion", "multisig", "anchor"]
 
 [lib]
 crate-type = ["cdylib", "lib"]
-name = "partial_signer"
+name = "transaction_loader"
 
 [features]
 no-entrypoint = []
@@ -21,4 +21,7 @@ default = []
 
 [dependencies]
 anchor-lang = "0.25.0"
+anchor-spl = "0.25.0"
 bytemuck = "^1.9.1"
+spl-governance = { git = "https://github.com/bastion-multisig/solana-program-library", features = ["no-entrypoint"] }
+

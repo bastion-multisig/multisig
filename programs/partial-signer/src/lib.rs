@@ -36,7 +36,7 @@ declare_id!("5wmGZYQhfGLDdo1zUh2cUnbs8KjF2HZWwwt6VAkUQwpF");
 
 #[program]
 /// Goki smart wallet program.
-pub mod smart_wallet {
+pub mod partial_signer {
     use super::*;
 
     pub fn init_partial_signer_set(
