@@ -4,16 +4,16 @@ import {
   findSubaccountInfoAddress,
   findTransactionAddress,
   findWalletDerivedAddress,
-  findWalletPartialSignerAddress,
+  findMultisigWalletPartialSignerAddress,
 } from "./pda";
 import {
-  PartialSignerAndKey,
+  MultisigPartialSignerAndKey,
   SmartWalletTransactionData,
   SubaccountInfoData,
   TXInstruction,
 } from "./types";
 import { SmartWallet } from "./idl/smart_wallet";
-import { getUniqueKeys, randomU64 } from "./transactionUtil";
+import { getUniqueKeysMultisig, randomU64 } from "./transactionUtil";
 
 export function multisigSize(owners: number) {
   return owners * 32 + 96;
@@ -106,7 +106,7 @@ async function executeMultisigTransactionContext(
   )) as SmartWalletTransactionData;
   const smartWallet = txInfo.smartWallet;
 
-  const remainingAccounts = getUniqueKeys((txInfo as any).instructions);
+  const remainingAccounts = getUniqueKeysMultisig((txInfo as any).instructions);
 
   for (let i = 0; i < remainingAccounts.length; i++) {
     if (remainingAccounts[i].isSigner) {
@@ -166,7 +166,7 @@ export function getRandomMultisigPartialSigners(
   smartWallet: PublicKey,
   signers: PublicKey[]
 ) {
-  const partialSigners: Record<string, PartialSignerAndKey> = {};
+  const partialSigners: Record<string, MultisigPartialSignerAndKey> = {};
   for (let i = 0; i < signers.length; i++) {
     const signer = signers[i];
     const keyStr = signer.toBase58();
@@ -180,9 +180,12 @@ export function getRandomMultisigPartialSigners(
 
 export function getRandomMultisigPartialSigner(
   smartWallet: PublicKey
-): PartialSignerAndKey {
+): MultisigPartialSignerAndKey {
   const index = randomU64();
-  const [pubkey, bump] = findWalletPartialSignerAddress(smartWallet, index);
+  const [pubkey, bump] = findMultisigWalletPartialSignerAddress(
+    smartWallet,
+    index
+  );
   return {
     index,
     bump,

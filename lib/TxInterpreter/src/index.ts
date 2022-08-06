@@ -1,5 +1,6 @@
 export { IDL as SmartWalletIDL, SmartWallet } from "./idl/smart_wallet";
 export { IDL as TokenSignerIDL, TokenSigner } from "./idl/token_signer";
+export { IDL as SmartWalletIdl, PartialSigner } from "./idl/partial_signer";
 export {
   createMultisigTransaction,
   executeMultisigTransaction,
@@ -12,7 +13,7 @@ export {
   findWalletDerivedAddress,
   findOwnerInvokerAddress,
   findSubaccountInfoAddress,
-  findWalletPartialSignerAddress,
+  findMultisigWalletPartialSignerAddress,
   GOKI_ADDRESSES,
 } from "./pda";
 export { TxInterpreter } from "./txIntepreter";
@@ -22,5 +23,5 @@ export {
   InstructionBufferData,
   SubaccountInfoData,
   TXInstruction,
-  PartialSigner,
+  MultisigPartialSigner,
 } from "./types";

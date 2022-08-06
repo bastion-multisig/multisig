@@ -5,7 +5,7 @@ use anchor_lang::prelude::*;
 use crate::{seeds::seeds, PartialSignerSet};
 
 #[derive(Accounts)]
-#[instruction(seed: u64, partial_signers: Vec<u64>, max_partial_signers: u16)]
+#[instruction(seed: Pubkey, partial_signers: Vec<Pubkey>, max_partial_signers: u16)]
 pub struct InitPartialSignerSet<'info> {
     pub authority: Signer<'info>,
 
@@ -16,7 +16,7 @@ pub struct InitPartialSignerSet<'info> {
               seeds = [
                 &seeds::PARTIAL_SIGNER_SET,
                 authority.key.as_ref(),
-                seed.to_le_bytes().as_ref()
+                seed.as_ref()
               ],
               bump,
               payer = payer,
@@ -28,8 +28,8 @@ pub struct InitPartialSignerSet<'info> {
 
 pub fn init_partial_signer_set_handler(
     ctx: Context<InitPartialSignerSet>,
-    _seed: u64,
-    partial_signers: Vec<u64>,
+    _seed: Pubkey,
+    partial_signers: Vec<Pubkey>,
     _max_partial_signers: u16,
 ) -> Result<()> {
     let set = ctx.accounts.partial_signer_set.borrow_mut();

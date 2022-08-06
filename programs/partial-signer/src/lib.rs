@@ -35,14 +35,13 @@ pub use state::*;
 declare_id!("5wmGZYQhfGLDdo1zUh2cUnbs8KjF2HZWwwt6VAkUQwpF");
 
 #[program]
-/// Goki smart wallet program.
 pub mod partial_signer {
     use super::*;
 
     pub fn init_partial_signer_set(
         ctx: Context<InitPartialSignerSet>,
-        seed: u64,
-        partial_signers: Vec<u64>,
+        seed: Pubkey,
+        partial_signers: Vec<Pubkey>,
         max_partial_signers: u16,
     ) -> Result<()> {
         instructions::init_partial_signer_set_handler(
@@ -51,6 +50,21 @@ pub mod partial_signer {
             partial_signers,
             max_partial_signers,
         )
+    }
+
+    pub fn add_partial_signers(
+        ctx: Context<AddPartialSigners>,
+        partial_signers: Vec<Pubkey>,
+    ) -> Result<()> {
+        instructions::add_partial_signers_handler(ctx, partial_signers)
+    }
+
+    pub fn freeze_partial_signer_set(ctx: Context<FreezePartialSignerSet>) -> Result<()> {
+        instructions::freeze_partial_signer_set_handler(ctx)
+    }
+
+    pub fn invoke_signed(ctx: Context<InvokeSigned>, data: Vec<u8>) -> Result<()> {
+        instructions::invoke_signed_handler(ctx, data)
     }
 }
 

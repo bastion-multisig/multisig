@@ -1,10 +1,37 @@
 import { AccountMeta, TransactionInstruction } from "@solana/web3.js";
 import BN from "bn.js";
+import { InstructionData } from "./types";
 
-export function getUniqueKeys(instructions: TransactionInstruction[]) {
+export function getUniqueKeysMultisig(instructions: TransactionInstruction[]) {
   // Concat all keys and programIds into a AccountMeta[]
   const keys = instructions.flatMap((ix) =>
     ix.keys.concat({ pubkey: ix.programId, isSigner: false, isWritable: false })
+  );
+
+  const unique: Record<string, AccountMeta> = {};
+
+  // Dedupe keys
+  for (const key of keys) {
+    const keyStr = key.pubkey.toBase58();
+    const entry = unique[keyStr];
+    if (entry) {
+      entry.isSigner ||= key.isSigner;
+      entry.isWritable ||= key.isWritable;
+    } else {
+      unique[keyStr] = { ...key };
+    }
+  }
+  return Object.values(unique);
+}
+
+export function getUniqueKeys(instructions: InstructionData[]) {
+  // Concat all keys and programIds into a AccountMeta[]
+  const keys = instructions.flatMap((ix) =>
+    ix.accounts.concat({
+      pubkey: ix.programId,
+      isSigner: false,
+      isWritable: false,
+    })
   );
 
   const unique: Record<string, AccountMeta> = {};

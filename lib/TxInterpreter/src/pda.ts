@@ -83,7 +83,7 @@ export const findSubaccountInfoAddress = (
  * @param index
  * @returns
  */
-export const findWalletPartialSignerAddress = (
+export const findMultisigWalletPartialSignerAddress = (
   smartWallet: PublicKey,
   index: BN
 ): [PublicKey, number] => {
@@ -96,6 +96,38 @@ export const findWalletPartialSignerAddress = (
     GOKI_ADDRESSES.SmartWallet
   );
 };
+
+export const findPartialSignerAddress = (
+  authority: PublicKey,
+  index: PublicKey
+): PublicKey => {
+  return findProgramAddressSync(
+    [
+      utils.bytes.utf8.encode("partial-signer"),
+      authority.toBuffer(),
+      index.toBuffer(),
+    ],
+    PARTIAL_SIGNER_PROGRAM_ID
+  )[0];
+};
+
+export const findPartialSignerSetAddress = (
+  authority: PublicKey,
+  seed: PublicKey
+): PublicKey => {
+  return findProgramAddressSync(
+    [
+      utils.bytes.utf8.encode("partial-signer-set"),
+      authority.toBuffer(),
+      seed.toBuffer(),
+    ],
+    PARTIAL_SIGNER_PROGRAM_ID
+  )[0];
+};
+
+export const PARTIAL_SIGNER_PROGRAM_ID = new PublicKey(
+  "5wmGZYQhfGLDdo1zUh2cUnbs8KjF2HZWwwt6VAkUQwpF"
+);
 
 export const GOKI_ADDRESSES = {
   SmartWallet: new PublicKey("BXY7CPSCWkyTanQiwq2kHpC6nQWrpSwJYQbW7aihuGyG"),

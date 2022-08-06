@@ -7,6 +7,7 @@ use anchor_lang::prelude::*;
 pub struct PartialSignerSet {
     /// Only the authority may insert into the partial signer
     pub authority: Pubkey,
+    pub frozen: bool,
     /// The set of partial signers
     pub partial_signers: Vec<PartialSigner>,
 }
@@ -14,22 +15,24 @@ pub struct PartialSignerSet {
 impl PartialSignerSet {
     /// Returns the space given the number of partial signers
     pub fn space(max_partial_signers: u16) -> usize {
-        return 4 // Anchor discriminator 
+        return 8 // Anchor discriminator 
+            + 32 // authority
+            + 1 // frozen
             + 4 // Vec length
             + std::mem::size_of::<PartialSigner>() * usize::try_from(max_partial_signers).unwrap();
     }
 
     /// Inserts the partial signer into the array if it hasn't already
-    pub fn insert(&mut self, partial_signer_indices: Vec<u64>) {
+    pub fn insert(&mut self, partial_signer_indices: Vec<Pubkey>) {
         for index in partial_signer_indices {
-            let exists = self.contains_index(index);
+            let exists = self.contains_index(&index);
 
             if !exists {
                 let (key, bump) = Pubkey::find_program_address(
                     &[
                         seeds::PARTIAL_SIGNER,
                         self.authority.as_ref(),
-                        &index.to_le_bytes(),
+                        &index.to_bytes(),
                     ],
                     &crate::id(),
                 );
@@ -39,10 +42,10 @@ impl PartialSignerSet {
         }
     }
 
-    pub fn contains_index(&self, index: u64) -> bool {
+    pub fn contains_index(&self, index: &Pubkey) -> bool {
         self.partial_signers
             .iter()
-            .find(|partial_signer| partial_signer.index == index)
+            .find(|partial_signer| partial_signer.index == *index)
             .is_some()
     }
 
@@ -57,6 +60,6 @@ impl PartialSignerSet {
 #[derive(AnchorSerialize, AnchorDeserialize, Default, Clone, Debug, PartialEq)]
 pub struct PartialSigner {
     pub key: Pubkey,
-    pub index: u64,
+    pub index: Pubkey,
     pub bump: u8,
 }

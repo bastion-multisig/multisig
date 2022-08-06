@@ -13,9 +13,11 @@ pub struct InvokeSigned<'info> {
     /// The authority of the [PartialSignerSet]
     pub authority: Signer<'info>,
     /// The [PartialSignerSet] to include partial signers for.
-    #[account(has_one = authority)]
+    #[account(has_one = authority,
+              constraint = partial_signer_set.frozen == true)]
     pub partial_signer_set: Account<'info, PartialSignerSet>,
     /// CHECK: The arbitrary program to invoke
+    #[account(executable)]
     pub program_id: UncheckedAccount<'info>,
 }
 

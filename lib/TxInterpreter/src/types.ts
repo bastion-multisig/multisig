@@ -7,6 +7,7 @@ import {
   TypeDef,
 } from "@project-serum/anchor/dist/cjs/program/namespace/types";
 import { PublicKey } from "@solana/web3.js";
+import { PartialSigner } from "./idl/partial_signer";
 import { SmartWallet } from "./idl/smart_wallet";
 
 /****************************
@@ -49,7 +50,7 @@ export type InstructionBundle = TypeDef<
   AllTypesMap<SmartWallet>["InstructionBundle"],
   IdlTypes<SmartWallet>
 >;
-export type PartialSigner = TypeDef<
+export type MultisigPartialSigner = TypeDef<
   AllTypesMap<SmartWallet>["PartialSigner"],
   IdlTypes<SmartWallet>
 >;
@@ -90,11 +91,39 @@ export type TXInstructionArg = TypeDef<
 };
 
 /** A partial signer that signs things for a SmartWallet */
-export interface PartialSignerAndKey {
+export interface MultisigPartialSignerAndKey {
   /** The partial signer index seed */
   index: BN;
   /** The partial signer bump seed */
   bump: number;
   /** The resulting public key of the signer seeds. */
   pubkey: PublicKey;
+}
+
+export type PartialSignerData = TypeDef<
+  AllTypesMap<PartialSigner>["PartialSigner"],
+  IdlTypes<SmartWallet>
+>;
+
+/// InstructionData for Spl Governance UI compatibility
+export declare class InstructionData {
+  programId: PublicKey;
+  accounts: AccountMetaData[];
+  data: Uint8Array;
+  constructor(args: {
+    programId: PublicKey;
+    accounts: AccountMetaData[];
+    data: Uint8Array;
+  });
+}
+// AccountMetaData for Spl Governance UI compatibility
+export declare class AccountMetaData {
+  pubkey: PublicKey;
+  isSigner: boolean;
+  isWritable: boolean;
+  constructor(args: {
+    pubkey: PublicKey;
+    isSigner: boolean;
+    isWritable: boolean;
+  });
 }

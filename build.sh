@@ -11,5 +11,10 @@ echo "Building spl_governance"
 echo "Building transaction_loader, partial_signer"
 anchor build &&
 
-cp target/types/partial_signer.ts ../governance-ui/WalletConnect/idl/partial_signer.ts &&
-cp target/types/transaction_loader.ts ../governance-ui/WalletConnect/idl/transaction_loader.ts
+cp target/types/partial_signer.ts lib/TxInterpreter/src/idl/partial_signer.ts
+
+echo "Building lib"
+{
+    cd lib/TxInterpreter &&
+    yarn build
+}
