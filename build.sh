@@ -14,7 +14,19 @@ anchor build &&
 cp target/types/partial_signer.ts lib/TxInterpreter/src/idl/partial_signer.ts
 
 echo "Building lib"
-{
+(
     cd lib/TxInterpreter &&
     yarn build
-}
+) &&
+
+echo "Building serum lib"
+(
+    cd ../serum-ts/packages/serum &&
+    yarn build
+) &&
+
+echo "Building serum pool lib"
+(
+    cd ../serum-ts/packages/pool &&
+    yarn build
+)
