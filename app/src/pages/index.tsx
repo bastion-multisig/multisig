@@ -22,6 +22,15 @@ export default function Index() {
       <h2>{devnetLinks ? "Devnet" : "Mainnet-beta"} Vault Apps</h2>
       <p>
         <Link
+          href={`https://mango.bastion.community`}
+          target="_blank"
+          rel="noreferrer"
+        >
+          Mango Markets {devnetLinks && "(Mainnet-beta only)"}
+        </Link>
+      </p>
+      <p>
+        <Link
           href={`https://raydium-dex.bastion.community`}
           target="_blank"
           rel="noreferrer"
