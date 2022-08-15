@@ -59,7 +59,7 @@ export default function Index() {
         </Link>
       </p>
       <p>
-        <Link href={`https://${devnet}bastion.community/apps`}>
+        <Link href={`https://${devnetLinks ? "" : "devnet."}bastion.community`}>
           Go to Bastion {devnetLinks ? "Mainnet-beta" : "Devnet"}
         </Link>
       </p>
