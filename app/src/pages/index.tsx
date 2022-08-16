@@ -49,7 +49,7 @@ export default function Index() {
       </p>
       <p>
         <Link
-          href={`https://realms.bastion.community/${
+          href={`https://governance-ui-lime.vercel.app/${
             devnetLinks ? "?cluster=devnet" : ""
           }`}
           target="_blank"

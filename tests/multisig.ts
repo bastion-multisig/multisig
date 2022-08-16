@@ -30,7 +30,9 @@ import {
   SmartWallet,
 } from "../lib/TxInterpreter/src/idl/smart_wallet";
 import {
+  createAssociatedTokenAccountInstruction,
   createInitializeMintInstruction,
+  getAssociatedTokenAddress,
   getMinimumBalanceForRentExemptMint,
   TOKEN_PROGRAM_ID,
 } from "@solana/spl-token";
@@ -393,93 +395,91 @@ describe("multisig", () => {
       }
     });
 
-    // This fails because mintInterpretedPubkey is changed to a PDA signer, but not updated here.
-    // it("Interpret create associated token account", async () => {
-    //   const ataPk = await getAssociatedTokenAddress(
-    //     mintInterpretedPubkey,
-    //     treasury,
-    //     true
-    //   );
-    //   const ataInstruction = createAssociatedTokenAccountInstruction(
-    //     treasury,
-    //     ataPk,
-    //     treasury,
-    //     mintInterpretedPubkey
-    //   );
+    it("Interpret create associated token account", async () => {
+      const ataPk = await getAssociatedTokenAddress(
+        mintInterpretedPubkey,
+        treasury,
+        true
+      );
+      const ataInstruction = createAssociatedTokenAccountInstruction(
+        treasury,
+        ataPk,
+        treasury,
+        mintInterpretedPubkey
+      );
 
-    //   const transaction = new Transaction().add(ataInstruction);
+      const transaction = new Transaction().add(ataInstruction);
 
-    //   const { interpreted, txPubkeys } = await TxInterpreter.multisig(
-    //     program,
-    //     smartWallet,
-    //     [transaction]
-    //   );
-    //   wallet.signAllTransactions(interpreted);
+      const { interpreted, txPubkeys } = await TxInterpreter.multisig(
+        program,
+        smartWallet,
+        [transaction]
+      );
+      wallet.signAllTransactions(interpreted);
 
-    //   await provider.sendAll(
-    //     interpreted.map((tx) => {
-    //       return { tx };
-    //     })
-    //   );
+      await provider.sendAll(
+        interpreted.map((tx) => {
+          return { tx };
+        })
+      );
 
-    //   for (const txPubkey of txPubkeys) {
-    //     await (
-    //       await executeTransaction(program, txPubkey, walletDerivedIndex)
-    //     ).rpc();
-    //   }
-    // });
+      for (const txPubkey of txPubkeys) {
+        await (
+          await executeTransaction(program, txPubkey, walletDerivedIndex)
+        ).rpc();
+      }
+    });
   });
 
-  // This fails because the mint is changed to a PDA signer but ata is not changed as well
-  // describe("Interpret create asssociated token account", () => {
-  //   it("Interpret create associated token account", async () => {
-  //     const mint = Keypair.generate();
-  //     const mintPubkey = mint.publicKey;
-  //     const ataPk = await getAssociatedTokenAddress(mintPubkey, treasury, true);
+  describe("Interpret create asssociated token account", () => {
+    it("Interpret create associated token account", async () => {
+      const mint = Keypair.generate();
+      const mintPubkey = mint.publicKey;
+      const ataPk = await getAssociatedTokenAddress(mintPubkey, treasury, true);
 
-  //     const instructions: TransactionInstruction[] = [
-  //       SystemProgram.createAccount({
-  //         fromPubkey: treasury,
-  //         newAccountPubkey: mintPubkey,
-  //         lamports: await getMinimumBalanceForRentExemptMint(connection),
-  //         space: MINT_SIZE,
-  //         programId: TOKEN_PROGRAM_ID,
-  //       }),
-  //       createInitializeMintInstruction(mintPubkey, 9, treasury, treasury),
-  //       createAssociatedTokenAccountInstruction(
-  //         treasury,
-  //         ataPk,
-  //         treasury,
-  //         mintPubkey
-  //       ),
-  //     ];
+      const instructions: TransactionInstruction[] = [
+        SystemProgram.createAccount({
+          fromPubkey: treasury,
+          newAccountPubkey: mintPubkey,
+          lamports: await getMinimumBalanceForRentExemptMint(connection),
+          space: MINT_SIZE,
+          programId: TOKEN_PROGRAM_ID,
+        }),
+        createInitializeMintInstruction(mintPubkey, 9, treasury, treasury),
+        createAssociatedTokenAccountInstruction(
+          treasury,
+          ataPk,
+          treasury,
+          mintPubkey
+        ),
+      ];
 
-  //     const transaction = new Transaction({
-  //       feePayer: treasury,
-  //       recentBlockhash: (await connection.getLatestBlockhash()).blockhash,
-  //     }).add(...instructions);
-  //     transaction.partialSign(mint);
+      const transaction = new Transaction({
+        feePayer: treasury,
+        recentBlockhash: (await connection.getLatestBlockhash()).blockhash,
+      }).add(...instructions);
+      transaction.partialSign(mint);
 
-  //     const { interpreted, txPubkeys } = await TxInterpreter.multisig(
-  //       program,
-  //       smartWallet,
-  //       [transaction]
-  //     );
-  //     wallet.signAllTransactions(interpreted);
+      const { interpreted, txPubkeys } = await TxInterpreter.multisig(
+        program,
+        smartWallet,
+        [transaction]
+      );
+      wallet.signAllTransactions(interpreted);
 
-  //     await provider.sendAll(
-  //       interpreted.map((tx) => {
-  //         return { tx };
-  //       })
-  //     );
+      await provider.sendAll(
+        interpreted.map((tx) => {
+          return { tx };
+        })
+      );
 
-  //     for (const txPubkey of txPubkeys) {
-  //       await (
-  //         await executeTransaction(program, txPubkey, walletDerivedIndex)
-  //       ).rpc();
-  //     }
-  //   });
-  // });
+      for (const txPubkey of txPubkeys) {
+        await (
+          await executeTransaction(program, txPubkey, walletDerivedIndex)
+        ).rpc();
+      }
+    });
+  });
 });
 
 function sleep(ms: number) {
